@@ -1,7 +1,7 @@
 import {Response, Request} from 'express'
 import {OutputErrorsType} from '../input-output-types/output-errors-type'
 import {db} from '../db/db'
-import {InputVideoType, Resolutions, OutputVideoType} from '../input-output-types/video-types'
+import {InputVideoType, Resolutions, OutputVideoType, ResolutionsString} from '../input-output-types/video-types'
 
 const inputValidation = (video: InputVideoType) => {
     const errors: OutputErrorsType = { // объект для сбора ошибок
@@ -27,14 +27,46 @@ export const createVideoController = (req: Request<any, any, InputVideoType>, re
         return
         // return res.status(400).json(errors)
     }
+    let {title, author, availableResolution} = req.body
 
-    // если всё ок - добавляем видео
+    if (title.trim().length > 40 || !title || typeof(title) !== 'string') {
+        console.log(title)
+        errors.errorsMessages.push(
+            {message: 'incorrect title', field: 'title'}
+        )
+    }
+
+    if (author.trim().length > 20 || !author || typeof(author) !== 'string') {
+        console.log(title)
+        errors.errorsMessages.push(
+            {message: 'incorrect author', field: 'author'}
+        )
+    }
+
+    if (!availableResolution || availableResolution.find(p => !Resolutions[p])) {
+        console.log(availableResolution)
+            errors.errorsMessages.push(
+                {
+                    message: 'Incorrect availableResolution!',
+                    field: 'availableResolution'
+                });
+    }
+    if (errors.errorsMessages.length) {
+        
+        return res.status(400).send(errors)
+        
+    }
+    const createdAt = new Date();
+    const publicationDate = new Date(createdAt);
     const newVideo: any /*VideoDBType*/ = {
         ...req.body,
         id: Date.now() + Math.random(),
-        // ...
+        canBeDownloaded: true,
+        minAgeRestriction: null,
+        createdAt: createdAt.toISOString,
+        publicationDate: publicationDate.toISOString
     }
-    db.videos = [...db.videos, newVideo]
+    db.videos.push(newVideo)
 
     res
         .status(201)
