@@ -7,9 +7,23 @@ const inputValidation = (video: InputVideoType) => {
     const errors: OutputErrorsType = { // объект для сбора ошибок
         errorsMessages: []
     }
-// ...
-    if (!Array.isArray(video.availableResolution)
-        || video.availableResolution.find(p => !Resolutions[p])
+    let {title, author, availableResolution} = video
+    if (title.trim().length > 40 || !title || typeof(title) !== 'string') {
+        console.log(title)
+        errors.errorsMessages.push(
+            {message: 'error!!!!', field: 'title'}
+        )
+    }
+
+    if (author.trim().length > 20 || !author || typeof(author) !== 'string') {
+        console.log(title)
+        errors.errorsMessages.push(
+            {message: 'error!!!!', field: 'author'}
+        )
+    }
+
+    if (!Array.isArray(availableResolution)
+        || availableResolution.find(p => !Resolutions[p])
     ) {
         errors.errorsMessages.push({
             message: 'error!!!!', field: 'availableResolution'
@@ -26,35 +40,6 @@ export const createVideoController = (req: Request<any, any, InputVideoType>, re
             .json(errors)
         return
         // return res.status(400).json(errors)
-    }
-    let {title, author, availableResolution} = req.body
-
-    if (title.trim().length > 40 || !title || typeof(title) !== 'string') {
-        console.log(title)
-        errors.errorsMessages.push(
-            {message: 'incorrect title', field: 'title'}
-        )
-    }
-
-    if (author.trim().length > 20 || !author || typeof(author) !== 'string') {
-        console.log(title)
-        errors.errorsMessages.push(
-            {message: 'incorrect author', field: 'author'}
-        )
-    }
-
-    if (!availableResolution || availableResolution.find(p => !Resolutions[p])) {
-        console.log(availableResolution)
-            errors.errorsMessages.push(
-                {
-                    message: 'Incorrect availableResolution!',
-                    field: 'availableResolution'
-                });
-    }
-    if (errors.errorsMessages.length) {
-        
-        return res.status(400).send(errors)
-        
     }
     const createdAt = new Date();
     const publicationDate = new Date(createdAt);
