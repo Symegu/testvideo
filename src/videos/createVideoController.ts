@@ -1,25 +1,30 @@
-import {Response, Request} from 'express'
-import {OutputErrorsType} from '../input-output-types/output-errors-type'
-import {db} from '../db/db'
-import {InputVideoType, Resolutions, OutputVideoType} from '../input-output-types/video-types'
-import {VideoDBType} from '../db/video-db'
+import { Response, Request } from 'express'
+import { OutputErrorsType } from '../input-output-types/output-errors-type'
+import { db } from '../db/db'
+import { InputVideoType, Resolutions, OutputVideoType } from '../input-output-types/video-types'
+import { VideoDBType } from '../db/video-db'
 
 const inputValidation = (video: InputVideoType) => {
     const errors: OutputErrorsType = { // объект для сбора ошибок
         errorsMessages: []
     }
-    
-    if (video.title.length >= 40 || !video.title || typeof video.title !== 'string') {
+
+    if (typeof video.title !== 'string'
+        || !video.title
+        || video.title.length >= 40
+    ) {
         console.log(video.title)
         errors.errorsMessages.push(
-            {message: 'error!!!!', field: 'title'}
+            { message: 'error!!!!', field: 'title' }
         )
     }
 
-    if (video.author.length >= 20 || !video.author || typeof video.author !== 'string') {
+    if (typeof video.author !== 'string'
+        || !video.author 
+        || video.author.length >= 20 ) {
         console.log(video.author)
         errors.errorsMessages.push(
-            {message: 'error!!!!', field: 'author'}
+            { message: 'error!!!!', field: 'author' }
         )
     }
 
@@ -49,7 +54,7 @@ export const createVideoController = (req: Request<any, any, InputVideoType>, re
     publicationDate.setDate(publicationDate.getDate() + 1)
     const publicationDateISO = publicationDate.toISOString()
 
-    const newVideo:VideoDBType = {
+    const newVideo: VideoDBType = {
         ...req.body,
         id: dateNow + Math.random(),
         canBeDownloaded: false,

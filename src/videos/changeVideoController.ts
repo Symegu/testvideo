@@ -9,19 +9,24 @@ const inputValidation = (video: InputChangeVideoType) => {
     errorsMessages: []
   }
 
-  if (video.title.length >= 40 || !video.title || typeof video.title !== 'string') {
+  if (typeof video.title !== 'string'
+    || !video.title
+    || video.title.length >= 40
+) {
     console.log(video.title)
     errors.errorsMessages.push(
-      { message: 'error!!!!', field: 'title' }
+        { message: 'error!!!!', field: 'title' }
     )
-  }
+}
 
-  if (video.author.length >= 20 || !video.author || typeof video.author !== 'string') {
+if (typeof video.author !== 'string'
+    || !video.author 
+    || video.author.length >= 20 ) {
     console.log(video.author)
     errors.errorsMessages.push(
-      { message: 'error!!!!', field: 'author' }
+        { message: 'error!!!!', field: 'author' }
     )
-  }
+}
 
   if (!Array.isArray(video.availableResolutions) || video.availableResolutions.find(p => !Resolutions[p])
   ) {
