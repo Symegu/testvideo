@@ -17,7 +17,7 @@ const inputValidation = (video: InputVideoType) => {
     }
 
     if (video.author.trim().length >= 20 || !video.author || typeof video.author !== 'string') {
-        console.log(title)
+        console.log(video.author)
         errors.errorsMessages.push(
             {message: 'error!!!!', field: 'author'}
         )
