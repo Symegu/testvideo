@@ -9,14 +9,14 @@ const inputValidation = (video: InputVideoType) => {
         errorsMessages: []
     }
     
-    if (video.title.trim().length >= 40 || !video.title || typeof video.title !== 'string') {
+    if (video.title.length >= 40 || !video.title || typeof video.title !== 'string') {
         console.log(video.title)
         errors.errorsMessages.push(
             {message: 'error!!!!', field: 'title'}
         )
     }
 
-    if (video.author.trim().length >= 20 || !video.author || typeof video.author !== 'string') {
+    if (video.author.length >= 20 || !video.author || typeof video.author !== 'string') {
         console.log(video.author)
         errors.errorsMessages.push(
             {message: 'error!!!!', field: 'author'}
