@@ -8,23 +8,23 @@ const inputValidation = (video: InputVideoType) => {
     const errors: OutputErrorsType = { // объект для сбора ошибок
         errorsMessages: []
     }
-    let {title, author, availableResolutions} = video
-    if (title.trim().length >= 40 || !title || typeof(title) !== 'string') {
-        console.log(title)
+    
+    if (video.title.trim().length >= 40 || !video.title || typeof video.title !== 'string') {
+        console.log(video.title)
         errors.errorsMessages.push(
             {message: 'error!!!!', field: 'title'}
         )
     }
 
-    if (author.trim().length >= 20 || !author || typeof(author) !== 'string') {
+    if (video.author.trim().length >= 20 || !video.author || typeof video.author !== 'string') {
         console.log(title)
         errors.errorsMessages.push(
             {message: 'error!!!!', field: 'author'}
         )
     }
 
-    if (!Array.isArray(availableResolutions)
-        || availableResolutions.find(p => !Resolutions[p])
+    if (!Array.isArray(video.availableResolutions)
+        || video.availableResolutions.find(p => !Resolutions[p])
     ) {
         errors.errorsMessages.push({
             message: 'error!!!!', field: 'availableResolutions'
