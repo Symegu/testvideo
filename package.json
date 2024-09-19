@@ -13,7 +13,8 @@
     "back-lesson-01": "file:",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.21.0"
+    "express": "^4.21.0",
+    "test-videoserver": "file:"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
