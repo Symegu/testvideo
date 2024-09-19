@@ -11,11 +11,12 @@ export const videosRouter = Router()
 const videoController = {
     getVideosController: getVideosController,
     createVideoController: createVideoController,
+    findVideoController: findVideoController
 }
 
 videosRouter.get('/', videoController.getVideosController)
 videosRouter.post('/', videoController.createVideoController)
-videosRouter.get('/:id', findVideoController)
+videosRouter.get('/:id', videoController.findVideoController)
 // videosRouter.delete('/:id', deleteVideoController)
 // ...
 videosRouter.delete('/testing/all-data', deleteAllData)
