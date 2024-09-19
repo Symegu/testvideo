@@ -2939,6 +2939,7 @@ test-exclude@^6.0.0:
   version "1.0.0"
   resolved "file:"
   dependencies:
+    back-lesson-01 "file:"
     cors "^2.8.5"
     dotenv "^16.4.5"
     express "^4.21.0"

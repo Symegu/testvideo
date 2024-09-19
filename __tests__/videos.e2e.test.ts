@@ -2,11 +2,13 @@ import {req} from './test-helpers'
 import {setDB} from '../src/db/db'
 import {dataset1} from './datasets'
 import {SETTINGS} from '../src/settings'
+import {InputVideoType} from '../src/input-output-types/video-types'
+import {Resolutions} from '../src/input-output-types/video-types'
 
 describe('/videos', () => {
-    // beforeAll(async () => { // очистка базы данных перед началом тестирования
-    //     setDB()
-    // })
+    beforeAll(async () => { // очистка базы данных перед началом тестирования
+        setDB()
+    })
 
     it('should get empty array', async () => {
         // setDB() // очистка базы данных если нужно
@@ -33,10 +35,10 @@ describe('/videos', () => {
     })
     it('should create', async () => {
         setDB()
-        const newVideo: any /*InputVideoType*/ = {
+        const newVideo: InputVideoType = {
             title: 't1',
             author: 'a1',
-            availableResolution: ['P144' /*Resolutions.P144*/]
+            availableResolution: [Resolutions.P144]
             // ...
         }
 
