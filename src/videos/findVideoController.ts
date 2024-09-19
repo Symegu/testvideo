@@ -12,5 +12,5 @@ export const findVideoController = (req: Request, res: Response<OutputVideoType 
     return
   }
 
-  res.sendStatus(200).send(video)
+  res.sendStatus(200).json(video)
 }

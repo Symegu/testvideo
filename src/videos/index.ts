@@ -2,24 +2,23 @@ import {Request, Response, Router} from 'express'
 import {getVideosController} from './getVideosController'
 import {createVideoController} from './createVideoController'
 import {db} from "../db/db"
-import {deleteAllData} from './deleteAllData'
 import {findVideoController} from './findVideoController'
 import {deleteVideoController} from './deleteVideoController'
+import {changeVideoController} from './changeVideoController'
 
 export const videosRouter = Router()
 
-const videoController = {
-    getVideosController: getVideosController,
-    createVideoController: createVideoController,
-    findVideoController: findVideoController,
-    deleteAllData: deleteAllData,
-    deleteVideoController: deleteVideoController
-}
+// const videoController = {
+//     getVideosController: getVideosController,
+//     createVideoController: createVideoController,
+//     findVideoController: findVideoController,
+//     deleteVideoController: deleteVideoController
+// }
 
-videosRouter.get('/', videoController.getVideosController)
-videosRouter.post('/', videoController.createVideoController)
-videosRouter.get('/:id', videoController.findVideoController)
-videosRouter.delete('/:id', videoController.deleteVideoController)
-videosRouter.delete('/testing/all-data', videoController.deleteAllData)
+videosRouter.get('/', getVideosController)
+videosRouter.post('/', createVideoController)
+videosRouter.get('/:id', findVideoController)
+videosRouter.delete('/:id', deleteVideoController)
+videosRouter.put('/:id', changeVideoController)
 
 // не забудьте добавить роут в апп

@@ -1,7 +1,7 @@
 import {Response, Request} from 'express'
 import {OutputErrorsType} from '../input-output-types/output-errors-type'
 import {db} from '../db/db'
-import {InputVideoType, Resolutions} from '../input-output-types/video-types'
+import {InputVideoType, Resolutions, OutputVideoType} from '../input-output-types/video-types'
 
 const inputValidation = (video: InputVideoType) => {
     const errors: OutputErrorsType = { // объект для сбора ошибок
@@ -18,7 +18,7 @@ const inputValidation = (video: InputVideoType) => {
     return errors
 }
 
-export const createVideoController = (req: Request<any, any, InputVideoType>, res: Response<any /*OutputVideoType*/ | OutputErrorsType>) => {
+export const createVideoController = (req: Request<any, any, InputVideoType>, res: Response<OutputVideoType | OutputErrorsType>) => {
     const errors = inputValidation(req.body)
     if (errors.errorsMessages.length) { // если есть ошибки - отправляем ошибки
         res
