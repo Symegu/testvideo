@@ -19,10 +19,10 @@ describe('/videos', () => {
 
         console.log(res.body) // можно посмотреть ответ эндпоинта
 
-        // expect(res.body.length).toBe(0) // проверяем ответ эндпоинта
+        expect(res.body.length).toBe(0) // проверяем ответ эндпоинта
     })
     it('should get not empty array', async () => {
-        // setDB(dataset1) // заполнение базы данных начальными данными если нужно
+        setDB(dataset1) // заполнение базы данных начальными данными если нужно
 
         const res = await req
             .get(SETTINGS.PATH.VIDEOS)
@@ -30,8 +30,8 @@ describe('/videos', () => {
 
         console.log(res.body)
 
-        // expect(res.body.length).toBe(1)
-        // expect(res.body[0]).toEqual(dataset1.videos[0])
+        expect(res.body.length).toBe(1)
+        expect(res.body[0]).toEqual(dataset1.videos[0])
     })
     it('should create', async () => {
         setDB()
