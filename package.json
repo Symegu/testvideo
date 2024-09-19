@@ -13,19 +13,22 @@
     "back-lesson-01": "file:",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2"
+    "express": "^4.21.0",
+    "test-videoserver": "file:"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "@types/jest": "^29.5.12",
-    "@types/node": "^20.12.11",
+    "@types/jest": "^29.5.13",
+    "@types/node": "^22.5.5",
     "@types/supertest": "^6.0.2",
     "jest": "^29.7.0",
-    "nodemon": "^3.1.0",
+    "nodemon": "^3.1.5",
     "supertest": "^7.0.0",
-    "ts-jest": "^29.1.2",
+    "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
-  }
+    "typescript": "^5.6.2"
+  },
+  "repository": "https://github.com/Symegu/test-videoserver.git",
+  "author": "Symegu <89914120+Symegu@users.noreply.github.com>"
 }
