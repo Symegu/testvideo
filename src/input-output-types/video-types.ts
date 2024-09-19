@@ -30,3 +30,7 @@ export type InputVideoType = {
     author: string
     availableResolutions: Resolutions[]
 }
+
+export type VideoIdType = {
+    id: number
+}
