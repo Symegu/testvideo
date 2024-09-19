@@ -11,6 +11,6 @@ export const deleteVideoController = (req: Request, res: Response<OutputVideoTyp
     res.sendStatus(404)
     return
   }
-  db.videos.push(video)
+  db.videos = db.videos.filter((e) => e.id !== video.id)
   res.sendStatus(200).send(video)
 }

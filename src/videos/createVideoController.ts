@@ -1,21 +1,22 @@
 import {Response, Request} from 'express'
 import {OutputErrorsType} from '../input-output-types/output-errors-type'
 import {db} from '../db/db'
-import {InputVideoType, Resolutions, OutputVideoType, ResolutionsString} from '../input-output-types/video-types'
+import {InputVideoType, Resolutions, OutputVideoType} from '../input-output-types/video-types'
+import {VideoDBType} from '../db/video-db'
 
 const inputValidation = (video: InputVideoType) => {
     const errors: OutputErrorsType = { // объект для сбора ошибок
         errorsMessages: []
     }
     let {title, author, availableResolution} = video
-    if (title.trim().length > 40 || !title || typeof(title) !== 'string') {
+    if (title.trim().length >= 40 || !title || typeof(title) !== 'string') {
         console.log(title)
         errors.errorsMessages.push(
             {message: 'error!!!!', field: 'title'}
         )
     }
 
-    if (author.trim().length > 20 || !author || typeof(author) !== 'string') {
+    if (author.trim().length >= 20 || !author || typeof(author) !== 'string') {
         console.log(title)
         errors.errorsMessages.push(
             {message: 'error!!!!', field: 'author'}
@@ -41,17 +42,22 @@ export const createVideoController = (req: Request<any, any, InputVideoType>, re
         return
         // return res.status(400).json(errors)
     }
-    const createdAt = new Date();
-    const publicationDate = new Date(createdAt);
-    const newVideo: any /*VideoDBType*/ = {
+
+    const dateNow = Date.now()
+    const createdAtISO = new Date(dateNow).toISOString()
+    const publicationDate = (new Date(dateNow))
+    publicationDate.setDate(publicationDate.getDate() + 1)
+    const publicationDateISO = publicationDate.toISOString()
+
+    const newVideo:VideoDBType = {
         ...req.body,
-        id: Date.now() + Math.random(),
-        canBeDownloaded: true,
+        id: dateNow + Math.random(),
+        canBeDownloaded: false,
         minAgeRestriction: null,
-        createdAt: createdAt.toISOString,
-        publicationDate: publicationDate.toISOString
+        createdAt: createdAtISO,
+        publicationDate: publicationDateISO,
     }
-    db.videos.push(newVideo)
+    db.videos = [...db.videos, newVideo]
 
     res
         .status(201)
