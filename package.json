@@ -1,5 +1,5 @@
 {
-  "name": "back-lesson-01",
+  "name": "test-videoserver",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -13,8 +13,7 @@
     "back-lesson-01": "file:",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.21.0",
-    "test-videoserver": "file:"
+    "express": "^4.21.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
@@ -28,7 +27,5 @@
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2"
-  },
-  "repository": "https://github.com/Symegu/test-videoserver.git",
-  "author": "Symegu <89914120+Symegu@users.noreply.github.com>"
+  }
 }

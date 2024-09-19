@@ -951,7 +951,6 @@ babel-preset-jest@^29.6.3:
     cors "^2.8.5"
     dotenv "^16.4.5"
     express "^4.21.0"
-    test-videoserver "file:"
 
 balanced-match@^1.0.0:
   version "1.0.2"
