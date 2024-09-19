@@ -8,5 +8,5 @@ export type VideoDBType = {
     minAgeRestriction: null,
     createdAt: string,
     publicationDate: string,
-    availableResolution: Resolutions[]
+    availableResolutions: Resolutions[]
 }

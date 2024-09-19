@@ -36,7 +36,7 @@ describe('/videos', () => {
         const newVideo: any /*InputVideoType*/ = {
             title: 't1',
             author: 'a1',
-            availableResolution: ['P144' /*Resolutions.P144*/]
+            availableResolutions: ['P144' /*Resolutions.P144*/]
             // ...
         }
 
@@ -47,7 +47,7 @@ describe('/videos', () => {
 
         console.log(res.body)
 
-        expect(res.body.availableResolution).toEqual(newVideo.availableResolution)
+        expect(res.body.availableResolutions).toEqual(newVideo.availableResolutions)
     })
     it('shouldn\'t find', async () => {
         setDB(dataset1)

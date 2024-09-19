@@ -12,7 +12,7 @@ export const video1: any /*VideoDBType*/ = {
     // minAgeRestriction: null,
     // createdAt: new Date().toISOString(),
     // publicationDate: new Date().toISOString(),
-    // availableResolution: [Resolutions.P240],
+    // availableResolutions: [Resolutions.P240],
 }
 
 // ...

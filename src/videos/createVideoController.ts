@@ -8,7 +8,7 @@ const inputValidation = (video: InputVideoType) => {
     const errors: OutputErrorsType = { // объект для сбора ошибок
         errorsMessages: []
     }
-    let {title, author, availableResolution} = video
+    let {title, author, availableResolutions} = video
     if (title.trim().length >= 40 || !title || typeof(title) !== 'string') {
         console.log(title)
         errors.errorsMessages.push(
@@ -23,11 +23,11 @@ const inputValidation = (video: InputVideoType) => {
         )
     }
 
-    if (!Array.isArray(availableResolution)
-        || availableResolution.find(p => !Resolutions[p])
+    if (!Array.isArray(availableResolutions)
+        || availableResolutions.find(p => !Resolutions[p])
     ) {
         errors.errorsMessages.push({
-            message: 'error!!!!', field: 'availableResolution'
+            message: 'error!!!!', field: 'availableResolutions'
         })
     }
     return errors
