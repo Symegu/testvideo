@@ -1,5 +1,5 @@
 import {Request, Response} from 'express'
-import {db} from '../db/db'
+import {db} from '../../db/db'
 
 export const getVideosController = (req: Request, res: Response<any /*OutputVideoType[]*/>) => {
     const videos = db.videos // получаем видео из базы данных

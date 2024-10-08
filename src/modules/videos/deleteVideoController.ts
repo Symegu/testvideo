@@ -1,6 +1,6 @@
 import {Request, Response} from 'express'
-import {db} from '../db/db'
-import {VideoIdType} from '../input-output-types/video-types'
+import {db} from '../../db/db'
+import {VideoIdType} from '../../input-output-types/video-types'
 
 export const deleteVideoController = (req: Request<VideoIdType>, res: Response) => {
   const video = db.videos.find(video => video.id === +req.params.id)

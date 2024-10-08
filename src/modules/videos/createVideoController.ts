@@ -1,8 +1,8 @@
 import { Response, Request } from 'express'
-import { OutputErrorsType } from '../input-output-types/output-errors-type'
-import { db } from '../db/db'
-import { InputVideoType, Resolutions, OutputVideoType } from '../input-output-types/video-types'
-import { VideoDBType } from '../db/video-db'
+import { OutputErrorsType } from '../../input-output-types/output-errors-type'
+import { db } from '../../db/db'
+import { InputVideoType, Resolutions, OutputVideoType } from '../../input-output-types/video-types'
+import { VideoDBType } from '../../db/video-db'
 
 const inputValidation = (video: InputVideoType) => {
     const errors: OutputErrorsType = { // объект для сбора ошибок
