@@ -1,6 +1,7 @@
 import {VideoDBType} from '../src/db/video-db'
 import {Resolutions} from '../src/input-output-types/video-types'
 import {DBType} from '../src/db/db'
+import { BlogDBType } from '../src/db/blog-db'
 
 // готовые данные для переиспользования в тестах
 
@@ -25,10 +26,24 @@ export const video2: VideoDBType = {
     availableResolutions: [Resolutions.P240],
 }
 
+export const blogValid: BlogDBType = {
+    id: 'valid id',
+    name: 'valid name',
+    description: 'valid description',
+    websiteUrl: 'https://validurl.com'
+}
+
+export const blogInvalid: BlogDBType = {
+    id: 'valid id',
+    name: 'invalid blog name 15+ symbols',
+    description: 'valid description',
+    websiteUrl: 'https://неверный урл.com'
+}
 // ...
 
 export const dataset1: DBType = {
     videos: [video1, video2],
+    blogs: [blogValid, blogInvalid]
 }
 
 // ...

@@ -6,8 +6,11 @@ export const SETTINGS = {
     PORT: process.env.PORT || 3003,
     PATH: {
         VIDEOS: '/videos',
+        POSTS: '/posts',
+        BLOGS: '/blogs',
         TESTING: '/testing/all-data'
     },
+    ADMIN: process.env.ADMIN || 'admin:qwerty',
 }
 
 // const x = SETTINGS.PATH.VIDEO
