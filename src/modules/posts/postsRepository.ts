@@ -1,35 +1,45 @@
 // ...
- 
-export const postRepository = {
-  async create(input: CreatePostType): Promise<{error?: string, id?: number}> {
-      const newPost: PostDBType = {
-          ...input,
-          id: Date.now() + Math.random(),
-          // ...
-      }
 
-      try {
-          db.posts = [...db.posts, newPost]
-      } catch (e) {
-          // log
-          return {error: e.message}
-      }
+import { PostDBType } from "../../db/post-db"
+import { PostInputType } from "../../input-output-types/post-types"
+import { db } from "../../db/db"
+import { blogsRepository } from "../blogs/blogsRepository"
 
-      return {id: newPost.id}
-  },
-  async find(id: number): Promise<PostDBType> {
-      return db.posts.find(p => p.id === id)
-  },
-  async findForOutput(id: number): Promise<null | PostOutputType> {
-      const post = await this.find(id)
-      if (!post) { return null }
-      return this.mapToOutput(post)
 
+export const postsRepository = {
+  getPosts() {
+    return db.posts
   },
-  mapToOutput(post: PostDBType): PostOutputType {
-      return {
-          id: post.id,
-          title: post.title,
-      }
+  findById(id: string) {
+    return db.posts.find(post => post.id === id)
+  },
+  deleteById(id: string) {
+    return db.posts.filter(post => post.id !== id)
+  },
+  createPost(post: PostInputType) {
+    const currentBlog = blogsRepository.findById(post.blogId)
+    const newPost: PostDBType = {
+      id: new Date().toISOString() + Math.random(),
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      blogId: post.blogId,
+      blogName: currentBlog!.name
+    }
+    db.posts.push(newPost)
+    return newPost.id
+  },
+  changeById(post: PostInputType, id: string) {
+    const currentBlog = blogsRepository.findById(post.blogId)
+    const changedPost: PostDBType = {
+      id: id,
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      blogId: post.blogId,
+      blogName: currentBlog!.name
+    }
+    db.posts = db.posts.map(post => post.id === id ? changedPost : post)
+    return changedPost.id
   }
 }

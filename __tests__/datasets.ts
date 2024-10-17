@@ -1,6 +1,6 @@
-import {VideoDBType} from '../src/db/video-db'
-import {Resolutions} from '../src/input-output-types/video-types'
-import {DBType} from '../src/db/db'
+import { VideoDBType } from '../src/db/video-db'
+import { Resolutions } from '../src/input-output-types/video-types'
+import { DBType } from '../src/db/db'
 import { BlogDBType } from '../src/db/blog-db'
 
 // готовые данные для переиспользования в тестах
@@ -44,6 +44,7 @@ export const blogInvalid: BlogDBType = {
 export const dataset1: DBType = {
     videos: [video1, video2],
     blogs: [blogValid, blogInvalid]
+    posts: [postValid, postInvalid]
 }
 
 // ...

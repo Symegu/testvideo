@@ -1,8 +1,10 @@
 import express from 'express'
 import cors from 'cors'
-import {SETTINGS} from './settings'
-import {videosRouter} from './modules/videos'
-import {testingRouter} from './modules/other'
+import { SETTINGS } from './settings'
+import { videosRouter } from './modules/videos'
+import { testingRouter } from './modules/other'
+import { blogsRouter } from './modules/blogs'
+import { postsRouter } from './modules/posts'
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body во всех реквестах
@@ -10,8 +12,10 @@ app.use(cors()) // разрешить любым фронтам делать з�
 
 app.get('/', (req, res) => {
     // эндпоинт, который будет показывать на верселе какая версия бэкэнда сейчас залита
-    res.status(200).json({version: '1.0'})
+    res.status(200).json({ version: '1.0' })
 })
 
 app.use(SETTINGS.PATH.TESTING, testingRouter)
 app.use(SETTINGS.PATH.VIDEOS, videosRouter)
+app.use(SETTINGS.PATH.BLOGS, blogsRouter)
+app.use(SETTINGS.PATH.POSTS, postsRouter)
