@@ -14,7 +14,8 @@ export const postsRepository = {
     return db.posts.find(post => post.id === id)
   },
   deleteById(id: string) {
-    return db.posts.filter(post => post.id !== id)
+    db.posts = db.posts.filter(post => post.id !== id)
+    return id
   },
   createPost(post: PostInputType) {
     const currentBlog = blogsRepository.findById(post.blogId)
