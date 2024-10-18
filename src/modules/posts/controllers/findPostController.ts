@@ -3,7 +3,7 @@ import { postsRepository } from '../postsRepository'
 import { PostDBType } from '../../../db/post-db'
 
 export const findPostController = (req: Request<{id: string}>, res: Response<PostDBType>) => {
-  const post = postsRepository.findById(req.body.id)
+  const post = postsRepository.findById(req.params.id)
   if(!post) {
     res.sendStatus(404)
   }

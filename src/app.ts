@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { SETTINGS } from './settings'
-import { videosRouter } from './modules/videos'
+// import { videosRouter } from './modules/videos'
 import { testingRouter } from './modules/other'
 import { blogsRouter } from './modules/blogs'
 import { postsRouter } from './modules/posts'
@@ -16,6 +16,6 @@ app.get('/', (req, res) => {
 })
 
 app.use(SETTINGS.PATH.TESTING, testingRouter)
-app.use(SETTINGS.PATH.VIDEOS, videosRouter)
+// app.use(SETTINGS.PATH.VIDEOS, videosRouter)
 app.use(SETTINGS.PATH.BLOGS, blogsRouter)
 app.use(SETTINGS.PATH.POSTS, postsRouter)

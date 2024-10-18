@@ -1,16 +1,17 @@
-import {config} from 'dotenv'
+import { config } from 'dotenv'
 config() // добавление переменных из файла .env в process.env
 
 export const SETTINGS = {
     // все хардкодные значения должны быть здесь, для удобства их изменения
     PORT: process.env.PORT || 3003,
     PATH: {
-        VIDEOS: '/videos',
+        // VIDEOS: '/videos',
         POSTS: '/posts',
         BLOGS: '/blogs',
         TESTING: '/testing/all-data'
     },
-    ADMIN: process.env.ADMIN || 'admin:qwerty',
+    CREDENTIALS: {
+        LOGIN: 'admin',
+        PASSWORD: 'qwerty'
+    }
 }
-
-// const x = SETTINGS.PATH.VIDEO

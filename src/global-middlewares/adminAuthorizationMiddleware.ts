@@ -29,7 +29,7 @@ export const adminAuthorizationMiddleware = (req: Request, res: Response, next: 
   }
 
   // const decodedAuth = fromBase64ToUTF8(auth.slice(6))
-  const codedAuth = fromUTF8ToBase64(SETTINGS.ADMIN)
+  const codedAuth = fromUTF8ToBase64(`${SETTINGS.CREDENTIALS.LOGIN}:${SETTINGS.CREDENTIALS.PASSWORD}`)
 
   // if (decodedAuth !== SETTINGS.ADMIN) {
   if (auth.slice(6) !== codedAuth) {
