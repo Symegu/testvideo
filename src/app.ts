@@ -1,10 +1,9 @@
 import express from 'express'
 import cors from 'cors'
 import { SETTINGS } from './settings'
-// import { videosRouter } from './modules/videos'
-import { testingRouter } from './modules/other'
 import { blogsRouter } from './modules/blogs'
 import { postsRouter } from './modules/posts'
+import { testingRouter } from './modules/other'
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body во всех реквестах
