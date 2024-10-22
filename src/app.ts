@@ -4,6 +4,7 @@ import { SETTINGS } from './settings'
 import { blogsRouter } from './modules/blogs'
 import { postsRouter } from './modules/posts'
 import { testingRouter } from './modules/other'
+import { videosRouter } from './modules/videos'
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body во всех реквестах
@@ -15,7 +16,8 @@ app.get('/', (req, res) => {
 })
 
 
-// app.use(SETTINGS.PATH.VIDEOS, videosRouter)
+
 app.use(SETTINGS.PATH.BLOGS, blogsRouter)
 app.use(SETTINGS.PATH.POSTS, postsRouter)
+app.use(SETTINGS.PATH.VIDEOS, videosRouter)
 app.use(SETTINGS.PATH.TESTING, testingRouter)

@@ -5,7 +5,7 @@ export const SETTINGS = {
     // все хардкодные значения должны быть здесь, для удобства их изменения
     PORT: process.env.PORT || 3003,
     PATH: {
-        // VIDEOS: '/videos',
+        VIDEOS: '/videos',
         POSTS: '/posts',
         BLOGS: '/blogs',
         TESTING: '/testing/all-data'

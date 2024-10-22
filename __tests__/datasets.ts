@@ -63,7 +63,7 @@ export const postInvalid: PostDBType = {
 export const codedAuth = fromUTF8ToBase64(`${SETTINGS.CREDENTIALS.LOGIN}:${SETTINGS.CREDENTIALS.PASSWORD}`)
 
 export const dataset1: DBType = {
-    // videos: [video1, video2],
+    videos: [video1, video2],
     blogs: [blogValid, blogInvalid],
     posts: [postValid, postInvalid],
 }
