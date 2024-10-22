@@ -1,8 +1,8 @@
 import { Response, Request } from 'express'
-import { OutputErrorsType } from '../../input-output-types/output-errors-type'
-import { db } from '../../db/db'
-import { InputVideoType, Resolutions, OutputVideoType } from '../../input-output-types/video-types'
-import { VideoDBType } from '../../db/video-db'
+import { OutputErrorsType } from '../../../input-output-types/output-errors-type'
+import { InputVideoType, Resolutions } from '../../../input-output-types/video-types'
+import { VideoDBType } from '../../../db/video-db'
+import { videosDBRepository } from '../videosDbRepository'
 
 const inputValidation = (video: InputVideoType) => {
     const errors: OutputErrorsType = { // объект для сбора ошибок
@@ -20,8 +20,8 @@ const inputValidation = (video: InputVideoType) => {
     }
 
     if (typeof video.author !== 'string'
-        || !video.author 
-        || video.author.length >= 20 ) {
+        || !video.author
+        || video.author.length >= 20) {
         console.log(video.author)
         errors.errorsMessages.push(
             { message: 'error!!!!', field: 'author' }
@@ -38,7 +38,7 @@ const inputValidation = (video: InputVideoType) => {
     return errors
 }
 
-export const createVideoController = (req: Request<any, any, InputVideoType>, res: Response<OutputVideoType | OutputErrorsType>) => {
+export const createVideoController = async (req: Request<InputVideoType>, res: Response<VideoDBType | OutputErrorsType>) => {
     const errors = inputValidation(req.body)
     if (errors.errorsMessages.length) { // если есть ошибки - отправляем ошибки
         res
@@ -48,21 +48,7 @@ export const createVideoController = (req: Request<any, any, InputVideoType>, re
         // return res.status(400).json(errors)
     }
 
-    const dateNow = Date.now()
-    const createdAtISO = new Date(dateNow).toISOString()
-    const publicationDate = (new Date(dateNow))
-    publicationDate.setDate(publicationDate.getDate() + 1)
-    const publicationDateISO = publicationDate.toISOString()
-
-    const newVideo: VideoDBType = {
-        ...req.body,
-        id: dateNow + Math.random(),
-        canBeDownloaded: false,
-        minAgeRestriction: null,
-        createdAt: createdAtISO,
-        publicationDate: publicationDateISO,
-    }
-    db.videos = [...db.videos, newVideo]
+    const newVideo = await videosDBRepository.create(req.body)
 
     res
         .status(201)

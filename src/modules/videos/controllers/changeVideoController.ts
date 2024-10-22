@@ -1,7 +1,7 @@
 import { Response, Request } from 'express'
-import { OutputErrorsType } from '../../input-output-types/output-errors-type'
-import { db } from '../../db/db'
-import { Resolutions, OutputVideoType, InputChangeVideoType } from '../../input-output-types/video-types'
+import { OutputErrorsType } from '../../../input-output-types/output-errors-type'
+import { Resolutions, OutputVideoType, InputChangeVideoType, VideoIdType } from '../../../input-output-types/video-types'
+import { videosDBRepository } from '../videosDbRepository'
 
 const inputValidation = (video: InputChangeVideoType) => {
   const errors: OutputErrorsType = { // объект для сбора ошибок
@@ -11,21 +11,21 @@ const inputValidation = (video: InputChangeVideoType) => {
   if (typeof video.title !== 'string'
     || !video.title
     || video.title.length >= 40
-) {
+  ) {
     console.log(video.title)
     errors.errorsMessages.push(
-        { message: 'error!!!!', field: 'title' }
+      { message: 'error!!!!', field: 'title' }
     )
-}
+  }
 
-if (typeof video.author !== 'string'
-    || !video.author 
-    || video.author.length >= 20 ) {
+  if (typeof video.author !== 'string'
+    || !video.author
+    || video.author.length >= 20) {
     console.log(video.author)
     errors.errorsMessages.push(
-        { message: 'error!!!!', field: 'author' }
+      { message: 'error!!!!', field: 'author' }
     )
-}
+  }
 
   if (!Array.isArray(video.availableResolutions) || video.availableResolutions.find(p => !Resolutions[p])
   ) {
@@ -52,11 +52,11 @@ if (typeof video.author !== 'string'
     )
   }
 
-  
+
   return errors
 }
 
-export const changeVideoController = (req: Request<any>, res: Response<OutputVideoType | OutputErrorsType>) => {
+export const changeVideoController = async (req: Request<{ id: number }, any, InputChangeVideoType>, res: Response<OutputVideoType | OutputErrorsType>) => {
   const errors = inputValidation(req.body)
   if (errors.errorsMessages.length) { // если есть ошибки - отправляем ошибки
     res
@@ -65,20 +65,7 @@ export const changeVideoController = (req: Request<any>, res: Response<OutputVid
     return
     // return res.status(400).json(errors)
   }
-  let video = db.videos.find(video => video.id === +req.params.id)
-  console.log(video);
-  if (!video) {
-    res.sendStatus(404)
-    return
-  }
-  video.title = video.title !== req.body.title ? req.body.title : video.title;
-  video.author = video.author !== req.body.author ? req.body.author : video.author;
-  video.canBeDownloaded = video.canBeDownloaded !== req.body.canBeDownloaded ? req.body.canBeDownloaded : video.canBeDownloaded;
-  video.minAgeRestriction = video.minAgeRestriction !== req.body.minAgeRestriction ? req.body.minAgeRestriction : video.minAgeRestriction;
-  video.publicationDate = video.publicationDate !== req.body.publicationDate ? req.body.publicationDate : video.publicationDate;
-  video.availableResolutions = video.availableResolutions !== req.body.availableResolutions ? req.body.availableResolutions : video.availableResolutions;
-
-  db.videos = db.videos.map(changedvideo => changedvideo.id === video!.id ? video : changedvideo);
-res
+  await videosDBRepository.change(req.params.id, req.body)
+  res
     .sendStatus(204)
 }

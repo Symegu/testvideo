@@ -1,9 +1,9 @@
 import { Router } from 'express'
-import { getVideosController } from './getVideosController'
-import { createVideoController } from './createVideoController'
-import { findVideoController } from './findVideoController'
-import { deleteVideoController } from './deleteVideoController'
-import { changeVideoController } from './changeVideoController'
+import { getVideosController } from './controllers/getVideosController'
+import { createVideoController } from './controllers/createVideoController'
+import { findVideoController } from './controllers/findVideoController'
+import { deleteVideoController } from './controllers/deleteVideoController'
+import { changeVideoController } from './controllers/changeVideoController'
 
 export const videosRouter = Router()
 

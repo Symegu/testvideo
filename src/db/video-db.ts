@@ -5,7 +5,7 @@ export type VideoDBType = {
     title: string,
     author: string,
     canBeDownloaded: boolean,
-    minAgeRestriction: null,
+    minAgeRestriction: number | null,
     createdAt: string,
     publicationDate: string,
     availableResolutions: Resolutions[]

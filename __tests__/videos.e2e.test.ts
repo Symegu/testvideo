@@ -1,6 +1,6 @@
 import { req } from './test-helpers'
 import { setDB } from '../src/db/db'
-import { dataset1, video1 } from './datasets'
+import { dataset1 } from './datasets'
 import { SETTINGS } from '../src/settings'
 import { InputChangeVideoType, InputVideoType, Resolutions } from '../src/input-output-types/video-types'
 
@@ -86,8 +86,8 @@ describe('/videos', () => {
         setDB(dataset1)
 
         const res = await req
-            .get(SETTINGS.PATH.VIDEOS + '/1')
-            .expect(404) // проверка на ошибку
+            .get(SETTINGS.PATH.VIDEOS + '/0')
+            .expect(404) 
 
         console.log(res.body)
     })
@@ -96,7 +96,7 @@ describe('/videos', () => {
 
         const res = await req
             .get(SETTINGS.PATH.VIDEOS + '/1234')
-            .expect(200) // проверка на ошибку
+            .expect(200) 
 
         console.log(res.body)
     })
@@ -104,8 +104,8 @@ describe('/videos', () => {
         setDB(dataset1)
 
         const res = await req
-            .delete(SETTINGS.PATH.VIDEOS + '/1')
-            .expect(404) // проверка на ошибку
+            .delete(SETTINGS.PATH.VIDEOS + '/0')
+            .expect(404) 
 
         console.log(res.body)
     })
@@ -114,7 +114,7 @@ describe('/videos', () => {
 
         const res = await req
             .delete(SETTINGS.PATH.VIDEOS + '/1234')
-            .expect(204) // проверка на ошибку
+            .expect(204) 
 
         console.log(res.body)
     })
@@ -131,7 +131,7 @@ describe('/videos', () => {
         const res = await req
             .put(SETTINGS.PATH.VIDEOS + '/1234')
             .send(updatedVideo)
-            .expect(204) // проверка на ошибку
+            .expect(204) 
 
         console.log(res.body)
     })
@@ -148,7 +148,7 @@ describe('/videos', () => {
         const res = await req
             .put(SETTINGS.PATH.VIDEOS + '/1234')
             .send(updatedVideo)
-            .expect(400) // проверка на ошибку
+            .expect(400) 
 
         console.log(res.body)
     })
@@ -166,7 +166,7 @@ describe('/videos', () => {
         const res = await req
             .put(SETTINGS.PATH.VIDEOS + '/1234')
             .send(updatedVideo)
-            .expect(400) // проверка на ошибку
+            .expect(400) 
 
         console.log(res.body)
     })
@@ -184,7 +184,7 @@ describe('/videos', () => {
         const res = await req
             .put(SETTINGS.PATH.VIDEOS + '/1234')
             .send(updatedVideo)
-            .expect(400) // проверка на ошибку
+            .expect(400) 
 
         console.log(res.body)
     })

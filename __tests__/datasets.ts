@@ -9,9 +9,9 @@ import { fromUTF8ToBase64 } from '../src/global-middlewares/adminAuthorizationMi
 // готовые данные для переиспользования в тестах
 
 export const video1: VideoDBType = {
-    id: Date.now() + Math.random(),
-    title: 't' + Date.now() + Math.random(),
-    author: 'a' + Date.now() + Math.random(),
+    id: 1,
+    title: 't1',
+    author: 'a1',
     canBeDownloaded: true,
     minAgeRestriction: null,
     createdAt: new Date().toISOString(),
@@ -20,8 +20,8 @@ export const video1: VideoDBType = {
 }
 export const video2: VideoDBType = {
     id: 1234,
-    title: 't' + Date.now() + Math.random(),
-    author: 'a' + Date.now() + Math.random(),
+    title: 't2',
+    author: 'a2',
     canBeDownloaded: true,
     minAgeRestriction: null,
     createdAt: new Date().toISOString(),
