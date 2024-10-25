@@ -3,7 +3,7 @@ config() // добавление переменных из файла .env в pr
 
 export const SETTINGS = {
     // все хардкодные значения должны быть здесь, для удобства их изменения
-    PORT: process.env.PORT || 3004,
+    PORT: process.env.PORT || 3003,
     PATH: {
         VIDEOS: '/videos',
         POSTS: '/posts',
@@ -13,5 +13,7 @@ export const SETTINGS = {
     CREDENTIALS: {
         LOGIN: 'admin',
         PASSWORD: 'qwerty'
-    }
+    },
+    MONGO_URL: process.env.MONGO_URL || 'mongodb://0.0.0.0:27017', 
+    DB_NAME: process.env.DB_NAME || ''
 }

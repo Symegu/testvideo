@@ -1,6 +1,6 @@
 import { VideoDBType } from '../src/db/video-db'
 import { Resolutions } from '../src/input-output-types/video-types'
-import { DBType } from '../src/db/db'
+import { DBType } from '../src/db/localDb'
 import { BlogDBType } from '../src/db/blog-db'
 import { PostDBType } from '../src/db/post-db'
 import { SETTINGS } from '../src/settings'

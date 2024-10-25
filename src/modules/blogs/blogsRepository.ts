@@ -1,6 +1,6 @@
 import { BlogDBType } from "../../db/blog-db"
 import { BlogInputType } from "../../input-output-types/blog-types"
-import { db } from "../../db/db"
+import { db } from "../../db/localDb"
 
 export const blogsRepository = {
   getBlogs() {

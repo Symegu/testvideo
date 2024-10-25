@@ -1,6 +1,6 @@
 import { req } from "./test-helpers";
 import { SETTINGS } from "../src/settings";
-import { setDB } from "../src/db/db";
+import { setDB } from "../src/db/localDb";
 
 describe('/testing/all-data', () => {
     beforeAll(async () => { // очистка базы данных перед началом тестирования

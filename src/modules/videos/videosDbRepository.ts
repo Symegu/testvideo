@@ -1,4 +1,4 @@
-import { db } from "../../db/db"
+import { db } from "../../db/localDb"
 import { InputChangeVideoType, InputVideoType } from '../../input-output-types/video-types'
 import { VideoDBType } from '../../db/video-db'
 

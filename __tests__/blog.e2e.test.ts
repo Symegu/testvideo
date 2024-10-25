@@ -1,5 +1,5 @@
 import { req } from './test-helpers'
-import { setDB } from '../src/db/db'
+import { setDB } from '../src/db/localDb'
 import { codedAuth, dataset1 } from './datasets'
 import { SETTINGS } from '../src/settings'
 import { BlogInputType } from '../src/input-output-types/blog-types'

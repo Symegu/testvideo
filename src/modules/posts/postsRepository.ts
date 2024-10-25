@@ -2,7 +2,7 @@
 
 import { PostDBType } from "../../db/post-db"
 import { PostInputType } from "../../input-output-types/post-types"
-import { db } from "../../db/db"
+import { db } from "../../db/localDb"
 import { blogsRepository } from "../blogs/blogsRepository"
 
 
