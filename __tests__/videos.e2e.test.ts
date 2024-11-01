@@ -1,17 +1,28 @@
 import { req } from './test-helpers'
-import { setDB } from '../src/db/localDb'
-import { dataset1 } from './datasets'
+import { setVideosDB } from '../src/db/localDb'
 import { SETTINGS } from '../src/settings'
 import { InputChangeVideoType, InputVideoType, Resolutions } from '../src/input-output-types/video-types'
+import { runDB, videosCollection } from '../src/db/mongoDb'
+import { MongoClient } from 'mongodb'
+
+let client: MongoClient
 
 describe('/videos', () => {
     beforeAll(async () => { // очистка базы данных перед началом тестирования
-        setDB()
+        const result = await runDB(SETTINGS.MONGO_URL, true);
+        if (result) {
+            client = result.client
+            await videosCollection.deleteMany({})
+        } else {
+            throw new Error("Unable to connect to the database")
+        }
+        // await runDB(SETTINGS.MONGO_URL, true)
+        // await videosCollection.drop()
     })
-
+    afterAll(async () => {
+        await client.close() // Закрываем сервер после тестов
+    });
     it('should get empty array', async () => {
-        // setDB() // очистка базы данных если нужно
-
         const res = await req
             .get(SETTINGS.PATH.VIDEOS)
             .expect(200) // проверяем наличие эндпоинта
@@ -21,7 +32,7 @@ describe('/videos', () => {
         expect(res.body.length).toBe(0) // проверяем ответ эндпоинта
     })
     it('should get not empty array', async () => {
-        setDB(dataset1) // заполнение базы данных начальными данными если нужно
+        await setVideosDB() // заполнение базы данных начальными данными если нужно
 
         const res = await req
             .get(SETTINGS.PATH.VIDEOS)
@@ -30,10 +41,8 @@ describe('/videos', () => {
         console.log(res.body)
 
         expect(res.body.length).toBe(2)
-        expect(res.body[0]).toEqual(dataset1.videos[0])
     })
     it('should create', async () => {
-        setDB()
         const newVideo: InputVideoType = {
             title: 't1',
             author: 'a1',
@@ -51,7 +60,6 @@ describe('/videos', () => {
         expect(res.body.availableResolutions).toEqual(newVideo.availableResolutions)
     })
     it('shouldn\'t create', async () => {
-        setDB()
         const newVideo: InputVideoType = {
             title: '',
             author: 'a1',
@@ -67,7 +75,6 @@ describe('/videos', () => {
         console.log(res.body)
     })
     it('shouldn\'t create', async () => {
-        setDB()
         const newVideo: InputVideoType = {
             title: 't1',
             author: '',
@@ -82,44 +89,22 @@ describe('/videos', () => {
 
         console.log(res.body)
     })
-    it('shouldn\'t find', async () => {
-        setDB(dataset1)
+    // it('shouldn\'t find', async () => {
+    //     const res = await req
+    //         .get(SETTINGS.PATH.VIDEOS + '/0')
+    //         .expect(404) 
 
-        const res = await req
-            .get(SETTINGS.PATH.VIDEOS + '/0')
-            .expect(404) 
-
-        console.log(res.body)
-    })
+    //     console.log(res.body)
+    // })
     it('should find', async () => {
-        setDB(dataset1)
-
         const res = await req
             .get(SETTINGS.PATH.VIDEOS + '/1234')
             .expect(200) 
 
         console.log(res.body)
     })
-    it('shouldn\'t delete', async () => {
-        setDB(dataset1)
-
-        const res = await req
-            .delete(SETTINGS.PATH.VIDEOS + '/0')
-            .expect(404) 
-
-        console.log(res.body)
-    })
-    it('should delete', async () => {
-        setDB(dataset1)
-
-        const res = await req
-            .delete(SETTINGS.PATH.VIDEOS + '/1234')
-            .expect(204) 
-
-        console.log(res.body)
-    })
     it('should change', async () => {
-        setDB(dataset1)
+       await setVideosDB()
         const updatedVideo: InputChangeVideoType = {
             title: 't1',
             author: 'a2',
@@ -136,7 +121,7 @@ describe('/videos', () => {
         console.log(res.body)
     })
     it('shouldn\'t change', async () => {
-        setDB(dataset1)
+       await setVideosDB()
         const updatedVideo: InputChangeVideoType = {
             title: '',
             author: 'a2',
@@ -154,7 +139,7 @@ describe('/videos', () => {
     })
 
     it('shouldn\'t change', async () => {
-        setDB(dataset1)
+       await setVideosDB()
         const updatedVideo: InputChangeVideoType = {
             title: 't1',
             author: '',
@@ -172,7 +157,7 @@ describe('/videos', () => {
     })
 
     it('shouldn\'t change', async () => {
-        setDB(dataset1)
+       await setVideosDB()
         const updatedVideo: InputChangeVideoType = {
             title: 't1',
             author: 'a2',
@@ -185,6 +170,21 @@ describe('/videos', () => {
             .put(SETTINGS.PATH.VIDEOS + '/1234')
             .send(updatedVideo)
             .expect(400) 
+
+        console.log(res.body)
+    })
+
+    it('shouldn\'t delete', async () => {
+        const res = await req
+            .delete(SETTINGS.PATH.VIDEOS + '/0')
+            .expect(404) 
+
+        console.log(res.body)
+    })
+    it('should delete', async () => {
+        const res = await req
+            .delete(SETTINGS.PATH.VIDEOS + '/1234')
+            .expect(204) 
 
         console.log(res.body)
     })

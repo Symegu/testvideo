@@ -38,7 +38,7 @@ const inputValidation = (video: InputVideoType) => {
     return errors
 }
 
-export const createVideoController = async (req: Request<InputVideoType>, res: Response<VideoDBType | OutputErrorsType>) => {
+export const createVideoController = async (req: Request<InputVideoType>, res: Response) => {
     const errors = inputValidation(req.body)
     if (errors.errorsMessages.length) { // если есть ошибки - отправляем ошибки
         res
@@ -47,8 +47,8 @@ export const createVideoController = async (req: Request<InputVideoType>, res: R
         return
         // return res.status(400).json(errors)
     }
-
-    const newVideo = await videosDBRepository.create(req.body)
+    const newVideoId = await videosDBRepository.create(req.body)
+    const newVideo = await videosDBRepository.findUuid(newVideoId)
 
     res
         .status(201)

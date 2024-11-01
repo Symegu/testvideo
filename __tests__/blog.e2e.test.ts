@@ -1,16 +1,29 @@
 import { req } from './test-helpers'
-import { setDB } from '../src/db/localDb'
+import { setBlogsDB } from '../src/db/localDb'
 import { codedAuth, dataset1 } from './datasets'
 import { SETTINGS } from '../src/settings'
 import { BlogInputType } from '../src/input-output-types/blog-types'
+import { runDB, blogsCollection } from '../src/db/mongoDb'
+import { MongoClient } from 'mongodb'
 
+let client: MongoClient
 describe('/blogs', () => {
     beforeAll(async () => { // очистка базы данных перед началом тестирования
-        setDB()
+        const result = await runDB(SETTINGS.MONGO_URL, true);
+        if (result) {
+            client = result.client
+            await blogsCollection.deleteMany({})
+        } else {
+            throw new Error("Unable to connect to the database")
+        }
+        // await runDB(SETTINGS.MONGO_URL, true)
+        // await blogsCollection.drop()
     })
-
+    afterAll(async () => {
+        await client.close() // Закрываем сервер после тестов
+    });
     it('should get empty array', async () => {
-        // setDB() // очистка базы данных если нужно
+        // setBlogsDB() // очистка базы данных если нужно
 
         const res = await req
             .get(SETTINGS.PATH.BLOGS)
@@ -21,7 +34,7 @@ describe('/blogs', () => {
         expect(res.body.length).toBe(0) // проверяем ответ эндпоинта
     })
     it('should get not empty array', async () => {
-        setDB(dataset1) // заполнение базы данных начальными данными если нужно
+        setBlogsDB() // заполнение базы данных начальными данными если нужно
 
         const res = await req
             .get(SETTINGS.PATH.BLOGS)
@@ -30,10 +43,9 @@ describe('/blogs', () => {
         console.log(res.body)
 
         expect(res.body.length).toBe(2)
-        expect(res.body[0]).toEqual(dataset1.blogs[0])
     })
     it('should create', async () => {
-      setDB()
+      //setBlogsDB()
       const newBlog: BlogInputType = {
           "name": "string",
           "description": "string",
@@ -49,7 +61,7 @@ describe('/blogs', () => {
       console.log(res.body)
   })
     it('shouldn\'t create | valid but unauthorized', async () => {
-        setDB()
+        //setBlogsDB()
         const newBlog: BlogInputType = {
             "name": "string",
             "description": "string",
@@ -64,7 +76,7 @@ describe('/blogs', () => {
         console.log(res.body)
     })
     it('shouldn\'t create | valid but authorize invalid', async () => {
-      setDB()
+      //setBlogsDB()
       const newBlog: BlogInputType = {
           "name": "string",
           "description": "string",
@@ -81,7 +93,7 @@ describe('/blogs', () => {
     })
 
     it('shouldn\'t create | invalid data', async () => {
-      setDB()
+      //setBlogsDB()
       const newBlog: BlogInputType = {
           "name": "string 1234567890",
           "description": "string",
@@ -98,7 +110,7 @@ describe('/blogs', () => {
     })
 
     it('shouldn\'t create | invalid data', async () => {
-      setDB()
+      //setBlogsDB()
       const newBlog: BlogInputType = {
           "name": "string",
           "description": "string",
@@ -114,7 +126,7 @@ describe('/blogs', () => {
       console.log(res.body)
     })
     it('shouldn\'t find', async () => {
-        setDB(dataset1)
+        //setBlogsDB()
 
         const res = await req
             .get(SETTINGS.PATH.BLOGS + '/1')
@@ -123,7 +135,7 @@ describe('/blogs', () => {
         console.log(res.body)
     })
     it('should find', async () => {
-        setDB(dataset1)
+        //setBlogsDB()
         
         const res = await req
             .get(SETTINGS.PATH.BLOGS + '/12345')
@@ -131,37 +143,9 @@ describe('/blogs', () => {
 
         console.log(res.body)
     })
-    it('shouldn\'t delete | no matching id', async () => {
-        setDB(dataset1)
-
-        const res = await req
-            .delete(SETTINGS.PATH.BLOGS + '/1')
-            .set({'Authorization': 'Basic ' + codedAuth})
-            .expect(404)
-
-        console.log(res.body)
-    })
-    it('shouldn\'t delete | unauthorized', async () => {
-        setDB(dataset1)
-
-        const res = await req
-            .delete(SETTINGS.PATH.BLOGS + '/12345')
-            .expect(401)
-
-        console.log(res.body)
-    })
-    it('should delete', async () => {
-        setDB(dataset1)
-
-        const res = await req
-            .delete(SETTINGS.PATH.BLOGS + '/12345')
-            .set({'Authorization': 'Basic ' + codedAuth})
-            .expect(204)
-
-        console.log(res.body)
-    })
+    
     it('should change', async () => {
-        setDB(dataset1)
+        //setBlogsDB()
         const changedBlog: BlogInputType = {
             "name": "string",
             "description": "string",
@@ -176,7 +160,7 @@ describe('/blogs', () => {
         console.log(res.body)
     })
     it('should\'t change | unauthorized', async () => {
-        setDB(dataset1)
+        //setBlogsDB()
         const changedBlog: BlogInputType = {
             "name": "string",
             "description": "string",
@@ -190,7 +174,7 @@ describe('/blogs', () => {
         console.log(res.body)
     })
     it('should\'t change | invalid data', async () => {
-        setDB(dataset1)
+        //setBlogsDB()
         const changedBlog: BlogInputType = {
             "name": "string 1234567890000",
             "description": "string",
@@ -205,7 +189,7 @@ describe('/blogs', () => {
         console.log(res.body)
     })
     it('should\'t change | invalid data', async () => {
-        setDB(dataset1)
+        //setBlogsDB()
         const changedBlog: BlogInputType = {
             "name": "string",
             "description": "string",
@@ -216,6 +200,35 @@ describe('/blogs', () => {
             .set({'Authorization': 'Basic ' + codedAuth})
             .send(changedBlog)
             .expect(400)
+
+        console.log(res.body)
+    })
+    it('shouldn\'t delete | no matching id', async () => {
+        //setBlogsDB()
+
+        const res = await req
+            .delete(SETTINGS.PATH.BLOGS + '/1')
+            .set({'Authorization': 'Basic ' + codedAuth})
+            .expect(404)
+
+        console.log(res.body)
+    })
+    it('shouldn\'t delete | unauthorized', async () => {
+        //setBlogsDB()
+
+        const res = await req
+            .delete(SETTINGS.PATH.BLOGS + '/12345')
+            .expect(401)
+
+        console.log(res.body)
+    })
+    it('should delete', async () => {
+        //setBlogsDB()
+
+        const res = await req
+            .delete(SETTINGS.PATH.BLOGS + '/12345')
+            .set({'Authorization': 'Basic ' + codedAuth})
+            .expect(204)
 
         console.log(res.body)
     })

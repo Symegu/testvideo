@@ -3,12 +3,11 @@ import { Request, Response } from 'express'
 import { videosDBRepository } from '../videosDbRepository'
 import { VideoDBType } from '../../../db/video-db'
 
-export const findVideoController = async (req: Request<{ id: number }>, res: Response<VideoDBType>) => {
+export const findVideoController = async (req: Request<{ id: number | string }>, res: Response<VideoDBType | null>) => {
   const video = await videosDBRepository.findId(req.params.id)
   console.log(video);
   if (!video) {
-    res.sendStatus(404)
-  }
-
+    res.status(404)
+  } 
   res.status(200).json(video)
 }

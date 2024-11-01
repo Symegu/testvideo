@@ -2,8 +2,10 @@ import { Request, Response } from 'express'
 import { postsRepository } from '../postsRepository'
 import { PostInputType } from '../../../input-output-types/post-types'
 
-export const changePostController = (req: Request<({id: string}), any, PostInputType>, res: Response) => {
-  const currentPost = postsRepository.findById(req.params.id)
-  postsRepository.changeById(req.body, currentPost!.id )
+export const changePostController = async (req: Request<({id: string}), any, PostInputType>, res: Response) => {
+  const updateStatus = await postsRepository.changeById(req.body, req.params.id)
+  if(!updateStatus) {
+    res.sendStatus(404)
+  }
   res.sendStatus(204)
 }

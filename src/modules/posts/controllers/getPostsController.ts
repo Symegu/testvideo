@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
 import { postsRepository } from '../postsRepository'
-import { PostDBType } from '../../../db/post-db'
+import { PostModel } from '../../../db/post-db'
 
-export const getPostsController = (req: Request, res: Response<PostDBType[]>) => {
-  const posts = postsRepository.getPosts()
+export const getPostsController = async (req: Request, res: Response<PostModel[]>) => {
+  const posts = await postsRepository.getPosts()
   res.status(200).json(posts)
 }

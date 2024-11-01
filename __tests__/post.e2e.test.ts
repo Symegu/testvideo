@@ -1,16 +1,30 @@
 import { req } from './test-helpers'
-import { setDB } from '../src/db/localDb'
+import { setPostsDB } from '../src/db/localDb'
 import { codedAuth, dataset1 } from './datasets'
 import { SETTINGS } from '../src/settings'
 import { PostInputType } from '../src/input-output-types/post-types'
+import { MongoClient } from 'mongodb'
+import { runDB, postsCollection } from '../src/db/mongoDb'
 
+let client: MongoClient
 describe('/posts', () => {
   beforeAll(async () => { // очистка базы данных перед началом тестирования
-    setDB()
-  })
+    const result = await runDB(SETTINGS.MONGO_URL, true);
+    if (result) {
+        client = result.client
+        await postsCollection.deleteMany({})
+    } else {
+        throw new Error("Unable to connect to the database")
+    }
+    // await runDB(SETTINGS.MONGO_URL, true)
+    // await postsCollection.drop()
+})
+afterAll(async () => {
+    await client.close() // Закрываем сервер после тестов
+})
 
   it('should get empty array', async () => {
-    // setDB() // очистка базы данных если нужно
+    //setPostsDB() // очистка базы данных если нужно
 
     const res = await req
       .get(SETTINGS.PATH.POSTS)
@@ -21,7 +35,7 @@ describe('/posts', () => {
     expect(res.body.length).toBe(0) // проверяем ответ эндпоинта
   })
   it('should get not empty array', async () => {
-    setDB(dataset1) // заполнение базы данных начальными данными если нужно
+    setPostsDB() // заполнение базы данных начальными данными если нужно
 
     const res = await req
       .get(SETTINGS.PATH.POSTS)
@@ -33,7 +47,7 @@ describe('/posts', () => {
     expect(res.body[0]).toEqual(dataset1.posts[0])
   })
   it('should create', async () => {
-    setDB(dataset1)
+    //setPostsDB()
     const newPost: PostInputType = {
       "title": "string",
       "shortDescription": "string",
@@ -50,7 +64,7 @@ describe('/posts', () => {
     console.log(res.body)
   })
   it('shouldn\'t create | valid but unauthorized', async () => {
-    setDB()
+   //setPostsDB()
     const newPost: PostInputType = {
       "title": "string",
       "shortDescription": "string",
@@ -66,7 +80,7 @@ describe('/posts', () => {
     console.log(res.body)
   })
   it('shouldn\'t create | valid but authorize invalid', async () => {
-    setDB()
+   //setPostsDB()
     const newPost: PostInputType = {
       "title": "string",
       "shortDescription": "string",
@@ -84,7 +98,7 @@ describe('/posts', () => {
   })
 
   it('shouldn\'t create | invalid data', async () => {
-    setDB()
+   //setPostsDB()
     const newPost: PostInputType = {
       "title": "string",
       "shortDescription": "string",
@@ -102,7 +116,7 @@ describe('/posts', () => {
   })
 
   it('shouldn\'t create | invalid data', async () => {
-    setDB()
+   //setPostsDB()
     const newPost: PostInputType = {
       "title": "string 12345678989172387834456389476582736582123123123123",
       "shortDescription": "string",
@@ -119,7 +133,7 @@ describe('/posts', () => {
     console.log(res.body)
   })
   it('shouldn\'t find', async () => {
-    setDB(dataset1)
+    //setPostsDB()
 
     const res = await req
       .get(SETTINGS.PATH.POSTS + '/1')
@@ -128,7 +142,7 @@ describe('/posts', () => {
     console.log(res.body)
   })
   it('should find', async () => {
-    setDB(dataset1)
+    //setPostsDB()
 
     const res = await req
       .get(SETTINGS.PATH.POSTS + '/1234567')
@@ -137,7 +151,7 @@ describe('/posts', () => {
     console.log(res.body)
   })
   it('shouldn\'t delete | no matching id', async () => {
-    setDB(dataset1)
+    //setPostsDB()
 
     const res = await req
       .delete(SETTINGS.PATH.POSTS + '/1')
@@ -147,7 +161,7 @@ describe('/posts', () => {
     console.log(res.body)
   })
   it('shouldn\'t delete | unauthorized', async () => {
-    setDB(dataset1)
+    //setPostsDB()
 
     const res = await req
       .delete(SETTINGS.PATH.POSTS + '/1234567')
@@ -156,7 +170,7 @@ describe('/posts', () => {
     console.log(res.body)
   })
   it('should delete', async () => {
-    setDB(dataset1)
+    //setPostsDB()
 
     const res = await req
       .delete(SETTINGS.PATH.POSTS + '/1234567')
@@ -166,7 +180,7 @@ describe('/posts', () => {
     console.log(res.body)
   })
   it('should change', async () => {
-    setDB(dataset1)
+    //setPostsDB()
     const changedBlog: PostInputType = {
       "title": "string",
       "shortDescription": "string",
@@ -182,7 +196,7 @@ describe('/posts', () => {
     console.log(res.body)
   })
   it('should\'t change | unauthorized', async () => {
-    setDB(dataset1)
+    //setPostsDB()
     const changedBlog: PostInputType = {
       "title": "string",
       "shortDescription": "string",
@@ -197,7 +211,7 @@ describe('/posts', () => {
     console.log(res.body)
   })
   it('should\'t change | invalid data', async () => {
-    setDB(dataset1)
+    //setPostsDB()
     const changedBlog: PostInputType = {
       "title": "string",
       "shortDescription": "string",
@@ -213,7 +227,7 @@ describe('/posts', () => {
     console.log(res.body)
   })
   it('should\'t change | invalid data', async () => {
-    setDB(dataset1)
+    //setPostsDB()
     const changedBlog: PostInputType = {
       "title": "string 12345678978978997987978987987978987987978",
       "shortDescription": "string",
