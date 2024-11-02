@@ -7,6 +7,10 @@ export const deletePostController = async (req: Request<{ id: string }>, res: Re
     res.sendStatus(404)
     return
   }
-
+  const postForDeleting = await postsRepository.deleteById(req.params.id)
+  if (!postForDeleting) {
+    res.sendStatus(404)
+    return
+  }
   res.sendStatus(204)
 }

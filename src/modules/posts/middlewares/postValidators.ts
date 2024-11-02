@@ -29,8 +29,8 @@ export const postIdValidator = body('blogId')
   .trim()
   .isString()
   .withMessage('post id is not string')
-  .custom(blogId => {
-    const blog = blogsRepository.findById(blogId)
+  .custom(async (blogId) => {
+    const blog = await blogsRepository.findById(blogId)
     return !!blog
   })
   .withMessage('post with this blog id does not exist')
