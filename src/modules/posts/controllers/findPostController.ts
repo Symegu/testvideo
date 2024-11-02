@@ -3,7 +3,7 @@ import { postsRepository } from '../postsRepository'
 import { PostModel } from '../../../db/post-db'
 import { ObjectId } from 'mongodb'
 
-export const findPostController = async (req: Request<{id: string | ObjectId}>, res: Response<PostModel>) => {
+export const findPostController = async (req: Request<{id: string | ObjectId}>, res: Response<PostModel | null>) => {
   const { id } = req.params
   let post = null
   if (ObjectId.isValid(id)) {

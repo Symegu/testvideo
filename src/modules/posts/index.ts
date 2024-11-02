@@ -11,7 +11,7 @@ import { errorResultMiddleware } from '../../global-middlewares/errorResultMiddl
 export const postsRouter = Router()
 
 postsRouter.get('/', getPostsController)
-postsRouter.get('/:id', errorResultMiddleware, findPostController)
+postsRouter.get('/:id', findPostController)
 postsRouter.post('/', adminAuthorizationMiddleware, titleValidator, shortDescriptionValidator, contentValidator, postIdValidator, errorResultMiddleware, createPostController)
 postsRouter.put('/:id', adminAuthorizationMiddleware, titleValidator, shortDescriptionValidator, contentValidator, postIdValidator, errorResultMiddleware, changePostController)
 postsRouter.delete('/:id', adminAuthorizationMiddleware, errorResultMiddleware, deletePostController)

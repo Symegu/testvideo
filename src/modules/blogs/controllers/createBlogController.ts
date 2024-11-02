@@ -1,10 +1,9 @@
 import { Request, Response } from 'express'
 import { BlogModel } from "../../../db/blog-db";
 import { BlogInputType } from '../../../input-output-types/blog-types';
-import { OutputErrorsType } from "../../../input-output-types/output-errors-type";
 import { blogsRepository } from '../blogsRepository';
 
-export const createBlogController = async (req: Request<BlogInputType>, res: Response<BlogModel | OutputErrorsType>) => {
+export const createBlogController = async (req: Request<BlogInputType>, res: Response<BlogModel | null>) => {
   const createdBlogId = (await blogsRepository.createBlog(req.body)).toString()
   const createdBlog = await blogsRepository.findById(createdBlogId)
   if (!createdBlog) {

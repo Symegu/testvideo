@@ -2,7 +2,6 @@
 
 import { PostModel } from "../../db/post-db"
 import { PostInputType } from "../../input-output-types/post-types"
-import { db } from "../../db/localDb"
 import { blogsRepository } from "../blogs/blogsRepository"
 import { postsCollection } from "../../db/mongoDb"
 import { ObjectId } from "mongodb"
