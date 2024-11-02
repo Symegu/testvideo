@@ -150,35 +150,6 @@ afterAll(async () => {
 
     console.log(res.body)
   })
-  it('shouldn\'t delete | no matching id', async () => {
-    //setPostsDB()
-
-    const res = await req
-      .delete(SETTINGS.PATH.POSTS + '/1')
-      .set({ 'Authorization': 'Basic ' + codedAuth })
-      .expect(404)
-
-    console.log(res.body)
-  })
-  it('shouldn\'t delete | unauthorized', async () => {
-    //setPostsDB()
-
-    const res = await req
-      .delete(SETTINGS.PATH.POSTS + '/1234567')
-      .expect(401)
-
-    console.log(res.body)
-  })
-  it('should delete', async () => {
-    //setPostsDB()
-
-    const res = await req
-      .delete(SETTINGS.PATH.POSTS + '/1234567')
-      .set({ 'Authorization': 'Basic ' + codedAuth })
-      .expect(204)
-
-    console.log(res.body)
-  })
   it('should change', async () => {
     //setPostsDB()
     const changedBlog: PostInputType = {
@@ -242,4 +213,34 @@ afterAll(async () => {
 
     console.log(res.body)
   })
+  it('shouldn\'t delete | no matching id', async () => {
+    //setPostsDB()
+
+    const res = await req
+      .delete(SETTINGS.PATH.POSTS + '/1')
+      .set({ 'Authorization': 'Basic ' + codedAuth })
+      .expect(404)
+
+    console.log(res.body)
+  })
+  it('shouldn\'t delete | unauthorized', async () => {
+    //setPostsDB()
+
+    const res = await req
+      .delete(SETTINGS.PATH.POSTS + '/1234567')
+      .expect(401)
+
+    console.log(res.body)
+  })
+  it('should delete', async () => {
+    //setPostsDB()
+
+    const res = await req
+      .delete(SETTINGS.PATH.POSTS + '/1234567')
+      .set({ 'Authorization': 'Basic ' + codedAuth })
+      .expect(204)
+
+    console.log(res.body)
+  })
+  
 })

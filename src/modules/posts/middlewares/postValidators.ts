@@ -25,10 +25,10 @@ export const contentValidator = body('content')
   .isLength({ min: 1, max: 1000 })
   .withMessage('content length is more than 1000 or less than 1')
 
-export const postIdValidator = body('blogId')
+export const blogIdValidator = body('blogId')
   .trim()
   .isString()
-  .withMessage('post id is not string')
+  .withMessage('blog id is not string')
   .custom(async (blogId) => {
     const blog = await blogsRepository.findById(blogId)
     return !!blog

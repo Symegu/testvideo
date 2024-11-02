@@ -51,6 +51,10 @@ export const postsRepository = {
     if (!currentBlog) {
       return null
     }
+    const currentPost = await postsRepository.findById(id)
+    if (!currentPost) {
+      return null
+    }
     const changedPost: PostModel = {
       id: id,
       title: post.title,
@@ -58,7 +62,7 @@ export const postsRepository = {
       content: post.content,
       blogId: post.blogId,
       blogName: currentBlog!.name,
-      createdAt: currentBlog!.createdAt
+      createdAt: currentPost.createdAt
     }
     //db.posts = db.posts.map(post => post.id === id ? changedPost : post)
     const res = await postsCollection.updateOne(

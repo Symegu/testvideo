@@ -6,10 +6,10 @@ export const errorResultMiddleware = async (req: Request, res: Response<OutputEr
   const errors = validationResult(req)
   if(!errors.isEmpty()) {
     const errorsArr = errors.array({onlyFirstError: true}) as { path: FieldNamesType, msg: string }[]
-    res.status(400).json({errorsMessages: errorsArr.map(e => ({field: e.path, message: e.msg}))})
+    console.error('Validation errors:', errorsArr)
+    res.status(400).json({errorsMessages: errorsArr.map(e => ({message: e.msg, field: e.path}))})
     return
-  } else {
-    next()
-  }
+  } 
+  next()
   
 }
