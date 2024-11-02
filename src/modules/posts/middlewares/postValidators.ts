@@ -31,9 +31,11 @@ export const blogIdValidator = body('blogId')
   .withMessage('blog id is not string')
   .custom(async (blogId) => {
     const blog = await blogsRepository.findById(blogId)
-    return !!blog
+    if (!blog) {
+      throw new Error('post with this blog id does not exist')
+    }
+    return true
   })
-  .withMessage('post with this blog id does not exist')
 
 export const findPostMiddleware = (req: Request<{id: string}>, res: Response<OutputErrorsType>, next: NextFunction) => {
     const post = postsRepository.findById(req.params.id)
