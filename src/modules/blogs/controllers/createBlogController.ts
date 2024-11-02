@@ -8,7 +8,10 @@ export const createBlogController = async (req: Request<BlogInputType>, res: Res
   const createdBlogId = await blogsRepository.createBlog(req.body)
   const createdBlog = await blogsRepository.findByUUID(createdBlogId)
   if (!createdBlog) {
-    res.sendStatus(404)
+    res.sendStatus(400)
+    return
+  } else {
+    res.status(201).json(createdBlog)
   }
-  res.status(201).json(createdBlog!)
+  
 }

@@ -7,6 +7,7 @@ export const findBlogController = async (req: Request<{ id: string }>, res: Resp
   const blog = await blogsRepository.findById(req.params.id)
   if (!blog) {
     res.sendStatus(404)
+    return
   }
-  res.status(200).json(blog!)
+  res.status(200).json(blog)
 }

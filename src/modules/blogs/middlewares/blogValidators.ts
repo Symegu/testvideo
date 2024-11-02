@@ -25,12 +25,3 @@ export const websiteUrlValidator = body('websiteUrl')
   .withMessage('website url does not match required pattern')
   .isLength({ min: 1, max: 100 })
   .withMessage('website url length is more than 100 or less than 1')
-
-export const findBlogMiddleware = (req: Request<{id: string}>, res: Response<OutputErrorsType>, next: NextFunction) => {
-  const blog = blogsRepository.findById(req.params.id)
-  if(!blog) {
-    res.sendStatus(404)
-  }
-  
-  next()
-}

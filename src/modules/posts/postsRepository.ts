@@ -27,8 +27,11 @@ export const postsRepository = {
     const res = await postsCollection.deleteOne({id: id})
     return res.deletedCount === 1
   },
-  async createPost(post: PostInputType): Promise<ObjectId> {
+  async createPost(post: PostInputType): Promise<ObjectId | null> {
     const currentBlog = await blogsRepository.findById(post.blogId)
+    if (!currentBlog) {
+      return null
+    }
     const dateNow = Date.now()
     const createdAtISO = new Date(dateNow).toISOString()
     const newPost: PostModel = {
@@ -37,15 +40,18 @@ export const postsRepository = {
       shortDescription: post.shortDescription,
       content: post.content,
       blogId: post.blogId,
-      blogName: currentBlog!.name,
+      blogName: currentBlog.name,
       createdAt: createdAtISO
     }
     // db.posts.push(newPost)
     const res = await postsCollection.insertOne(newPost)
     return res.insertedId
   },
-  async changeById(post: PostInputType, id: string): Promise<boolean> {
+  async changeById(post: PostInputType, id: string): Promise<boolean | null> {
     const currentBlog = await blogsRepository.findById(post.blogId)
+    if (!currentBlog) {
+      return null
+    }
     const changedPost: PostModel = {
       id: id,
       title: post.title,

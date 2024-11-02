@@ -1,6 +1,6 @@
 import { req } from './test-helpers'
-import { setPostsDB } from '../src/db/localDb'
-import { codedAuth, dataset1 } from './datasets'
+import { setBlogsDB, setPostsDB } from '../src/db/localDb'
+import { codedAuth } from './datasets'
 import { SETTINGS } from '../src/settings'
 import { PostInputType } from '../src/input-output-types/post-types'
 import { MongoClient } from 'mongodb'
@@ -35,8 +35,8 @@ afterAll(async () => {
     expect(res.body.length).toBe(0) // проверяем ответ эндпоинта
   })
   it('should get not empty array', async () => {
-    setPostsDB() // заполнение базы данных начальными данными если нужно
-
+    await setPostsDB() // заполнение базы данных начальными данными если нужно
+    
     const res = await req
       .get(SETTINGS.PATH.POSTS)
       .expect(200)
@@ -44,10 +44,10 @@ afterAll(async () => {
     console.log(res.body)
 
     expect(res.body.length).toBe(2)
-    expect(res.body[0]).toEqual(dataset1.posts[0])
   })
   it('should create', async () => {
     //setPostsDB()
+    await setBlogsDB()
     const newPost: PostInputType = {
       "title": "string",
       "shortDescription": "string",

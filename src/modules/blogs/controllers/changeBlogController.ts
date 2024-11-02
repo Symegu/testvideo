@@ -6,6 +6,7 @@ export const changeBlogController = async (req: Request<{id: string}, any, BlogI
   const updateStatus = await blogsRepository.changeById(req.body, req.params.id)
   if (!updateStatus) {
     res.sendStatus(404)
+    return
   }
   res.sendStatus(204)
 }

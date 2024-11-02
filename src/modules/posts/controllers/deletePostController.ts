@@ -5,6 +5,7 @@ export const deletePostController = async (req: Request<{ id: string }>, res: Re
   const post = await postsRepository.findById(req.params.id)
   if(!post) {
     res.sendStatus(404)
+    return
   }
 
   res.sendStatus(204)

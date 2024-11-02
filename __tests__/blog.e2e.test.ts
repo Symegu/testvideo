@@ -34,7 +34,7 @@ describe('/blogs', () => {
         expect(res.body.length).toBe(0) // проверяем ответ эндпоинта
     })
     it('should get not empty array', async () => {
-        setBlogsDB() // заполнение базы данных начальными данными если нужно
+        await setBlogsDB() // заполнение базы данных начальными данными если нужно
 
         const res = await req
             .get(SETTINGS.PATH.BLOGS)

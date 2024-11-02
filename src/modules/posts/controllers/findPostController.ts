@@ -6,6 +6,7 @@ export const findPostController = async (req: Request<{id: string}>, res: Respon
   const post = await postsRepository.findById(req.params.id)
   if(!post) {
     res.sendStatus(404)
+    return
   }
-  res.status(200).json(post!)
+  res.status(200).json(post)
 }
