@@ -7,7 +7,7 @@ import { ObjectId } from "mongodb"
 export const blogsRepository = {
   async getBlogs(): Promise<BlogModel[]> {
     // return db.blogs
-    return await blogsCollection.find({}).toArray()
+    return await blogsCollection.find({}, { projection: { _id: 0 } }).toArray()
   },
   async findByUUID(_id: ObjectId): Promise<BlogModel | null> {
     return await blogsCollection.findOne({_id: _id}, { projection: { _id: 0 } })

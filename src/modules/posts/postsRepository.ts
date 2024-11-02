@@ -11,20 +11,20 @@ import { ObjectId } from "mongodb"
 export const postsRepository = {
   async getPosts(): Promise<PostModel[]> {
     // return db.posts
-    return postsCollection.find({}).toArray()
+    return postsCollection.find({}, { projection: { _id: 0 } }).toArray()
   },
   async findById(id: string): Promise<PostModel | null> {
     // return db.posts.find(post => post.id === id)
-    return await postsCollection.findOne({id: id})
+    return await postsCollection.findOne({ id: id }, { projection: { _id: 0 } })
   },
   async findByUUID(_id: ObjectId): Promise<PostModel | null> {
     // return db.posts.find(post => post.id === id)
-    return await postsCollection.findOne({_id: _id})
+    return await postsCollection.findOne({ _id: _id }, { projection: { _id: 0 } })
   },
   async deleteById(id: string): Promise<boolean> {
     // db.posts = db.posts.filter(post => post.id !== id)
     // return id
-    const res = await postsCollection.deleteOne({id: id})
+    const res = await postsCollection.deleteOne({ id: id })
     return res.deletedCount === 1
   },
   async createPost(post: PostInputType): Promise<ObjectId | null> {
@@ -63,7 +63,7 @@ export const postsRepository = {
     }
     //db.posts = db.posts.map(post => post.id === id ? changedPost : post)
     const res = await postsCollection.updateOne(
-      {id}, {$set: {...changedPost}}
+      { id }, { $set: { ...changedPost } }
     )
     return res.matchedCount === 1
   }
