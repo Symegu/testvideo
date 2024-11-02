@@ -12,6 +12,6 @@ export const postsRouter = Router()
 
 postsRouter.get('/', getPostsController)
 postsRouter.get('/:id', findPostController)
-postsRouter.post('/', adminAuthorizationMiddleware, titleValidator, shortDescriptionValidator, contentValidator, blogIdValidator, errorResultMiddleware, createPostController)
-postsRouter.put('/:id', adminAuthorizationMiddleware, titleValidator, shortDescriptionValidator, contentValidator, blogIdValidator, errorResultMiddleware, changePostController)
+postsRouter.post('/', adminAuthorizationMiddleware, titleValidator, blogIdValidator, shortDescriptionValidator, contentValidator, errorResultMiddleware, createPostController)
+postsRouter.put('/:id', adminAuthorizationMiddleware, titleValidator, blogIdValidator, shortDescriptionValidator, contentValidator, errorResultMiddleware, changePostController)
 postsRouter.delete('/:id', adminAuthorizationMiddleware, errorResultMiddleware, deletePostController)
