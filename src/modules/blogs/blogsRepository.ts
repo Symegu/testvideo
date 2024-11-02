@@ -10,11 +10,11 @@ export const blogsRepository = {
     return await blogsCollection.find({}).toArray()
   },
   async findByUUID(_id: ObjectId): Promise<BlogModel | null> {
-    return await blogsCollection.findOne({_id: _id})
+    return await blogsCollection.findOne({_id: _id}, { projection: { _id: 0 } })
   },
   async findById(id: string): Promise<BlogModel | null> {
     // return db.blogs.find(blog => blog.id === id)
-    return await blogsCollection.findOne({id: id})
+    return await blogsCollection.findOne({id: id}, { projection: { _id: 0 } })
   },
   async deleteById(id: string): Promise<boolean> {
     // db.blogs = db.blogs.filter(blog => blog.id !== id)

@@ -1,10 +1,17 @@
 import { Request, Response } from 'express'
 import { postsRepository } from '../postsRepository'
 import { PostModel } from '../../../db/post-db'
+import { ObjectId } from 'mongodb'
 
-export const findPostController = async (req: Request<{id: string}>, res: Response<PostModel>) => {
-  const post = await postsRepository.findById(req.params.id)
-  if(!post) {
+export const findPostController = async (req: Request<{id: string | ObjectId}>, res: Response<PostModel>) => {
+  const { id } = req.params
+  let post = null
+  if (ObjectId.isValid(id)) {
+    post = await postsRepository.findByUUID(new ObjectId(id))
+  } else if (typeof(id)==='string') {
+    post = await postsRepository.findById(id)
+  }
+  if (!post) {
     res.sendStatus(404)
     return
   }
