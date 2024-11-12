@@ -1,17 +1,13 @@
 import { Router } from 'express'
-import { getBlogsController } from './controllers/getBlogsController'
-import { createBlogController } from './controllers/createBlogController'
-import { findBlogController } from './controllers/findBlogController'
-import { deleteBlogController } from './controllers/deleteBlogController'
-import { changeBlogController } from './controllers/changeBlogController'
 import { adminAuthorizationMiddleware } from '../../global-middlewares/adminAuthorizationMiddleware'
 import { descriptionValidator, nameValidator, websiteUrlValidator } from './middlewares/blogValidators'
 import { errorResultMiddleware } from '../../global-middlewares/errorResultMiddleware'
+import { blogsController } from './blogsController'
 
 export const blogsRouter = Router()
 
-blogsRouter.get('/', getBlogsController)
-blogsRouter.get('/:id', findBlogController)
-blogsRouter.post('/', adminAuthorizationMiddleware, nameValidator, descriptionValidator, websiteUrlValidator, errorResultMiddleware, createBlogController)
-blogsRouter.put('/:id', adminAuthorizationMiddleware, nameValidator, descriptionValidator, websiteUrlValidator, errorResultMiddleware, changeBlogController)
-blogsRouter.delete('/:id', adminAuthorizationMiddleware, errorResultMiddleware, deleteBlogController)
+blogsRouter.get('/', blogsController.getBlogsController)
+blogsRouter.get('/:id', blogsController.findBlogController)
+blogsRouter.post('/', adminAuthorizationMiddleware, nameValidator, descriptionValidator, websiteUrlValidator, errorResultMiddleware, blogsController.createBlogController)
+blogsRouter.put('/:id', adminAuthorizationMiddleware, nameValidator, descriptionValidator, websiteUrlValidator, errorResultMiddleware, blogsController.changeBlogController)
+blogsRouter.delete('/:id', adminAuthorizationMiddleware, errorResultMiddleware, blogsController.deleteBlogController)

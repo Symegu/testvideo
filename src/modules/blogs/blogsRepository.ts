@@ -1,13 +1,28 @@
 import { BlogModel } from "../../db/blog-db"
 import { BlogInputType } from "../../input-output-types/blog-types"
-// import { db } from "../../db/localDb"
 import { blogsCollection } from '../../db/mongoDb';
 import { ObjectId } from "mongodb"
 
 export const blogsRepository = {
-  async getBlogs(): Promise<BlogModel[]> {
-    // return db.blogs
-    return await blogsCollection.find({}, { projection: { _id: 0 } }).toArray()
+  async getBlogs(pageNumber: number, pageSize: number, sortBy: string, sortDirection: 'asc' | 'desc', searchNameTerm: string | null): Promise<BlogModel[]> {
+    const filter: any = {}
+    if (searchNameTerm) {
+      filter.title = { $regex: searchNameTerm, $options: 'i' }
+    }
+
+    return await blogsCollection
+      .find({ filter }, { projection: { _id: 0 } })
+      .skip((pageNumber - 1) * pageSize)
+      .limit(pageSize)
+      .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
+      .toArray()
+  },
+  async getBlogsCount(searchNameTerm: string | null): Promise<number> {
+    const filter: any = {}
+    if (searchNameTerm) {
+      filter.title = { $regex: searchNameTerm, $options: 'i' }
+    }
+    return await blogsCollection.countDocuments(filter)
   },
   async findByUUID(_id: ObjectId): Promise<BlogModel | null> {
     return await blogsCollection.findOne({ _id: _id }, { projection: { _id: 0 } })

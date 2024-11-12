@@ -1,5 +1,3 @@
-// ...
-
 import { PostModel } from "../../db/post-db"
 import { PostInputType } from "../../input-output-types/post-types"
 import { blogsRepository } from "../blogs/blogsRepository"
