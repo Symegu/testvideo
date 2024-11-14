@@ -3,6 +3,9 @@ import { BlogViewModel } from "../../db/blog-db"
 import { PaginatorBlogModel } from "../other/paginator-types"
 import { blogsRepository } from "./blogsRepository"
 import { BlogInputModel } from "../../input-output-types/blog-types"
+import { PostInputModel } from "../../input-output-types/post-types"
+import { PostViewModel } from "../../db/post-db"
+import { postsService } from '../posts/postsService';
 
 export const blogsService = {
   async getBlogs(
@@ -22,6 +25,16 @@ export const blogsService = {
       items: blogs
     }
   },
+  // async getBlogPosts(
+  //   pageNumber: number,
+  //   pageSize: number,
+  //   sortBy: string,
+  //   sortDirection: 'asc' | 'desc',
+  //   searchNameTerm: string | null,
+    
+  // ) {
+  //   return null
+  // },
   async findById(
     id: string
   ): Promise<BlogViewModel | null> {
@@ -44,6 +57,17 @@ export const blogsService = {
       return null
     }
     return createdBlog
+  },
+  async createBlogsPost(
+    post: PostInputModel,
+    currentBlog: BlogViewModel
+  ): Promise<PostViewModel | null> {
+    const newPost = await postsService.createPost(post, currentBlog)
+    if (!newPost) {
+      return null
+    }
+
+    return newPost
   },
   async changeById(
     blog: BlogInputModel, id: string

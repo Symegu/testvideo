@@ -1,16 +1,19 @@
 import { Request, Response } from 'express'
-import { PostModel, PostViewModel } from "../../db/post-db"
+import { PostViewModel } from "../../db/post-db"
 import { postsRepository } from "./postsRepository"
 import { PostInputModel } from '../../input-output-types/post-types'
 import { ObjectId } from 'mongodb'
 import { postsService } from './postsService'
+import { PaginatorPostModel } from '../other/paginator-types'
+import { blogsController } from '../blogs/blogsController'
 
 export const postsController = {
   async getPostsController (
     req: Request,
-    res: Response<PostModel[]>
+    res: Response<PaginatorPostModel>
   ) {
-    const posts = await postsRepository.getPosts()
+    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
+    const posts = await postsService.getPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
     res.status(200).json(posts)
   },
   async createPostController (
@@ -37,7 +40,7 @@ export const postsController = {
   },
   async findPostController (
     req: Request<{id: string | ObjectId}>,
-    res: Response<PostModel | null>
+    res: Response<PostViewModel | null>
   ) {
     const { id } = req.params
     let post = null
@@ -67,4 +70,8 @@ export const postsController = {
     }
     res.sendStatus(204)
   }
+}
+
+function paginationQueries(req: Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>): { pageNumber: any; pageSize: any; sortBy: any; sortDirection: any; searchNameTerm: any } {
+  throw new Error('Function not implemented.')
 }

@@ -4,22 +4,47 @@ import { postsRepository } from './postsRepository';
 import { PostInputModel } from "../../input-output-types/post-types"
 import { BlogViewModel } from "../../db/blog-db";
 import { blogsService } from "../blogs/blogsService";
+import { PaginatorPostModel } from "../other/paginator-types";
 
 export const postsService = {
-  // async getPosts(): Promise<PostModel[]> {
-  //   // return db.posts
-  //   return postsRepository.find({}, { projection: { _id: 0 } }).toArray()
-  // },
-  
+  async getPosts(
+    pageNumber: number,
+    pageSize: number,
+    sortBy: string,
+    sortDirection: 'asc' | 'desc',
+    searchNameTerm: string | null,
+    // blogId?: string | null,
+  ): Promise<PaginatorPostModel> {
+    // let blog: BlogViewModel | null
+
+    // const currentBlog: BlogViewModel | null = 
+    //   await blogsService.findById(blogId)
+    //   if (!currentBlog) {
+    //     return null
+    // }
+    ///////!providedBlog ? blog = currentBlog : blog = providedBlog
+    const posts = await postsRepository.getPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
+    const postsCount = await postsRepository.getPostsCount(searchNameTerm)
+    return {
+      pagesCount: Math.ceil(postsCount / pageSize),
+      page: pageNumber,
+      pageSize,
+      totalCount: postsCount,
+      items: posts
+    }
+  },
   async createPost(
-    post: PostInputModel
+    post: PostInputModel,
+    providedBlog?: BlogViewModel
   ): Promise<PostViewModel | null> {
+    let blog: BlogViewModel | null
     const currentBlog: BlogViewModel | null = 
       await blogsService.findById(post.blogId)
-    if (!currentBlog) {
-      return null
+      if (!currentBlog) {
+        return null
     }
-    const newPostId = await postsRepository.createPost(post, currentBlog)
+    !providedBlog ? blog = currentBlog : blog = providedBlog
+    const newPostId = await postsRepository.createPost(post, blog)
     const newPost = await postsRepository.findByUUID(newPostId)
     return newPost
   },
