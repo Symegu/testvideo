@@ -1,7 +1,7 @@
-import { BlogInputType } from "./blog-types"
-import { PostInputType } from "./post-types"
+import { BlogInputModel } from "./blog-types"
+import { PostInputModel } from "./post-types"
 
-export type FieldNamesType = keyof BlogInputType | keyof PostInputType
+export type FieldNamesType = keyof BlogInputModel | keyof PostInputModel
 
 export type OutputErrorsType = {
     errorsMessages: {message: string, field: FieldNamesType}[]

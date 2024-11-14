@@ -1,5 +1,5 @@
 import { BlogModel } from "../../db/blog-db"
-import { BlogInputType } from "../../input-output-types/blog-types"
+import { BlogInputModel } from "../../input-output-types/blog-types"
 import { blogsCollection } from '../../db/mongoDb';
 import { ObjectId } from "mongodb"
 
@@ -37,7 +37,7 @@ export const blogsRepository = {
     const res = await blogsCollection.deleteOne({ id: id })
     return res.deletedCount === 1
   },
-  async createBlog(blog: BlogInputType): Promise<ObjectId> {
+  async createBlog(blog: BlogInputModel): Promise<ObjectId> {
     const dateNow = Date.now()
     const createdAtISO = new Date(dateNow).toISOString()
     const newBlog: BlogModel = {
@@ -52,7 +52,7 @@ export const blogsRepository = {
     const res = await blogsCollection.insertOne(newBlog)
     return res.insertedId
   },
-  async changeById(blog: BlogInputType, id: string): Promise<boolean | null> {
+  async changeById(blog: BlogInputModel, id: string): Promise<boolean | null> {
     const currentBlog = await blogsRepository.findById(id)
     if (!currentBlog) {
       return null

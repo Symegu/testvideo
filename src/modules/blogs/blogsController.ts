@@ -4,7 +4,7 @@ import { blogsService } from "./blogsService"
 import { ObjectId } from 'mongodb'
 import { BlogModel } from '../../db/blog-db'
 import { blogsRepository } from './blogsRepository'
-import { BlogInputType } from '../../input-output-types/blog-types'
+import { BlogInputModel } from '../../input-output-types/blog-types'
 
 export const blogsController = {
   async getBlogsController(
@@ -16,7 +16,7 @@ export const blogsController = {
     res.status(200).json(blogs)
   },
   async createBlogController (
-    req: Request<BlogInputType>,
+    req: Request<BlogInputModel>,
     res: Response<BlogModel | null>
   ) {
     const createdBlogId = await blogsRepository.createBlog(req.body)
@@ -32,7 +32,7 @@ export const blogsController = {
       res.status(201).json(createdBlog)
   },
   async changeBlogController (
-    req: Request<{id: string}, any, BlogInputType>,
+    req: Request<{id: string}, any, BlogInputModel>,
     res: Response
   ) {
     const updateStatus = await blogsRepository.changeById(req.body, req.params.id)

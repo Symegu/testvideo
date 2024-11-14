@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { PostModel } from "../../db/post-db"
 import { postsRepository } from "./postsRepository"
-import { PostInputType } from '../../input-output-types/post-types'
+import { PostInputModel } from '../../input-output-types/post-types'
 import { ObjectId } from 'mongodb'
 
 export const postsController = {
@@ -13,7 +13,7 @@ export const postsController = {
     res.status(200).json(posts)
   },
   async createPostController (
-    req: Request<PostInputType>,
+    req: Request<PostInputModel>,
     res: Response<PostModel | null>
   ) {
     const newPostId = await postsRepository.createPost(req.body)
@@ -29,7 +29,7 @@ export const postsController = {
     res.status(201).json(newPost)
   },
   async changePostController (
-    req: Request<({id: string}), any, PostInputType>,
+    req: Request<({id: string}), any, PostInputModel>,
     res: Response
   ) {
     const updateStatus = await postsRepository.changeById(req.body, req.params.id)

@@ -1,5 +1,5 @@
 import { PostModel } from "../../db/post-db"
-import { PostInputType } from "../../input-output-types/post-types"
+import { PostInputModel } from "../../input-output-types/post-types"
 import { blogsRepository } from "../blogs/blogsRepository"
 import { postsCollection } from "../../db/mongoDb"
 import { ObjectId } from "mongodb"
@@ -24,7 +24,7 @@ export const postsRepository = {
     const res = await postsCollection.deleteOne({ id: id })
     return res.deletedCount === 1
   },
-  async createPost(post: PostInputType): Promise<ObjectId | null> {
+  async createPost(post: PostInputModel): Promise<ObjectId | null> {
     const currentBlog = await blogsRepository.findById(post.blogId)
     if (!currentBlog) {
       return null
@@ -44,7 +44,7 @@ export const postsRepository = {
     const res = await postsCollection.insertOne(newPost)
     return res.insertedId
   },
-  async changeById(post: PostInputType, id: string): Promise<boolean | null> {
+  async changeById(post: PostInputModel, id: string): Promise<boolean | null> {
     const currentBlog = await blogsRepository.findById(post.blogId)
     if (!currentBlog) {
       return null

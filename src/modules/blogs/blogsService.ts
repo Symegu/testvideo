@@ -1,3 +1,5 @@
+import { BlogModel } from "../../db/blog-db"
+import { blogsCollection } from "../../db/mongoDb"
 import { blogsRepository } from "./blogsRepository"
 
 export const blogsService = {
@@ -25,7 +27,7 @@ export const blogsService = {
     // return db.blogs.find(blog => blog.id === id)
     return await blogsCollection.findOne({ id: id }, { projection: { _id: 0 } })
   },
-  // async createBlog(blog: BlogInputType): Promise<ObjectId> {
+  // async createBlog(blog: BlogInputModel): Promise<ObjectId> {
   //   const dateNow = Date.now()
   //   const createdAtISO = new Date(dateNow).toISOString()
   //   const newBlog: BlogModel = {
@@ -40,7 +42,7 @@ export const blogsService = {
   //   const res = await blogsCollection.insertOne(newBlog)
   //   return res.insertedId
   // },
-  // async changeById(blog: BlogInputType, id: string): Promise<boolean | null> {
+  // async changeById(blog: BlogInputModel, id: string): Promise<boolean | null> {
   //   const currentBlog = await blogsRepository.findById(id)
   //   if (!currentBlog) {
   //     return null
