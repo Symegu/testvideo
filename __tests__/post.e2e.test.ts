@@ -2,7 +2,7 @@ import { req } from './test-helpers'
 import { setBlogsDB, setPostsDB } from '../src/db/localDb'
 import { codedAuth } from './datasets'
 import { SETTINGS } from '../src/settings'
-import { PostInputType } from '../src/input-output-types/post-types'
+import { PostInputModel } from '../src/input-output-types/post-types'
 import { MongoClient } from 'mongodb'
 import { runDB, postsCollection } from '../src/db/mongoDb'
 
@@ -48,7 +48,7 @@ afterAll(async () => {
   it('should create', async () => {
     //setPostsDB()
     await setBlogsDB()
-    const newPost: PostInputType = {
+    const newPost: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
       "content": "string",
@@ -65,7 +65,7 @@ afterAll(async () => {
   })
   it('shouldn\'t create | valid but unauthorized', async () => {
    //setPostsDB()
-    const newPost: PostInputType = {
+    const newPost: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
       "content": "string",
@@ -81,7 +81,7 @@ afterAll(async () => {
   })
   it('shouldn\'t create | valid but authorize invalid', async () => {
    //setPostsDB()
-    const newPost: PostInputType = {
+    const newPost: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
       "content": "string",
@@ -99,7 +99,7 @@ afterAll(async () => {
 
   it('shouldn\'t create | invalid data', async () => {
    //setPostsDB()
-    const newPost: PostInputType = {
+    const newPost: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
       "content": "string",
@@ -117,7 +117,7 @@ afterAll(async () => {
 
   it('shouldn\'t create | invalid data', async () => {
    //setPostsDB()
-    const newPost: PostInputType = {
+    const newPost: PostInputModel = {
       "title": "string 12345678989172387834456389476582736582123123123123",
       "shortDescription": "string",
       "content": "string",
@@ -152,7 +152,7 @@ afterAll(async () => {
   })
   it('should change', async () => {
     //setPostsDB()
-    const changedBlog: PostInputType = {
+    const changedBlog: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
       "content": "string",
@@ -168,7 +168,7 @@ afterAll(async () => {
   })
   it('should\'t change | unauthorized', async () => {
     //setPostsDB()
-    const changedBlog: PostInputType = {
+    const changedBlog: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
       "content": "string",
@@ -183,7 +183,7 @@ afterAll(async () => {
   })
   it('should\'t change | invalid data', async () => {
     //setPostsDB()
-    const changedBlog: PostInputType = {
+    const changedBlog: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
       "content": "string",
@@ -199,7 +199,7 @@ afterAll(async () => {
   })
   it('should\'t change | invalid data', async () => {
     //setPostsDB()
-    const changedBlog: PostInputType = {
+    const changedBlog: PostInputModel = {
       "title": "string 12345678978978997987978987987978987987978",
       "shortDescription": "string",
       "content": "string",

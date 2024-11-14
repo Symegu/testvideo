@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { paginationQueries } from "../other/paginationQueries"
 import { blogsService } from "./blogsService"
 import { ObjectId } from 'mongodb'
-import { BlogModel } from '../../db/blog-db'
+import { BlogViewModel } from '../../db/blog-db'
 import { blogsRepository } from './blogsRepository'
 import { BlogInputModel } from '../../input-output-types/blog-types'
 
@@ -15,43 +15,38 @@ export const blogsController = {
     const blogs = await blogsService.getBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
     res.status(200).json(blogs)
   },
-  async createBlogController (
+  async createBlogController(
     req: Request<BlogInputModel>,
-    res: Response<BlogModel | null>
+    res: Response<BlogViewModel | null>
   ) {
-    const createdBlogId = await blogsRepository.createBlog(req.body)
-    if(!createdBlogId) {
-      res.sendStatus(404)
-      return
-    }
-    const createdBlog = await blogsRepository.findByUUID(createdBlogId)
+    const createdBlog = await blogsService.createBlog(req.body)
     if (!createdBlog) {
       res.sendStatus(400)
       return
-    } 
-      res.status(201).json(createdBlog)
+    }
+    res.status(201).json(createdBlog)
   },
-  async changeBlogController (
-    req: Request<{id: string}, any, BlogInputModel>,
-    res: Response
+  async changeBlogController(
+    req: Request<{ id: string }, any, BlogInputModel>,
+    res: Response<boolean>
   ) {
-    const updateStatus = await blogsRepository.changeById(req.body, req.params.id)
+    const updateStatus = await blogsService.changeById(req.body, req.params.id)
     if (!updateStatus) {
       res.sendStatus(404)
       return
     }
     res.sendStatus(204)
   },
-  async findBlogController (
-    req: Request<{ id: string | ObjectId}>,
-    res: Response<BlogModel>
+  async findBlogController(
+    req: Request<{ id: string | ObjectId }>,
+    res: Response<BlogViewModel>
   ) {
     const { id } = req.params
     let blog = null
     if (ObjectId.isValid(id)) {
-      blog = await blogsRepository.findByUUID(new ObjectId(id))
-    } else if (typeof(id)==='string') {
-      blog = await blogsRepository.findById(id)
+      blog = await blogsService.findByUUID(new ObjectId(id))
+    } else if (typeof (id) === 'string') {
+      blog = await blogsService.findById(id)
     }
     if (!blog) {
       res.sendStatus(404)
@@ -59,7 +54,7 @@ export const blogsController = {
     }
     res.status(200).json(blog)
   },
-  async deleteBlogController (
+  async deleteBlogController(
     req: Request<{ id: string }>,
     res: Response
   ) {

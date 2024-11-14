@@ -1,5 +1,3 @@
-import { VideoDBType } from '../src/db/video-db'
-import { Resolutions } from '../src/input-output-types/video-types'
 import { DBType } from '../src/db/localDb'
 import { BlogModel } from '../src/db/blog-db'
 import { PostModel } from '../src/db/post-db'
@@ -7,28 +5,6 @@ import { SETTINGS } from '../src/settings'
 import { fromUTF8ToBase64 } from '../src/global-middlewares/adminAuthorizationMiddleware'
 
 // готовые данные для переиспользования в тестах
-
-export const video1: VideoDBType = {
-    id: 1,
-    title: 't1',
-    author: 'a1',
-    canBeDownloaded: true,
-    minAgeRestriction: null,
-    createdAt: new Date().toISOString(),
-    publicationDate: new Date().toISOString(),
-    availableResolutions: [Resolutions.P240],
-}
-export const video2: VideoDBType = {
-    id: 1234,
-    title: 't2',
-    author: 'a2',
-    canBeDownloaded: true,
-    minAgeRestriction: null,
-    createdAt: new Date().toISOString(),
-    publicationDate: '01.01.01',
-    availableResolutions: [Resolutions.P240],
-}
-
 export const blogValid: BlogModel = {
     id: '12345',
     name: 'valid name',
@@ -69,7 +45,6 @@ export const postInvalid: PostModel = {
 export const codedAuth = fromUTF8ToBase64(`${SETTINGS.CREDENTIALS.LOGIN}:${SETTINGS.CREDENTIALS.PASSWORD}`)
 
 export const dataset1: DBType = {
-    videos: [video1, video2],
     blogs: [blogValid, blogInvalid],
     posts: [postValid, postInvalid],
 }

@@ -1,8 +1,9 @@
 import { Request, Response } from 'express'
-import { PostModel } from "../../db/post-db"
+import { PostModel, PostViewModel } from "../../db/post-db"
 import { postsRepository } from "./postsRepository"
 import { PostInputModel } from '../../input-output-types/post-types'
 import { ObjectId } from 'mongodb'
+import { postsService } from './postsService'
 
 export const postsController = {
   async getPostsController (
@@ -14,16 +15,11 @@ export const postsController = {
   },
   async createPostController (
     req: Request<PostInputModel>,
-    res: Response<PostModel | null>
+    res: Response<PostViewModel | null>
   ) {
-    const newPostId = await postsRepository.createPost(req.body)
-    if(!newPostId) {
-      res.sendStatus(400)
-      return
-    }
-    const newPost = await postsRepository.findByUUID(newPostId)
+    const newPost = await postsService.createPost(req.body)
     if(!newPost) {
-      res.sendStatus(404)
+      res.sendStatus(400)
       return
     }
     res.status(201).json(newPost)
@@ -32,11 +28,7 @@ export const postsController = {
     req: Request<({id: string}), any, PostInputModel>,
     res: Response
   ) {
-    const updateStatus = await postsRepository.changeById(req.body, req.params.id)
-    if(updateStatus === null) {
-      res.sendStatus(404)
-      return
-    }
+    const updateStatus = await postsService.changeById(req.body, req.params.id)
     if(!updateStatus) {
       res.sendStatus(404)
       return
@@ -50,9 +42,9 @@ export const postsController = {
     const { id } = req.params
     let post = null
     if (ObjectId.isValid(id)) {
-      post = await postsRepository.findByUUID(new ObjectId(id))
+      post = await postsService.findByUUID(new ObjectId(id))
     } else if (typeof(id)==='string') {
-      post = await postsRepository.findById(id)
+      post = await postsService.findById(id)
     }
     if (!post) {
       res.sendStatus(404)
@@ -63,12 +55,12 @@ export const postsController = {
   async deletePostController (
     req: Request<{ id: string }>,
     res: Response) {
-    const post = await postsRepository.findById(req.params.id)
+    const post = await postsService.findById(req.params.id)
     if(!post) {
       res.sendStatus(404)
       return
     }
-    const postForDeleting = await postsRepository.deleteById(req.params.id)
+    const postForDeleting = await postsService.deleteById(req.params.id)
     if (!postForDeleting) {
       res.sendStatus(404)
       return

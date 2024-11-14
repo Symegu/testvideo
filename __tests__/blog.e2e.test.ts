@@ -2,7 +2,7 @@ import { req } from './test-helpers'
 import { setBlogsDB } from '../src/db/localDb'
 import { codedAuth, dataset1 } from './datasets'
 import { SETTINGS } from '../src/settings'
-import { BlogInputType } from '../src/input-output-types/blog-types'
+import { BlogInputModel } from '../src/input-output-types/blog-types'
 import { runDB, blogsCollection } from '../src/db/mongoDb'
 import { MongoClient } from 'mongodb'
 
@@ -46,7 +46,7 @@ describe('/blogs', () => {
     })
     it('should create', async () => {
       //setBlogsDB()
-      const newBlog: BlogInputType = {
+      const newBlog: BlogInputModel = {
           "name": "string",
           "description": "string",
           "websiteUrl": "https://qwerty.com"
@@ -62,7 +62,7 @@ describe('/blogs', () => {
   })
     it('shouldn\'t create | valid but unauthorized', async () => {
         //setBlogsDB()
-        const newBlog: BlogInputType = {
+        const newBlog: BlogInputModel = {
             "name": "string",
             "description": "string",
             "websiteUrl": "https://qwerty.com"
@@ -77,7 +77,7 @@ describe('/blogs', () => {
     })
     it('shouldn\'t create | valid but authorize invalid', async () => {
       //setBlogsDB()
-      const newBlog: BlogInputType = {
+      const newBlog: BlogInputModel = {
           "name": "string",
           "description": "string",
           "websiteUrl": "https://qwerty.com"
@@ -94,7 +94,7 @@ describe('/blogs', () => {
 
     it('shouldn\'t create | invalid data', async () => {
       //setBlogsDB()
-      const newBlog: BlogInputType = {
+      const newBlog: BlogInputModel = {
           "name": "string 1234567890",
           "description": "string",
           "websiteUrl": "https://qwerty.com"
@@ -111,7 +111,7 @@ describe('/blogs', () => {
 
     it('shouldn\'t create | invalid data', async () => {
       //setBlogsDB()
-      const newBlog: BlogInputType = {
+      const newBlog: BlogInputModel = {
           "name": "string",
           "description": "string",
           "websiteUrl": "https://XyIO0OXFjEfAOnMi55eLn8uhl-g4cZL8v5Tig0.2N8uTKO1j4dUy.YSCL29YpVYfww_slzGgbYt6ewj7cYzV.V9wrDiM.commmmm54754567467547564756"
@@ -146,7 +146,7 @@ describe('/blogs', () => {
     
     it('should change', async () => {
         //setBlogsDB()
-        const changedBlog: BlogInputType = {
+        const changedBlog: BlogInputModel = {
             "name": "string",
             "description": "string",
             "websiteUrl": "https://changed-url.com"
@@ -161,7 +161,7 @@ describe('/blogs', () => {
     })
     it('should\'t change | unauthorized', async () => {
         //setBlogsDB()
-        const changedBlog: BlogInputType = {
+        const changedBlog: BlogInputModel = {
             "name": "string",
             "description": "string",
             "websiteUrl": "https://changed-url.com"
@@ -175,7 +175,7 @@ describe('/blogs', () => {
     })
     it('should\'t change | invalid data', async () => {
         //setBlogsDB()
-        const changedBlog: BlogInputType = {
+        const changedBlog: BlogInputModel = {
             "name": "string 1234567890000",
             "description": "string",
             "websiteUrl": "https://changed-url.com"
@@ -190,7 +190,7 @@ describe('/blogs', () => {
     })
     it('should\'t change | invalid data', async () => {
         //setBlogsDB()
-        const changedBlog: BlogInputType = {
+        const changedBlog: BlogInputModel = {
             "name": "string",
             "description": "string",
             "websiteUrl": "https://changed-url----------------------------------------------.com"
