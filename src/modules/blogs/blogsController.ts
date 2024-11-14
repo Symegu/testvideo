@@ -57,8 +57,7 @@ export const blogsController = {
     if (ObjectId.isValid(id)) {
       console.log('objectid')
       blog = await blogsService.findByUUID(new ObjectId(id))
-    } 
-    if (!ObjectId.isValid(id) && typeof (id) === 'string') {
+    } else {
       console.log('id')
       blog = await blogsService.findById(id)
     }
@@ -87,7 +86,7 @@ export const blogsController = {
     let currentBlog = null
     if (ObjectId.isValid(id)) {
       currentBlog = await blogsService.findByUUID(new ObjectId(id))
-    } else if (typeof (id) === 'string') {
+    } else {
       currentBlog = await blogsService.findById(id)
     }
     const createdPost = await blogsService.createBlogsPost(req.body, currentBlog!)
