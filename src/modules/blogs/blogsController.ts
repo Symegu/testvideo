@@ -18,14 +18,14 @@ export const blogsController = {
     const blogs = await blogsService.getBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
     res.status(200).json(blogs)
   },
-  async getBlogPostsController(
-    req: Request<{id: string}>,
-    res: Response
-  ) {
-    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
-    const posts = await blogsService.getBlogPosts(req.params.id, pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
-    res.status(200).json(posts)
-  },
+  // async getBlogPostsController(
+  //   req: Request<{id: string}>,
+  //   res: Response
+  // ) {
+  //   const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
+  //   const posts = await blogsService.getBlogPosts(req.params.id, pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
+  //   res.status(200).json(posts)
+  // },
   async createBlogController(
     req: Request<BlogInputModel>,
     res: Response<BlogViewModel | null>
