@@ -17,7 +17,7 @@ export const blogsRepository = {
     }
 
     return await blogsCollection
-      .find({ filter }, { projection: { _id: 0 } })
+      .find(filter, { projection: { _id: 0 } })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })

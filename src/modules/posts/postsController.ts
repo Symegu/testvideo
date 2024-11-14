@@ -1,11 +1,9 @@
 import { Request, Response } from 'express'
 import { PostViewModel } from "../../db/post-db"
-import { postsRepository } from "./postsRepository"
 import { PostInputModel } from '../../input-output-types/post-types'
 import { ObjectId } from 'mongodb'
 import { postsService } from './postsService'
 import { PaginatorPostModel } from '../other/paginator-types'
-import { blogsController } from '../blogs/blogsController'
 
 export const postsController = {
   async getPostsController (
@@ -13,7 +11,7 @@ export const postsController = {
     res: Response<PaginatorPostModel>
   ) {
     const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
-    const posts = await postsService.getPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
+    const posts: PaginatorPostModel = await postsService.getPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
     res.status(200).json(posts)
   },
   async createPostController (

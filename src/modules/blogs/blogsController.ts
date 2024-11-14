@@ -49,14 +49,17 @@ export const blogsController = {
     res.sendStatus(204)
   },
   async findBlogController(
-    req: Request<{ id: string | ObjectId }>,
+    req: Request<{ id: string }>,
     res: Response<BlogViewModel>
   ) {
     const { id } = req.params
     let blog = null
     if (ObjectId.isValid(id)) {
+      console.log('objectid')
       blog = await blogsService.findByUUID(new ObjectId(id))
-    } else if (typeof (id) === 'string') {
+    } 
+    if (!ObjectId.isValid(id) && typeof (id) === 'string') {
+      console.log('id')
       blog = await blogsService.findById(id)
     }
     if (!blog) {
