@@ -56,7 +56,7 @@ export const postsRepository = {
       title: post.title,
       shortDescription: post.shortDescription,
       content: post.content,
-      blogId: post.blogId,
+      blogId: currentBlog.id,
       blogName: currentBlog.name,
       createdAt: createdAtISO
     }
