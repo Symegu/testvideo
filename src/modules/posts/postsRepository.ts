@@ -11,11 +11,16 @@ export const postsRepository = {
     pageSize: number,
     sortBy: string,
     sortDirection: 'asc' | 'desc',
-    searchNameTerm: string | null
+    searchNameTerm: string | null,
+    blogId?: string | null
   ): Promise<PostViewModel[]> {
     const filter: any = {}
     if (searchNameTerm) {
       filter.title = { $regex: searchNameTerm, $options: 'i'}
+    }
+
+    if (blogId) {
+      filter.blogId = { $regex: blogId }
     }
 
     return await postsCollection
@@ -23,16 +28,19 @@ export const postsRepository = {
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
-      .toArray()
+      .toArray() as PostViewModel[]
   },
   async getPostsCount(
-    searchNameTerm: string | null
+    searchNameTerm: string | null,
+    blogId?: string | null
   ): Promise<number> {
     let filter:any = {}
     if (searchNameTerm) {
       filter.title = {$regex: searchNameTerm, $options: 'i'}
     }
-
+    if (blogId) {
+      filter.blogId = { $regex: blogId }
+    }
     return await postsCollection.countDocuments(filter)
   },
   async findById(id: string): Promise<PostViewModel | null> {

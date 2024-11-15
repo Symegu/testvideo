@@ -18,14 +18,14 @@ export const blogsController = {
     const blogs = await blogsService.getBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
     res.status(200).json(blogs)
   },
-  // async getBlogPostsController(
-  //   req: Request<{id: string}>,
-  //   res: Response
-  // ) {
-  //   const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
-  //   const posts = await blogsService.getBlogPosts(req.params.id, pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
-  //   res.status(200).json(posts)
-  // },
+  async getBlogPostsController(
+    req: Request<{id: string}>,
+    res: Response
+  ) {
+    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
+    const posts = await blogsService.getBlogPosts(req.params.id, pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
+    res.status(200).json(posts)
+  },
   async createBlogController(
     req: Request<BlogInputModel>,
     res: Response<BlogViewModel | null>
@@ -37,6 +37,7 @@ export const blogsController = {
     }
     res.status(201).json(createdBlog)
   },
+
   async changeBlogController(
     req: Request<{ id: string }, any, BlogInputModel>,
     res: Response<boolean>
@@ -48,15 +49,17 @@ export const blogsController = {
     }
     res.sendStatus(204)
   },
+
   async findBlogController(
     req: Request<{ id: string }>,
     res: Response<BlogViewModel>
   ) {
     const { id } = req.params
-    let blog = null
+    let blog: BlogViewModel | null
     if (ObjectId.isValid(id)) {
       console.log('objectid')
       blog = await blogsService.findByUUID(new ObjectId(id))
+
     } else {
       console.log('id')
       blog = await blogsService.findById(id)
@@ -67,6 +70,7 @@ export const blogsController = {
     }
     res.status(200).json(blog)
   },
+
   async deleteBlogController(
     req: Request<{ id: string }>,
     res: Response
@@ -77,7 +81,8 @@ export const blogsController = {
       return
     }
     res.sendStatus(204)
-  },  
+  },
+
   async createBlogsPostController(
     req: Request<{ id: string }, PostInputModel>,
     res: Response<PostViewModel | null>

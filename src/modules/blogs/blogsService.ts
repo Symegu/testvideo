@@ -25,16 +25,17 @@ export const blogsService = {
       items: blogs
     }
   },
-  // async getBlogPosts(
-  //   pageNumber: number,
-  //   pageSize: number,
-  //   sortBy: string,
-  //   sortDirection: 'asc' | 'desc',
-  //   searchNameTerm: string | null,
-    
-  // ) {
-  //   return null
-  // },
+  async getBlogPosts(
+    blogId: string | null,
+    pageNumber: number,
+    pageSize: number,
+    sortBy: string,
+    sortDirection: 'asc' | 'desc',
+    searchNameTerm: string | null,
+  ) {
+    const posts = await postsService.getPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, blogId)
+    return null
+  },
   async findById(
     id: string
   ): Promise<BlogViewModel | null> {

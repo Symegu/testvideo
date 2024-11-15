@@ -21,7 +21,7 @@ export const blogsRepository = {
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
-      .toArray()
+      .toArray() as BlogViewModel[]
   },
   async getBlogsCount(
     searchNameTerm: string | null

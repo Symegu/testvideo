@@ -13,10 +13,10 @@ export const postsService = {
     sortBy: string,
     sortDirection: 'asc' | 'desc',
     searchNameTerm: string | null,
-    // blogId?: string | null,
+    blogId?: string | null,
   ): Promise<PaginatorPostModel> {
-    const posts = await postsRepository.getPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
-    const postsCount = await postsRepository.getPostsCount(searchNameTerm)
+    const posts = await postsRepository.getPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, blogId)
+    const postsCount = await postsRepository.getPostsCount(searchNameTerm, blogId)
     const filteredPosts: PaginatorPostModel = {
       pagesCount: Math.ceil(postsCount / pageSize),
       page: pageNumber,
