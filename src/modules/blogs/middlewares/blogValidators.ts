@@ -1,7 +1,4 @@
 import { body } from "express-validator"
-import { blogsRepository } from "../blogsRepository"
-import { OutputErrorsType } from "../../../input-output-types/output-errors-type"
-import { Request, Response, NextFunction } from "express"
 
 export const nameValidator = body('name')
   .trim()

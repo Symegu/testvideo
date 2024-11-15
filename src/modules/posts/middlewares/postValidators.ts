@@ -1,8 +1,8 @@
 import { body } from "express-validator"
-import { blogsRepository } from "../../blogs/blogsRepository"
-import { postsRepository } from "../postsRepository"
 import { Request, Response, NextFunction } from "express"
 import { OutputErrorsType } from "../../../input-output-types/output-errors-type"
+import { blogsService } from "../../blogs/blogsService"
+import { postsService } from "../postsService"
 
 export const titleValidator = body('title')
   .trim()
@@ -30,7 +30,7 @@ export const blogIdValidator = body('blogId')
   .isString()
   .withMessage('blog id is not string')
   .custom(async (blogId) => {
-    const blog = await blogsRepository.findById(blogId)
+    const blog = await blogsService.findById(blogId)
     if (!blog) {
       throw new Error('post with this blog id does not exist')
     }
@@ -38,7 +38,7 @@ export const blogIdValidator = body('blogId')
   })
 
 export const findPostMiddleware = (req: Request<{id: string}>, res: Response<OutputErrorsType>, next: NextFunction) => {
-    const post = postsRepository.findById(req.params.id)
+    const post = postsService.findById(req.params.id)
     if(!post) {
       res.sendStatus(404)
     }
