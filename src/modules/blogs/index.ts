@@ -3,7 +3,7 @@ import { adminAuthorizationMiddleware } from '../../global-middlewares/adminAuth
 import { descriptionValidator, nameValidator, websiteUrlValidator } from './middlewares/blogValidators'
 import { errorResultMiddleware } from '../../global-middlewares/errorResultMiddleware'
 import { blogsController } from './blogsController'
-import { titleValidator, blogIdValidator, shortDescriptionValidator, contentValidator } from '../posts/middlewares/postValidators'
+import { titleValidator, shortDescriptionValidator, contentValidator } from '../posts/middlewares/postValidators'
 
 export const blogsRouter = Router()
 
@@ -20,7 +20,6 @@ blogsRouter.post('/',
 blogsRouter.post('/:id/posts', 
   adminAuthorizationMiddleware, 
   titleValidator,
-  blogIdValidator,
   shortDescriptionValidator,
   contentValidator,
   errorResultMiddleware,

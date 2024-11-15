@@ -1,6 +1,6 @@
 import { req } from './test-helpers'
 import { setBlogsDB } from '../src/db/localDb'
-import { codedAuth, dataset1 } from './datasets'
+import { codedAuth } from './datasets'
 import { SETTINGS } from '../src/settings'
 import { BlogInputModel } from '../src/input-output-types/blog-types'
 import { runDB, blogsCollection } from '../src/db/mongoDb'
