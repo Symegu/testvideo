@@ -33,12 +33,13 @@ export const blogsService = {
     searchNameTerm: string | null,
   ) {
     const posts = await postsService.getPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, blogId)
-    return null
+
+    return posts 
   },
   async findById(
     id: string
   ): Promise<BlogViewModel | null> {
-    const blog = await blogsRepository.findById(id.toString())
+    const blog = await blogsRepository.findById(id)
 
     if(!blog) {
       return null
