@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb"
 import { BlogViewModel } from "../../db/blog-db"
 import { PaginatorBlogModel } from "../other/paginator-types"
 import { blogsRepository } from "./blogsRepository"
@@ -39,21 +38,21 @@ export const blogsService = {
   async findById(
     id: string
   ): Promise<BlogViewModel | null> {
-    return await blogsRepository.findById(id)
-  },
-  async findByUUID(
-    _id: ObjectId
-  ): Promise<BlogViewModel | null> {
-    return await blogsRepository.findByUUID(_id)
+    const blog = await blogsRepository.findById(id.toString())
+
+    if(!blog) {
+      return null
+    }
+    return blog
   },
   async createBlog(
     blog: BlogInputModel
   ): Promise<BlogViewModel | null> {
-    const createdBlogUUID: ObjectId = await blogsRepository.createBlog(blog)
-    if (!createdBlogUUID) {
+    const createdBlogId: string = await blogsRepository.createBlog(blog)
+    if (!createdBlogId) {
       return null
     }
-    const createdBlog = await blogsRepository.findByUUID(createdBlogUUID)
+    const createdBlog = await blogsRepository.findById(createdBlogId)
     if (!createdBlog) {
       return null
     }

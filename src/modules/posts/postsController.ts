@@ -37,21 +37,17 @@ export const postsController = {
     res.sendStatus(204)
   },
   async findPostController (
-    req: Request<{id: string | ObjectId}>,
+    req: Request<{id: string}>,
     res: Response<PostViewModel | null>
   ) {
-    const { id } = req.params
-    let post = null
-    if (ObjectId.isValid(id)) {
-      post = await postsService.findByUUID(new ObjectId(id))
-    } else if (typeof(id)==='string') {
-      post = await postsService.findById(id)
-    }
+    const post = await postsService.findById(req.params.id)
+    console.log(post)
     if (!post) {
       res.sendStatus(404)
       return
     }
     res.status(200).json(post)
+    return
   },
   async deletePostController (
     req: Request<{ id: string }>,

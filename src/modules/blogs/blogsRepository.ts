@@ -16,12 +16,21 @@ export const blogsRepository = {
       filter.title = { $regex: searchNameTerm, $options: 'i' }
     }
 
-    return await blogsCollection
-      .find(filter, { projection: { _id: 0 } })
+    const blogs = await blogsCollection
+      .find(filter)
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
-      .toArray() as BlogViewModel[]
+      .toArray() 
+
+    return blogs.map(blog => ({
+      id: blog._id.toString(),
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt,
+      isMembership: blog.isMembership
+    })) as BlogViewModel[]
   },
   async getBlogsCount(
     searchNameTerm: string | null
@@ -32,29 +41,36 @@ export const blogsRepository = {
     }
     return await blogsCollection.countDocuments(filter)
   },
-  async findByUUID(
-    _id: ObjectId
-  ): Promise<BlogViewModel | null> {
-    return await blogsCollection.findOne({ _id: _id }, { projection: { _id: 0 } })
-  },
   async findById(
     id: string
   ): Promise<BlogViewModel | null> {
-    return await blogsCollection.findOne({ id: id }, { projection: { _id: 0 } })
+    if (!ObjectId.isValid(id)) {
+      return null;
+    }
+    const _id = new ObjectId(id);
+    const blog = await blogsCollection.findOne(
+        { _id },
+        { projection: { _id: 0 } }
+    );
+    if (!blog) {
+      return null;
+    }
+    
+    return {...blog, id: _id.toString()};
   },
   async deleteById(
     id: string
   ): Promise<boolean> {
-    const res = await blogsCollection.deleteOne({ id: id })
+    const res = await blogsCollection.deleteOne({ _id: new ObjectId(id) })
     return res.deletedCount === 1
   },
   async createBlog(
     blog: BlogInputModel
-  ): Promise<ObjectId> {
+  ): Promise<string> {
     const dateNow = Date.now()
     const createdAtISO = new Date(dateNow).toISOString()
     const newBlog: BlogModel = {
-      id: new Date().toISOString() + Math.random(),
+      _id: new ObjectId(),
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.websiteUrl,
@@ -62,7 +78,7 @@ export const blogsRepository = {
       isMembership: false
     }
     const res = await blogsCollection.insertOne(newBlog)
-    return res.insertedId
+    return res.insertedId.toString()
   },
   async changeById(
     blog: BlogInputModel, id: string
@@ -71,8 +87,7 @@ export const blogsRepository = {
     if (!currentBlog) {
       return null
     }
-    const changedBlog: BlogModel = {
-      id: id,
+    const changedBlog = {
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.websiteUrl,
@@ -80,7 +95,7 @@ export const blogsRepository = {
       isMembership: false
     }
     const res = await blogsCollection.updateOne(
-      { id }, { $set: { ...changedBlog } }
+      { _id: new ObjectId(id) }, { $set: { ...changedBlog } }
     )
     return res.matchedCount === 1
   }

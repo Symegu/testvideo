@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb"
 import { PostViewModel } from "../../db/post-db"
 import { postsRepository } from './postsRepository';
 import { PostInputModel } from "../../input-output-types/post-types"
@@ -38,7 +37,7 @@ export const postsService = {
     }
     !providedBlog ? blog = currentBlog : blog = providedBlog
     const newPostId = await postsRepository.createPost(post, blog)
-    const newPost = await postsRepository.findByUUID(newPostId)
+    const newPost = await postsRepository.findById(newPostId)
     return newPost
   },
   async changeById(
@@ -58,11 +57,6 @@ export const postsService = {
     id: string
   ): Promise<PostViewModel | null> {
     return await postsRepository.findById(id)
-  },
-  async findByUUID(
-    _id: ObjectId
-  ): Promise<PostViewModel | null> {
-    return await postsRepository.findByUUID(_id)
   },
   async deleteById(
     id: string

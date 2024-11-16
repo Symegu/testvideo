@@ -3,10 +3,11 @@ import { BlogModel } from '../src/db/blog-db'
 import { PostModel } from '../src/db/post-db'
 import { SETTINGS } from '../src/settings'
 import { fromUTF8ToBase64 } from '../src/global-middlewares/adminAuthorizationMiddleware'
+import { ObjectId } from 'mongodb'
 
 // готовые данные для переиспользования в тестах
 export const blogValid: BlogModel = {
-    id: '12345',
+    _id: new ObjectId('113456123456123456123455'),
     name: 'valid name',
     description: 'valid description',
     websiteUrl: 'https://validurl.com',
@@ -15,7 +16,7 @@ export const blogValid: BlogModel = {
 }
 
 export const blogInvalid: BlogModel = {
-    id: '123456',
+    _id: new ObjectId('123456123456123456123456'),
     name: 'invalid blog name 15+ symbols',
     description: 'valid description',
     websiteUrl: 'https://неверный урл.com',
@@ -23,7 +24,7 @@ export const blogInvalid: BlogModel = {
     isMembership: false
 }
 export const postValid: PostModel = {
-    id: '1234567',
+    _id: new ObjectId('223456123456123456123456'),
     title: 'valid title',
     shortDescription: 'valid short description',
     content: 'valid content',
@@ -33,7 +34,7 @@ export const postValid: PostModel = {
 }
 
 export const postInvalid: PostModel = {
-    id: '12345678',
+    _id: new ObjectId('423456123456123456123456'),
     title: 'invalid title more than 30 symbols',
     shortDescription: 'valid short description',
     content: 'valid content',

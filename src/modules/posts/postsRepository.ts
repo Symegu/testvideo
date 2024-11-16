@@ -1,4 +1,4 @@
-import { PostViewModel } from "../../db/post-db"
+import { PostModel, PostViewModel } from "../../db/post-db"
 import { PostInputModel } from "../../input-output-types/post-types"
 import { postsCollection } from "../../db/mongoDb"
 import { ObjectId } from "mongodb"
@@ -16,51 +16,66 @@ export const postsRepository = {
   ): Promise<PostViewModel[]> {
     const filter: any = {}
     if (searchNameTerm) {
-      filter.title = { $regex: searchNameTerm, $options: 'i'}
+      filter.title = { $regex: searchNameTerm, $options: 'i' }
     }
 
     if (blogId) {
       filter.blogId = { $regex: blogId }
     }
 
-    return await postsCollection
-      .find({filter}, { projection: { _id: 0 } })
+    const posts = await postsCollection
+      .find({ filter }, { projection: { _id: 0 } })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
-      .toArray() as PostViewModel[]
+      .toArray()
+
+    return posts.map(post => ({
+      ...post,
+      id: post._id.toString()
+    })) as PostViewModel[]
   },
   async getPostsCount(
     searchNameTerm: string | null,
     blogId?: string | null
   ): Promise<number> {
-    let filter:any = {}
+    let filter: any = {}
     if (searchNameTerm) {
-      filter.title = {$regex: searchNameTerm, $options: 'i'}
+      filter.title = { $regex: searchNameTerm, $options: 'i' }
     }
     if (blogId) {
       filter.blogId = { $regex: blogId }
     }
     return await postsCollection.countDocuments(filter)
   },
-  async findById(id: string): Promise<PostViewModel | null> {
-    return await postsCollection.findOne({ id: id }, { projection: { _id: 0 } })
-  },
-  async findByUUID(_id: ObjectId): Promise<PostViewModel | null> {
-    return await postsCollection.findOne({ _id: _id }, { projection: { _id: 0 } })
+  async findById(
+    id: string
+  ): Promise<PostViewModel | null> {
+    if (!ObjectId.isValid(id)) {
+      return null
+    }
+    const _id = new ObjectId(id)
+    const post = await postsCollection.findOne(
+      { _id },
+      { projection: { _id: 0 } }
+    )
+    if (!post) {
+      return null
+    }
+    return {...post, id: _id.toString()}
   },
   async deleteById(id: string): Promise<boolean> {
-    const res = await postsCollection.deleteOne({ id: id })
+    const res = await postsCollection.deleteOne({ _id: new ObjectId(id) })
     return res.deletedCount === 1
   },
   async createPost(
     post: PostInputModel,
     currentBlog: BlogViewModel
-  ): Promise<ObjectId> {
+  ): Promise<string> {
     const dateNow = Date.now()
     const createdAtISO = new Date(dateNow).toISOString()
-    const newPost: PostViewModel = {
-      id: new Date().toISOString() + Math.random(),
+    const newPost: PostModel = {
+      _id: new ObjectId(),
       title: post.title,
       shortDescription: post.shortDescription,
       content: post.content,
@@ -70,7 +85,7 @@ export const postsRepository = {
     }
     const res = await postsCollection.insertOne(newPost)
 
-    return res.insertedId
+    return res.insertedId.toString()
   },
   async changeById(
     post: PostInputModel,
@@ -78,8 +93,7 @@ export const postsRepository = {
     currentBlog: BlogViewModel,
     currentPost: PostViewModel
   ): Promise<boolean> {
-    const changedPost: PostViewModel = {
-      id: id,
+    const changedPost = {
       title: post.title,
       shortDescription: post.shortDescription,
       content: post.content,
@@ -88,7 +102,7 @@ export const postsRepository = {
       createdAt: currentPost.createdAt
     }
     const res = await postsCollection.updateOne(
-      { id }, { $set: { ...changedPost } }
+      { _id: new ObjectId(id) }, { $set: { ...changedPost } }
     )
 
     return res.matchedCount === 1

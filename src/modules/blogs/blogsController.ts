@@ -16,7 +16,9 @@ export const blogsController = {
   ) {
     const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
     const blogs = await blogsService.getBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
+    console.log('all blogs',req.params)
     res.status(200).json(blogs)
+    return
   },
   async getBlogPostsController(
     req: Request<{id: string}>,
@@ -54,21 +56,15 @@ export const blogsController = {
     req: Request<{ id: string }>,
     res: Response<BlogViewModel>
   ) {
-    const { id } = req.params
-    let blog: BlogViewModel | null
-    if (ObjectId.isValid(id)) {
-      console.log('objectid')
-      blog = await blogsService.findByUUID(new ObjectId(id))
-
-    } else {
-      console.log('id')
-      blog = await blogsService.findById(id)
-    }
+    const blog = await blogsService.findById(req.params.id)
+    
+    console.log(blog)
     if (!blog) {
       res.sendStatus(404)
       return
     }
     res.status(200).json(blog)
+    return
   },
 
   async deleteBlogController(
@@ -87,14 +83,14 @@ export const blogsController = {
     req: Request<{ id: string }, PostInputModel>,
     res: Response<PostViewModel | null>
   ) {
-    const { id } = req.params
-    let currentBlog = null
-    if (ObjectId.isValid(id)) {
-      currentBlog = await blogsService.findByUUID(new ObjectId(id))
-    } else {
-      currentBlog = await blogsService.findById(id)
+    const currentBlog = await blogsService.findById(req.params.id)
+    if (!currentBlog) {
+      console.log('createBlogsPostController currentBlog',currentBlog);
+      res.sendStatus(404)
+      return
     }
-    const createdPost = await blogsService.createBlogsPost(req.body, currentBlog!)
+    
+    const createdPost = await blogsService.createBlogsPost(req.body, currentBlog)
     if (!createdPost) {
       res.sendStatus(400)
       return
