@@ -22,7 +22,8 @@ export const postsRepository = {
     if (blogId) {
       filter.blogId = { $regex: blogId }
     }
-
+    console.log('getPosts', filter);
+    
     const posts = await postsCollection
       .find(filter)
       .skip((pageNumber - 1) * pageSize)
