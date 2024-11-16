@@ -15,7 +15,6 @@ export const blogsService = {
     searchNameTerm: string | null
   ): Promise<PaginatorBlogModel> {
     const blogs = await blogsRepository.getBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
-    console.log('blogsService getBlogs searchNameTerm', searchNameTerm)
     const blogsCount = await blogsRepository.getBlogsCount(searchNameTerm)
     return {
       pagesCount: Math.ceil(blogsCount / pageSize),
