@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { paginationQueries } from "../other/paginationQueries"
 import { blogsService } from "./blogsService"
-import { ObjectId } from 'mongodb'
 import { BlogViewModel } from '../../db/blog-db'
 import { blogsRepository } from './blogsRepository'
 import { BlogInputModel } from '../../input-output-types/blog-types'
@@ -16,7 +15,7 @@ export const blogsController = {
   ) {
     const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
     const blogs = await blogsService.getBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
-    console.log('all blogs',req.params)
+    console.log('all blogs', req.params, searchNameTerm)
     res.status(200).json(blogs)
     return
   },

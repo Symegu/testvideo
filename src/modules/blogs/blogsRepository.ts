@@ -11,9 +11,13 @@ export const blogsRepository = {
     sortDirection: 'asc' | 'desc',
     searchNameTerm: string | null
   ): Promise<BlogViewModel[]> {
+
     const filter: any = {}
+    
+    console.log("searchNameTerm getBlogs:", searchNameTerm);
     if (searchNameTerm) {
-      filter.title = { $regex: searchNameTerm, $options: 'i' }
+      filter.name = { $regex: searchNameTerm, $options: 'i' }
+      console.log("Filter applied getBlogs:", filter);
     }
 
     const blogs = await blogsCollection
@@ -37,8 +41,11 @@ export const blogsRepository = {
   ): Promise<number> {
     const filter: any = {}
     if (searchNameTerm) {
-      filter.title = { $regex: searchNameTerm, $options: 'i' }
+      
+      filter.name = { $regex: searchNameTerm, $options: 'i' }
+      console.log("Filter applied1:", filter);
     }
+    console.log("Filter applied2:", filter);
     return await blogsCollection.countDocuments(filter)
   },
   async findById(
