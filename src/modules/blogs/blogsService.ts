@@ -25,13 +25,17 @@ export const blogsService = {
     }
   },
   async getBlogPosts(
-    blogId: string | null,
+    blogId: string,
     pageNumber: number,
     pageSize: number,
     sortBy: string,
     sortDirection: 'asc' | 'desc',
     searchNameTerm: string | null,
   ) {
+    const blog = await blogsService.findById(blogId)
+    if (!blog) {
+      return null
+    }
     const posts = await postsService.getPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, blogId)
 
     return posts 

@@ -26,6 +26,10 @@ export const blogsController = {
   ) {
     const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
     const posts = await blogsService.getBlogPosts(req.params.id, pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
+    if (!posts) {
+      res.sendStatus(404)
+      return
+    }
     res.status(200).json(posts)
   },
   async createBlogController(
@@ -89,7 +93,7 @@ export const blogsController = {
       res.sendStatus(404)
       return
     }
-    
+
     const createdPost = await blogsService.createBlogsPost(req.body, currentBlog)
     if (!createdPost) {
       res.sendStatus(400)

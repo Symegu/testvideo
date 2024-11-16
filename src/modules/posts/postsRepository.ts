@@ -24,15 +24,20 @@ export const postsRepository = {
     }
 
     const posts = await postsCollection
-      .find({ filter }, { projection: { _id: 0 } })
+      .find(filter)
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
       .toArray()
 
     return posts.map(post => ({
-      ...post,
-      id: post._id.toString()
+      id: post._id.toString(),
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      createdAt: post.createdAt,
+      blogId: post.blogId,
+      blogName: post.blogName
     })) as PostViewModel[]
   },
   async getPostsCount(

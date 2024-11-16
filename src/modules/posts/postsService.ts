@@ -16,29 +16,27 @@ export const postsService = {
   ): Promise<PaginatorPostModel> {
     const posts = await postsRepository.getPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, blogId)
     const postsCount = await postsRepository.getPostsCount(searchNameTerm, blogId)
-    const filteredPosts: PaginatorPostModel = {
+    return {
       pagesCount: Math.ceil(postsCount / pageSize),
       page: pageNumber,
       pageSize: pageSize,
       totalCount: postsCount,
       items: posts
     }
-    return filteredPosts
   },
   async createPost(
     post: PostInputModel,
     providedBlog?: BlogViewModel
   ): Promise<PostViewModel | null> {
-    let blog: BlogViewModel | null
-    const currentBlog: BlogViewModel | null = 
-      await blogsService.findById(post.blogId)
-      if (!currentBlog) {
-        return null
+    const blog: BlogViewModel | null = providedBlog ?? await blogsService.findById(post.blogId)
+    if (!blog) {
+      return null
     }
-    !providedBlog ? blog = currentBlog : blog = providedBlog
+
     const newPostId = await postsRepository.createPost(post, blog)
     const newPost = await postsRepository.findById(newPostId)
-    return newPost
+    
+    return newPost || null
   },
   async changeById(
     post: PostInputModel, id: string
