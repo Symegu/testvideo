@@ -12,17 +12,16 @@ export const usersQueryRepository = {
     searchLoginTerm: string | null,
     searchEmailTerm: string | null
   ): Promise<PaginatorUsersModel> {
-    const filter: any = {}
+    const filter: any = { $or: [] }
+    
+    if (searchLoginTerm) {
+      filter.$or.push({ login: { $regex: new RegExp(searchLoginTerm, 'i') } });
+    }
+    
+    if (searchEmailTerm) {
+        filter.$or.push({ email: { $regex: new RegExp(searchEmailTerm, 'i') } });
+    }
     console.log(filter, 'filter');
-    
-    if(searchLoginTerm) {
-      filter.login = {$regex: searchLoginTerm, $options: 'i'}
-    }
-
-    if(searchEmailTerm) {
-      filter.email = {$regex: searchEmailTerm, $options: 'i'}
-    }
-    
     const dbUsers= await usersCollection
       .find(filter)
       .skip((pageNumber - 1) * pageSize)
@@ -54,15 +53,16 @@ export const usersQueryRepository = {
     searchLoginTerm: string | null,
     searchEmailTerm: string | null
   ): Promise<number> {
-    const filter: any = {}
-
-    if(searchLoginTerm) {
-      filter.login = {$regex: searchLoginTerm, $options: 'i'}
+    const filter: any = { $or: [] }
+    
+    if (searchLoginTerm) {
+      filter.$or.push({ login: { $regex: new RegExp(searchLoginTerm, 'i') } });
     }
-
-    if(searchEmailTerm) {
-      filter.email = {$regex: searchEmailTerm, $options: 'i'}
+    
+    if (searchEmailTerm) {
+        filter.$or.push({ email: { $regex: new RegExp(searchEmailTerm, 'i') } });
     }
+    console.log(filter, 'filter');
     return await usersCollection.countDocuments(filter)
   },
 
