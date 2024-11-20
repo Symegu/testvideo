@@ -12,30 +12,34 @@ export const usersQueryRepository = {
     searchLoginTerm: string | null,
     searchEmailTerm: string | null
   ): Promise<PaginatorUsersModel> {
-    const filter: any = { $or: [] }
-    
+    let filter: any = {}
+
     if (searchLoginTerm) {
-      filter.$or.push({ login: { $regex: new RegExp(searchLoginTerm, 'i') } });
+
+      filter = { $and: [] }
+      filter.$and.push({ login: { $regex: new RegExp(searchLoginTerm, 'i') } });
     }
-    
+
     if (searchEmailTerm) {
-        filter.$or.push({ email: { $regex: new RegExp(searchEmailTerm, 'i') } });
+
+      filter = { $and: [] }
+      filter.$and.push({ email: { $regex: new RegExp(searchEmailTerm, 'i') } });
     }
     console.log(filter, 'filter');
-    const dbUsers= await usersCollection
+    const dbUsers = await usersCollection
       .find(filter)
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
       .toArray()
 
-    console.log(dbUsers,'dbUsers');
-    
+    console.log(dbUsers, 'dbUsers');
+
     const mappedUsers: UserViewModel[] = dbUsers.map(user => {
       return this.mapUserToOutput(user)
     })
     console.log(mappedUsers, 'mappedUsers');
-    
+
     const usersCount = await this.getUsersCount(searchEmailTerm, searchLoginTerm)
     console.log(usersCount, 'usersCount');
     const users = {
@@ -45,7 +49,7 @@ export const usersQueryRepository = {
       totalCount: usersCount,
       items: mappedUsers
     }
-    
+
     return users
   },
 
@@ -53,14 +57,16 @@ export const usersQueryRepository = {
     searchLoginTerm: string | null,
     searchEmailTerm: string | null
   ): Promise<number> {
-    const filter: any = { $or: [] }
-    
+    let filter: any = {}
+
     if (searchLoginTerm) {
-      filter.$or.push({ login: { $regex: new RegExp(searchLoginTerm, 'i') } });
+      filter = { $and: [] }
+      filter.$and.push({ login: { $regex: new RegExp(searchLoginTerm, 'i') } });
     }
-    
+
     if (searchEmailTerm) {
-        filter.$or.push({ email: { $regex: new RegExp(searchEmailTerm, 'i') } });
+      filter = { $and: [] }
+      filter.$and.push({ email: { $regex: new RegExp(searchEmailTerm, 'i') } });
     }
     console.log(filter, 'filter');
     return await usersCollection.countDocuments(filter)
@@ -75,13 +81,13 @@ export const usersQueryRepository = {
 
     const _id = new ObjectId(id);
     const user = await usersCollection.findOne(
-        { _id },
-        { projection: { _id: 0 } }
+      { _id },
+      { projection: { _id: 0 } }
     );
     if (!user) {
       return null;
     }
-    
+
     return {
       id: _id.toString(),
       login: user.login,
@@ -93,8 +99,8 @@ export const usersQueryRepository = {
   async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserModel | null> {
     const user = await usersCollection.findOne({
       $or: [
-        {login: {$regex: loginOrEmail}},
-        {email: {$regex: loginOrEmail}}
+        { login: { $regex: loginOrEmail } },
+        { email: { $regex: loginOrEmail } }
       ]
     })
 
