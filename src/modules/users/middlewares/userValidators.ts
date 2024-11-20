@@ -39,8 +39,8 @@ export const emailValidator = body('email')
   .trim()
   .isString()
   .withMessage('email is not string')
-  .matches(/^[a-zA-Z0-9_-]*$/)
-  .withMessage('email does not match required pattern')
+  // .matches(/^[a-zA-Z0-9_-]*$/)
+  // .withMessage('email does not match required pattern')
   .custom(async (value) => {
     const isUnique = await checkUnique(value)
     if (isUnique) {
