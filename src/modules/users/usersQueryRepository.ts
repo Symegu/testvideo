@@ -46,7 +46,6 @@ export const usersQueryRepository = {
       totalCount: usersCount,
       items: mappedUsers
     }
-    console.log(users, 'users');
     
     return users
   },
