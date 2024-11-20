@@ -9,7 +9,10 @@ import { PaginatorUsersModel } from '../other/paginator-types';
 export const usersController = {
   async getUsers(req: Request, res: Response<PaginatorUsersModel>) {
     const { pageNumber, pageSize, sortBy, sortDirection, searchEmailTerm, searchLoginTerm } = paginationQueries(req)
+    console.log('usersController get users', pageNumber, pageSize, sortBy, sortDirection, searchEmailTerm, searchLoginTerm);
+    
     const users = await usersQueryRepository.getAllUsers(pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm)
+    console.log('usersController get getAllUsers', users);
     res.status(200).json(users)
   }, 
   

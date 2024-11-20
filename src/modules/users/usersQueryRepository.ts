@@ -13,13 +13,14 @@ export const usersQueryRepository = {
     searchEmailTerm: string | null
   ): Promise<PaginatorUsersModel> {
     const filter: any = {}
-
+    console.log(filter, 'filter');
+    
     if(searchLoginTerm) {
-      filter.login = {$regex: searchLoginTerm, options: 'i'}
+      filter.login = {$regex: searchLoginTerm, $options: 'i'}
     }
 
     if(searchEmailTerm) {
-      filter.email = {$regex: searchEmailTerm, options: 'i'}
+      filter.email = {$regex: searchEmailTerm, $options: 'i'}
     }
     
     const dbUsers= await usersCollection
@@ -28,10 +29,16 @@ export const usersQueryRepository = {
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
       .toArray()
+
+    console.log(dbUsers,'dbUsers');
+    
     const mappedUsers: UserViewModel[] = dbUsers.map(user => {
       return this.mapUserToOutput(user)
     })
+    console.log(mappedUsers, 'mappedUsers');
+    
     const usersCount = await this.getUsersCount(searchEmailTerm, searchLoginTerm)
+    console.log(usersCount, 'usersCount');
     const users = {
       pagesCount: Math.ceil(usersCount / pageSize),
       page: pageNumber,
@@ -39,21 +46,23 @@ export const usersQueryRepository = {
       totalCount: usersCount,
       items: mappedUsers
     }
+    console.log(users, 'users');
+    
     return users
   },
 
   async getUsersCount(
     searchLoginTerm: string | null,
     searchEmailTerm: string | null
-  ) {
+  ): Promise<number> {
     const filter: any = {}
 
     if(searchLoginTerm) {
-      filter.login = {$regex: searchLoginTerm, options: 'i'}
+      filter.login = {$regex: searchLoginTerm, $options: 'i'}
     }
 
     if(searchEmailTerm) {
-      filter.email = {$regex: searchEmailTerm, options: 'i'}
+      filter.email = {$regex: searchEmailTerm, $options: 'i'}
     }
     return await usersCollection.countDocuments(filter)
   },
