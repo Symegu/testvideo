@@ -12,7 +12,7 @@ export const authController = {
     if (!user) {
       errors.errorsMessages.push({ message: "Incorrect Login or Email", field: 'loginOrEmail' })
       
-      res.status(400).send(errors)
+      res.status(401).send(errors)
       return 
     }
 
@@ -20,7 +20,7 @@ export const authController = {
 
     if (!isPasswordValid) {
       errors.errorsMessages.push({ message: "Incorrect Password", field: 'password' })
-      res.status(400).send(errors)
+      res.status(401).send(errors)
       return
     }
 

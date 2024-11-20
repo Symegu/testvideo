@@ -39,6 +39,8 @@ export const emailValidator = body('email')
   .trim()
   .isString()
   .withMessage('email is not string')
+  .isLength({ min: 1 })
+  .withMessage('email length is less than 1')
   // .matches(/^[a-zA-Z0-9_-]*$/)
   // .withMessage('email does not match required pattern')
   .custom(async (value) => {
