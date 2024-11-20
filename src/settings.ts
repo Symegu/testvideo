@@ -7,12 +7,14 @@ export const SETTINGS = {
     PATH: {
         POSTS: '/posts',
         BLOGS: '/blogs',
+        USERS: '/users',
+        AUTH: '/auth',
         TESTING: '/testing/all-data'
     },
     CREDENTIALS: {
         LOGIN: 'admin',
         PASSWORD: 'qwerty'
     },
-    MONGO_URL: process.env.MONGO_URL || 'mongodb://0.0.0.0:27017', 
+    MONGO_URL: 'mongodb://0.0.0.0:27017', 
     DB_NAME: process.env.DB_NAME || ''
 }
