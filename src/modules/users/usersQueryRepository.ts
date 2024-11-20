@@ -1,7 +1,6 @@
 import { ObjectId } from "mongodb"
 import { usersCollection } from '../../db/mongoDb';
 import { UserModel, UserViewModel } from '../../db/user-db';
-import { PaginatorUsersModel } from "../other/paginator-types";
 
 export const usersQueryRepository = {
   async getAllUsers(
@@ -11,65 +10,57 @@ export const usersQueryRepository = {
     sortDirection: 'asc' | 'desc',
     searchLoginTerm: string | null,
     searchEmailTerm: string | null
-  ): Promise<PaginatorUsersModel> {
-    let filter: any = {}
+  ): Promise<UserViewModel[]> {
+    let filter: any = {$or: []}
 
-    if (searchLoginTerm) {
-
-      filter = { $and: [] }
-      filter.$and.push({ login: { $regex: new RegExp(searchLoginTerm, 'i') } });
+    if(searchLoginTerm) {
+      filter.$or.push({ login: { $regex: searchLoginTerm, $options: 'i' } })
     }
 
-    if (searchEmailTerm) {
+    if(searchEmailTerm) {
+      filter.$or.push({ email: { $regex: searchEmailTerm, $options: 'i' } })
+    }
 
-      filter = { $and: [] }
-      filter.$and.push({ email: { $regex: new RegExp(searchEmailTerm, 'i') } });
+    if(!searchLoginTerm && !searchEmailTerm) {
+      filter = {}
     }
     console.log(filter, 'filter');
-    const dbUsers = await usersCollection
+    const dbUsers= await usersCollection
       .find(filter)
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
       .toArray()
-
-    console.log(dbUsers, 'dbUsers');
-
+    
     const mappedUsers: UserViewModel[] = dbUsers.map(user => {
       return this.mapUserToOutput(user)
     })
-    console.log(mappedUsers, 'mappedUsers');
 
-    const usersCount = await this.getUsersCount(searchEmailTerm, searchLoginTerm)
-    console.log(usersCount, 'usersCount');
-    const users = {
-      pagesCount: Math.ceil(usersCount / pageSize),
-      page: pageNumber,
-      pageSize,
-      totalCount: usersCount,
-      items: mappedUsers
-    }
-
-    return users
+    return mappedUsers
+    
   },
 
   async getUsersCount(
     searchLoginTerm: string | null,
     searchEmailTerm: string | null
   ): Promise<number> {
-    let filter: any = {}
+    let filter: any = {$or: []}
 
-    if (searchLoginTerm) {
-      filter = { $and: [] }
-      filter.$and.push({ login: { $regex: new RegExp(searchLoginTerm, 'i') } });
+    if(searchLoginTerm) {
+      filter.$or.push({ login: { $regex: searchLoginTerm, $options: 'i' } })
     }
 
-    if (searchEmailTerm) {
-      filter = { $and: [] }
-      filter.$and.push({ email: { $regex: new RegExp(searchEmailTerm, 'i') } });
+    if(searchEmailTerm) {
+      filter.$or.push({ email: { $regex: searchEmailTerm, $options: 'i' } })
+    }
+
+    if(!searchLoginTerm && !searchEmailTerm) {
+      filter = {}
     }
     console.log(filter, 'filter');
-    return await usersCollection.countDocuments(filter)
+    const count = await usersCollection.countDocuments(filter)
+    console.log(count, 'count');
+    return count
   },
 
   async findById(
@@ -81,13 +72,13 @@ export const usersQueryRepository = {
 
     const _id = new ObjectId(id);
     const user = await usersCollection.findOne(
-      { _id },
-      { projection: { _id: 0 } }
+        { _id },
+        { projection: { _id: 0 } }
     );
     if (!user) {
       return null;
     }
-
+    
     return {
       id: _id.toString(),
       login: user.login,
@@ -99,8 +90,8 @@ export const usersQueryRepository = {
   async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserModel | null> {
     const user = await usersCollection.findOne({
       $or: [
-        { login: { $regex: loginOrEmail } },
-        { email: { $regex: loginOrEmail } }
+        {login: {$regex: loginOrEmail}},
+        {email: {$regex: loginOrEmail}}
       ]
     })
 
