@@ -4,6 +4,7 @@ import { PostInputModel } from '../../input-output-types/post-types'
 import { postsService } from './postsService'
 import { PaginatorPostModel } from '../other/paginator-types'
 import { paginationQueries } from '../other/paginationQueries'
+import { postsQueryRepository } from './postsQueryRepository'
 
 export const postsController = {
   async getPostsController (
@@ -11,7 +12,7 @@ export const postsController = {
     res: Response<PaginatorPostModel>
   ) {
     const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
-    const posts = await postsService.getPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
+    const posts = await postsQueryRepository.getAllPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, req.params.blogId)
     console.log('all posts', req.params, searchNameTerm)
     res.status(200).json(posts)
     return
@@ -42,7 +43,7 @@ export const postsController = {
     req: Request<{id: string}>,
     res: Response<PostViewModel | null>
   ) {
-    const post = await postsService.findById(req.params.id)
+    const post = await postsQueryRepository.findById(req.params.id)
     console.log(post)
     if (!post) {
       res.sendStatus(404)
@@ -54,7 +55,7 @@ export const postsController = {
   async deletePostController (
     req: Request<{ id: string }>,
     res: Response) {
-    const post = await postsService.findById(req.params.id)
+    const post = await postsQueryRepository.findById(req.params.id)
     if(!post) {
       res.sendStatus(404)
       return

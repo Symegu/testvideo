@@ -1,55 +1,12 @@
 import { BlogViewModel } from "../../db/blog-db"
-import { PaginatorBlogModel } from "../other/paginator-types"
 import { blogsRepository } from "./blogsRepository"
 import { BlogInputModel } from "../../input-output-types/blog-types"
 import { PostInputModel } from "../../input-output-types/post-types"
 import { PostViewModel } from "../../db/post-db"
 import { postsService } from '../posts/postsService';
+import { blogsQueryRepository } from "./blogsQueryRepository"
 
 export const blogsService = {
-  async getBlogs(
-    pageNumber: number,
-    pageSize: number,
-    sortBy: string,
-    sortDirection: 'asc' | 'desc',
-    searchNameTerm: string | null
-  ): Promise<PaginatorBlogModel> {
-    const blogs = await blogsRepository.getBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
-    const blogsCount = await blogsRepository.getBlogsCount(searchNameTerm)
-    return {
-      pagesCount: Math.ceil(blogsCount / pageSize),
-      page: pageNumber,
-      pageSize,
-      totalCount: blogsCount,
-      items: blogs
-    }
-  },
-  async getBlogPosts(
-    blogId: string,
-    pageNumber: number,
-    pageSize: number,
-    sortBy: string,
-    sortDirection: 'asc' | 'desc',
-    searchNameTerm: string | null,
-  ) {
-    const blog = await blogsService.findById(blogId)
-    if (!blog) {
-      return null
-    }
-    const posts = await postsService.getPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, blogId)
-
-    return posts 
-  },
-  async findById(
-    id: string
-  ): Promise<BlogViewModel | null> {
-    const blog = await blogsRepository.findById(id)
-
-    if(!blog) {
-      return null
-    }
-    return blog
-  },
   async createBlog(
     blog: BlogInputModel
   ): Promise<BlogViewModel | null> {
@@ -57,7 +14,7 @@ export const blogsService = {
     if (!createdBlogId) {
       return null
     }
-    const createdBlog = await blogsRepository.findById(createdBlogId)
+    const createdBlog = await blogsQueryRepository.findById(createdBlogId)
     if (!createdBlog) {
       return null
     }
@@ -77,11 +34,11 @@ export const blogsService = {
   async changeById(
     blog: BlogInputModel, id: string
   ): Promise<boolean | null> {
-    const currentBlog = await blogsRepository.findById(id)
+    const currentBlog = await blogsQueryRepository.findById(id)
     if (!currentBlog) {
       return null
     }
-    const changedBlog = await blogsRepository.changeById(blog, id)
+    const changedBlog = await blogsRepository.changeById(blog, id, currentBlog)
     if (!changedBlog) {
       return null
     }

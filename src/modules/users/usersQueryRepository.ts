@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb"
 import { usersCollection } from '../../db/mongoDb';
 import { UserModel, UserViewModel } from '../../db/user-db';
+import { PaginatorUsersModel } from "../other/paginator-types";
 
 export const usersQueryRepository = {
   async getAllUsers(
@@ -10,7 +11,7 @@ export const usersQueryRepository = {
     sortDirection: 'asc' | 'desc',
     searchLoginTerm: string | null,
     searchEmailTerm: string | null
-  ): Promise<UserViewModel[]> {
+  ): Promise<PaginatorUsersModel> {
     let filter: any = {$or: []}
 
     if(searchLoginTerm) {
@@ -35,9 +36,17 @@ export const usersQueryRepository = {
     const mappedUsers: UserViewModel[] = dbUsers.map(user => {
       return this.mapUserToOutput(user)
     })
-
-    return mappedUsers
-    
+    const usersCount = await this.getUsersCount(searchLoginTerm, searchEmailTerm)
+    console.log(usersCount, 'usersCount');
+    const users = {
+      pagesCount: Math.ceil(usersCount / pageSize),
+      page: pageNumber,
+      pageSize,
+      totalCount: usersCount,
+      items: mappedUsers
+    }
+    console.log(users, 'users');
+    return users
   },
 
   async getUsersCount(

@@ -7,6 +7,9 @@ import { BlogInputModel } from '../../input-output-types/blog-types'
 import { PostInputModel } from '../../input-output-types/post-types'
 import { PostViewModel } from '../../db/post-db'
 import { PaginatorBlogModel } from '../other/paginator-types'
+import { blogsQueryRepository } from './blogsQueryRepository'
+import { postsService } from '../posts/postsService'
+import { postsQueryRepository } from '../posts/postsQueryRepository'
 
 export const blogsController = {
   async getBlogsController(
@@ -14,8 +17,7 @@ export const blogsController = {
     res: Response<PaginatorBlogModel>
   ) {
     const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
-    const blogs = await blogsService.getBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
-    console.log('all blogs', req.params, searchNameTerm)
+    const blogs = await blogsQueryRepository.getAllBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
     res.status(200).json(blogs)
     return
   },
@@ -24,7 +26,11 @@ export const blogsController = {
     res: Response
   ) {
     const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
-    const posts = await blogsService.getBlogPosts(req.params.id, pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
+    const blog = await blogsQueryRepository.findById(req.params.id)
+    if(!blog) {
+      res.sendStatus(404)
+    }
+    const posts = await postsQueryRepository.getAllPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, req.params.id)
     if (!posts) {
       res.sendStatus(404)
       return
@@ -59,7 +65,7 @@ export const blogsController = {
     req: Request<{ id: string }>,
     res: Response<BlogViewModel>
   ) {
-    const blog = await blogsService.findById(req.params.id)
+    const blog = await blogsQueryRepository.findById(req.params.id)
     
     console.log(blog)
     if (!blog) {
@@ -86,7 +92,7 @@ export const blogsController = {
     req: Request<{ id: string }, PostInputModel>,
     res: Response<PostViewModel | null>
   ) {
-    const currentBlog = await blogsService.findById(req.params.id)
+    const currentBlog = await blogsQueryRepository.findById(req.params.id)
     if (!currentBlog) {
       console.log('createBlogsPostController currentBlog',currentBlog);
       res.sendStatus(404)
