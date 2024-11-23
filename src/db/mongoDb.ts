@@ -16,8 +16,8 @@ export let commentsCollection: Collection<CommentModel>
 export async function runDB(url: string, testDb?: boolean): Promise<{ client: MongoClient, status?: boolean } | null> {
     const client = new MongoClient(url)
     let db = client.db(testDb ? 'Testing' : SETTINGS.DB_NAME)
-    usersCollection = db.collection<UserModel>(SETTINGS.PATH.USERS)
     blogsCollection = db.collection<BlogModel>(SETTINGS.PATH.BLOGS)
+    usersCollection = db.collection<UserModel>(SETTINGS.PATH.USERS)
     postsCollection = db.collection<PostModel>(SETTINGS.PATH.POSTS)
     commentsCollection = db.collection<CommentModel>(SETTINGS.PATH.COMMENTS)
 

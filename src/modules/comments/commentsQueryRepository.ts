@@ -34,7 +34,7 @@ export const commentsQueryRepository = {
     })
     console.log(mappedComments, 'mappedComments');
     
-    const commentsCount = await this.getCommentsCount(searchNameTerm)
+    const commentsCount = await this.getCommentsCount(searchNameTerm, postId)
     const comments = {
       pagesCount: Math.ceil(commentsCount / pageSize),
       page: pageNumber,
@@ -48,15 +48,15 @@ export const commentsQueryRepository = {
 
   async getCommentsCount(
     searchNameTerm: string | null,
-    blogId?: string | null
+    postId?: string | null
   ): Promise<number> {
     const filter: any = {}
     if (searchNameTerm) {
       filter.title = { $regex: searchNameTerm, $options: 'i' }
     }
 
-    if (blogId) {
-      filter.blogId = { $regex: blogId }
+    if (postId) {
+      filter.postId = { $regex: postId }
     }
     const count = await commentsCollection.countDocuments(filter)
     console.log(count, 'count');

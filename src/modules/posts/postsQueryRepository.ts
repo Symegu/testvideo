@@ -31,7 +31,7 @@ export const postsQueryRepository = {
     const mappedPosts: PostViewModel[] = dbPosts.map(post => {
       return this.mapPostToOutput(post)
     })
-    const postsCount = await this.getPostsCount(searchNameTerm)
+    const postsCount = await this.getPostsCount(searchNameTerm, blogId)
     const posts = {
       pagesCount: Math.ceil(postsCount / pageSize),
       page: pageNumber,
