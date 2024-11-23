@@ -20,15 +20,15 @@ export const commentsService = {
 
   async changeById(
     comment: CommentInputModel,
-    id: string
+    id: string,
   ): Promise<boolean | null> {
     const currentComment: CommentModel | null =
       await commentsQueryRepository.findComment(id)
     if (!currentComment) {
       return null
     }
-    const changedComment = await commentsRepository.changeById(comment, currentComment, id)
-    return changedComment
+    const changeStatus = await commentsRepository.changeById(comment, currentComment, id)
+    return changeStatus
   },
 
   async deleteComment(

@@ -8,7 +8,16 @@ interface JwtUserPayload extends JwtPayload {
 }
 
 export const tokenAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers['authorization']?.split(' ')[1]
+  if (!req.headers.authorization) {
+    res.sendStatus(401)
+    return
+  } 
+  const token = req.headers['authorization'].split(' ')[1]
+  const authType = req.headers['authorization'].split(' ')[0]
+  if(authType !== 'Bearer') {
+    res.sendStatus(401)
+    return
+  } 
 
   if (!token) {
     res.status(401).json({ message: "invalid token" })

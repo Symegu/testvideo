@@ -9,6 +9,15 @@ export const commentsController = {
     req: Request<({ id: string }), any, CommentInputModel>,
     res: Response
   ) {
+    const comment: CommentViewModel | null = await commentsQueryRepository.findById(req.params.id)
+    if(!comment) {
+      res.sendStatus(404)
+      return
+    }
+    if(comment.commentatorInfo.userId !== req.userId) {
+      res.sendStatus(403)
+      return
+    }
     const updateStatus = await commentsService.changeById(req.body, req.params.id)
     if (!updateStatus) {
       res.sendStatus(404)
