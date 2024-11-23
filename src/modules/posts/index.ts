@@ -14,5 +14,5 @@ postsRouter.post('/', adminAuthorizationMiddleware, titleValidator, blogIdValida
 postsRouter.put('/:id', adminAuthorizationMiddleware, titleValidator, blogIdValidator, shortDescriptionValidator, contentValidator, errorResultMiddleware, postsController.changePostController)
 postsRouter.delete('/:id', adminAuthorizationMiddleware, errorResultMiddleware, postsController.deletePostController)
 
-postsRouter.get('/:id/comments', tokenAuthMiddleware, errorResultMiddleware, postsController.getCommentsController)
+postsRouter.get('/:id/comments', errorResultMiddleware, postsController.getCommentsController)
 postsRouter.post('/:id/comments', tokenAuthMiddleware, commentContentValidator, errorResultMiddleware, postsController.createComment)
