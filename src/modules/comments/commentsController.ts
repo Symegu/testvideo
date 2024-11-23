@@ -40,6 +40,15 @@ export const commentsController = {
   },
 
   async deleteComment(req: Request<{ id: string }>, res: Response) {
+    const comment: CommentViewModel | null = await commentsQueryRepository.findById(req.params.id)
+    if(!comment) {
+      res.sendStatus(404)
+      return
+    }
+    if(comment.commentatorInfo.userId !== req.userId) {
+      res.sendStatus(403)
+      return
+    }
     const deletedComment = await commentsService.deleteComment(req.params.id)
     if (!deletedComment) {
       res.sendStatus(404)

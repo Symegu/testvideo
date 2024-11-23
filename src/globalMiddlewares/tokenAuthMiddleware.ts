@@ -8,7 +8,7 @@ interface JwtUserPayload extends JwtPayload {
 }
 
 export const tokenAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.headers.authorization) {
+  if (!req.headers['authorization']) {
     res.sendStatus(401)
     return
   } 
@@ -26,7 +26,7 @@ export const tokenAuthMiddleware = (req: Request, res: Response, next: NextFunct
 
   jwt.verify(token, SETTINGS.JWT_SECRET, (err, user) => {
     if (err) {
-      res.sendStatus(403)
+      res.sendStatus(401)
       return
     }
     console.log(token, 'tokenAuthMiddleware')
