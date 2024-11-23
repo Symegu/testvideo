@@ -8,4 +8,4 @@ export const commentsRouter = Router()
 
 commentsRouter.get('/:id', commentsController.getComment)
 commentsRouter.put('/:id', tokenAuthMiddleware, commentContentValidator, errorResultMiddleware, commentsController.changeComment)
-commentsRouter.delete('/:id', tokenAuthMiddleware, commentContentValidator, errorResultMiddleware, commentsController.deleteComment)
+commentsRouter.delete('/:id', tokenAuthMiddleware, errorResultMiddleware, commentsController.deleteComment)
