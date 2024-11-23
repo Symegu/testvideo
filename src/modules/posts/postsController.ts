@@ -76,7 +76,12 @@ export const postsController = {
     res.sendStatus(204)
   },
 
-  async createComment(req: Request<{id: string}, any, CommentInputModel>, res: Response<CommentViewModel>) {
+  async createComment(req: Request<{ id: string }, any, CommentInputModel>, res: Response<CommentViewModel>) {
+    const post = await postsQueryRepository.findById(req.params.id)
+    if (!post) {
+      res.sendStatus(404)
+      return
+    }
     const newCommentId = await commentsService.createComment(req.body, req.userId!, req.userLogin!, req.params.id)
     if (!newCommentId) {
       res.sendStatus(400)
@@ -93,10 +98,15 @@ export const postsController = {
   },
 
   async getCommentsController(
-    req: Request<{id: string}>,
+    req: Request<{ id: string }>,
     res: Response<PaginatorCommentsModel>
   ) {
     const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
+    const post = await postsQueryRepository.findById(req.params.id)
+    if (!post) {
+      res.sendStatus(404)
+      return
+    }
     const comments = await commentsQueryRepository.getCommentsOfPost(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, req.params.id)
     console.log('all comments for post', req.params, searchNameTerm)
     res.status(200).json(comments)

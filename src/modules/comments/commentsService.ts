@@ -1,7 +1,5 @@
-import { CommentViewModel } from "../../types/db-types/comment-db"
-import { PostViewModel } from "../../types/db-types/post-db"
+import { CommentModel, CommentViewModel } from "../../types/db-types/comment-db"
 import { CommentInputModel } from "../../types/input-output-types/comment-types"
-import { postsQueryRepository } from "../posts/postsQueryRepository"
 import { commentsQueryRepository } from "./commentsQueryRepository"
 import { commentsRepository } from "./commentsRepository"
 
@@ -24,11 +22,9 @@ export const commentsService = {
     comment: CommentInputModel,
     id: string
   ): Promise<boolean | null> {
-    const currentPost: PostViewModel | null =
-      await postsQueryRepository.findById(id)
-    const currentComment: CommentViewModel | null =
-      await commentsQueryRepository.findById(id)
-    if (!currentComment || !currentPost) {
+    const currentComment: CommentModel | null =
+      await commentsQueryRepository.findComment(id)
+    if (!currentComment) {
       return null
     }
     const changedComment = await commentsRepository.changeById(comment, currentComment, id)

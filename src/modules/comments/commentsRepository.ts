@@ -15,12 +15,12 @@ export const commentsRepository = {
     const createdAtISO = new Date(dateNow).toISOString()
     const newComment: CommentModel = {
       _id: new ObjectId(),
+      postId: postId,
       content: comment.content,
       commentatorInfo: {
         userId: userId,
         userLogin: userLogin,
       },
-      postId: postId,
       createdAt: createdAtISO
     }
     const res = await commentsCollection.insertOne(newComment)
@@ -30,17 +30,17 @@ export const commentsRepository = {
 
   async changeById(
     comment: CommentInputModel,
-    currentComment: CommentViewModel,
+    currentComment: CommentModel,
     commentId: string
   ): Promise<boolean> {
     const changedComment: CommentModel = {
       _id: new ObjectId(commentId),
+      postId: currentComment.postId,
       content: comment.content,
       commentatorInfo: {
         userId: currentComment.commentatorInfo.userId,
         userLogin: currentComment.commentatorInfo.userLogin,
       },
-      postId: currentComment.postId,
       createdAt: currentComment.createdAt
     }
     const res = await commentsCollection.updateOne(

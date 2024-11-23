@@ -81,6 +81,24 @@ export const commentsQueryRepository = {
     return this.mapCommentToOutput(comment)
   },
 
+  async findComment(
+    id: string
+  ): Promise<CommentModel | null> {
+    if (!ObjectId.isValid(id)) {
+      return null;
+    }
+
+    const _id = new ObjectId(id);
+    const comment = await commentsCollection.findOne(
+        { _id }
+    );
+    if (!comment) {
+      return null;
+    }
+
+    return comment
+  },
+
   mapCommentToOutput(comment: CommentModel) {
     return {
       id: comment._id.toString(),

@@ -4,7 +4,7 @@ import { contentValidator, blogIdValidator, shortDescriptionValidator, titleVali
 import { errorResultMiddleware } from '../../globalMiddlewares/errorResultMiddleware'
 import { postsController } from './postsController';
 import { tokenAuthMiddleware } from '../../globalMiddlewares/tokenAuthMiddleware';
-import { commentContentValidator } from '../comments/middlewares/commentsMiddlewares'
+import { commentContentValidator } from '../comments/middlewares/commentsValidators';
 
 export const postsRouter = Router()
 

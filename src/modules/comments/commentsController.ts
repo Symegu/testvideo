@@ -32,7 +32,6 @@ export const commentsController = {
 
   async deleteComment(req: Request<{ id: string }>, res: Response) {
     const deletedComment = await commentsService.deleteComment(req.params.id)
-
     if (!deletedComment) {
       res.sendStatus(404)
       return

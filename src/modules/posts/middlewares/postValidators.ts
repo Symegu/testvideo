@@ -36,7 +36,6 @@ export const blogIdValidator = body('blogId')
     }
     return true
   })
-
 // export const findPostMiddleware = (req: Request<{id: string}>, res: Response<OutputErrorsType>, next: NextFunction) => {
 //     const post = postsQueryRepository.findById(req.params.id)
 //     if(!post) {
