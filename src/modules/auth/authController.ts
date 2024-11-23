@@ -29,7 +29,7 @@ export const authController = {
     const accessToken = await authQueryRepository.generateToken(usersQueryRepository.mapUserToOutput(user))
     console.log('accessToken', accessToken)
     
-    res.status(200).send(accessToken)
+    res.status(200).json(accessToken)
     return 
   },
 
