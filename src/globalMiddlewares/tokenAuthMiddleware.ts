@@ -20,6 +20,7 @@ export const tokenAuthMiddleware = (req: Request, res: Response, next: NextFunct
       res.sendStatus(403)
       return
     }
+    console.log(token, 'tokenAuthMiddleware')
     console.log(user, 'tokenAuthMiddleware')
     const payload = user as JwtUserPayload
     req.userId = payload.userId

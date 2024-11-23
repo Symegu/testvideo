@@ -8,7 +8,6 @@ import { PostInputModel } from '../../types/input-output-types/post-types'
 import { PostViewModel } from '../../types/db-types/post-db'
 import { PaginatorBlogModel } from '../../types/paginator-types'
 import { blogsQueryRepository } from './blogsQueryRepository'
-import { postsService } from '../posts/postsService'
 import { postsQueryRepository } from '../posts/postsQueryRepository'
 
 export const blogsController = {
@@ -29,6 +28,7 @@ export const blogsController = {
     const blog = await blogsQueryRepository.findById(req.params.id)
     if(!blog) {
       res.sendStatus(404)
+      return
     }
     const posts = await postsQueryRepository.getAllPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, req.params.id)
     if (!posts) {

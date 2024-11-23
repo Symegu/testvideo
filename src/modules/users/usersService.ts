@@ -19,11 +19,4 @@ export const usersService = {
   async deleteUser(id: string) {
     return await usersRepository.deleteUser(id)
   },
-
-  async generateToken(user: UserViewModel) {
-    console.log(user, user.id, user.login, 'generateToken user');
-    
-    return jwt.sign({ userId: user.id, userLogin: user.login }, SETTINGS.JWT_SECRET)
-  },
-
 }

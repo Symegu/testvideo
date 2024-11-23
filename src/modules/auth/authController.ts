@@ -3,7 +3,7 @@ import { LoginInputModel } from '../../types/input-output-types/user-types'
 import { usersQueryRepository } from '../users/usersQueryRepository';
 import { OutputErrorsType } from '../../types/input-output-types/output-errors-type'
 import { authQueryRepository } from './authQueryRepository'
-import { usersService } from '../users/usersService';
+
 export const authController = {
   async login(req: Request<LoginInputModel>, res: Response) {
     
@@ -26,7 +26,7 @@ export const authController = {
       return
     }
 
-    const accessToken = await usersService.generateToken(usersQueryRepository.mapUserToOutput(user))
+    const accessToken = await authQueryRepository.generateToken(usersQueryRepository.mapUserToOutput(user))
     console.log('accessToken', accessToken)
     
     res.status(200).send(accessToken)
