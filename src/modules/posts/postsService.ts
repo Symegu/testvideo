@@ -1,7 +1,7 @@
-import { PostViewModel } from "../../db/post-db"
+import { PostViewModel } from "../../types/db-types/post-db"
 import { postsRepository } from './postsRepository';
-import { PostInputModel } from "../../input-output-types/post-types"
-import { BlogViewModel } from "../../db/blog-db";
+import { PostInputModel } from "../../types/input-output-types/post-types"
+import { BlogViewModel } from "../../types/db-types/blog-db";
 import { blogsQueryRepository } from "../blogs/blogsQueryRepository";
 import { postsQueryRepository } from "./postsQueryRepository";
 
@@ -20,6 +20,7 @@ export const postsService = {
 
     return newPost || null
   },
+
   async changeById(
     post: PostInputModel, id: string
   ): Promise<boolean | null> {
@@ -33,6 +34,7 @@ export const postsService = {
     const changedPost = await postsRepository.changeById(post, id, currentBlog, currentPost)
     return changedPost
   },
+  
   async deleteById(
     id: string
   ): Promise<boolean> {

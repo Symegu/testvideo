@@ -1,5 +1,5 @@
-import { BlogModel } from './blog-db'
-import { PostModel } from './post-db'
+import { BlogModel } from '../types/db-types/blog-db'
+import { PostModel } from '../types/db-types/post-db'
 import { blogsCollection, postsCollection } from './mongoDb'
 import { blogInvalid, blogValid, postInvalid, postValid } from '../../__tests__/datasets';
 

@@ -1,6 +1,7 @@
-import { BlogViewModel } from "../../db/blog-db"
-import { PostViewModel } from "../../db/post-db"
-import { UserViewModel } from "../../db/user-db"
+import { BlogViewModel } from "./db-types/blog-db"
+import { CommentViewModel } from "./db-types/comment-db"
+import { PostViewModel } from "./db-types/post-db"
+import { UserViewModel } from "./db-types/user-db"
 
 export type PaginatorBlogModel = {
   pagesCount: number,
@@ -24,4 +25,12 @@ export type PaginatorUsersModel = {
   pageSize: number,
   totalCount: number,
   items: UserViewModel[]
+}
+
+export type PaginatorCommentsModel = {
+  pagesCount: number,
+  page: number,
+  pageSize: number,
+  totalCount: number,
+  items: CommentViewModel[]
 }

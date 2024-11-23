@@ -1,8 +1,10 @@
 import { Router } from 'express'
-import { adminAuthorizationMiddleware } from '../../global-middlewares/adminAuthorizationMiddleware'
+import { adminAuthorizationMiddleware } from '../../globalMiddlewares/adminAuthorizationMiddleware'
 import { contentValidator, blogIdValidator, shortDescriptionValidator, titleValidator } from './middlewares/postValidators'
-import { errorResultMiddleware } from '../../global-middlewares/errorResultMiddleware'
+import { errorResultMiddleware } from '../../globalMiddlewares/errorResultMiddleware'
 import { postsController } from './postsController';
+import { tokenAuthMiddleware } from '../../globalMiddlewares/tokenAuthMiddleware';
+import { commentContentValidator } from '../comments/middlewares/commentsMiddlewares'
 
 export const postsRouter = Router()
 
@@ -11,3 +13,6 @@ postsRouter.get('/:id', postsController.findPostController)
 postsRouter.post('/', adminAuthorizationMiddleware, titleValidator, blogIdValidator, shortDescriptionValidator, contentValidator, errorResultMiddleware, postsController.createPostController)
 postsRouter.put('/:id', adminAuthorizationMiddleware, titleValidator, blogIdValidator, shortDescriptionValidator, contentValidator, errorResultMiddleware, postsController.changePostController)
 postsRouter.delete('/:id', adminAuthorizationMiddleware, errorResultMiddleware, postsController.deletePostController)
+
+postsRouter.get('/:id/comments', tokenAuthMiddleware, errorResultMiddleware, postsController.getCommentsController)
+postsRouter.post('/:id/comments', tokenAuthMiddleware, commentContentValidator, errorResultMiddleware, postsController.createComment)

@@ -1,6 +1,6 @@
 import { body } from "express-validator"
 import { Request, Response, NextFunction } from "express"
-import { OutputErrorsType } from "../../../input-output-types/output-errors-type"
+import { OutputErrorsType } from "../../../types/input-output-types/output-errors-type"
 import { blogsQueryRepository } from "../../blogs/blogsQueryRepository"
 import { postsQueryRepository } from "../postsQueryRepository"
 
@@ -37,11 +37,11 @@ export const blogIdValidator = body('blogId')
     return true
   })
 
-export const findPostMiddleware = (req: Request<{id: string}>, res: Response<OutputErrorsType>, next: NextFunction) => {
-    const post = postsQueryRepository.findById(req.params.id)
-    if(!post) {
-      res.sendStatus(404)
-    }
+// export const findPostMiddleware = (req: Request<{id: string}>, res: Response<OutputErrorsType>, next: NextFunction) => {
+//     const post = postsQueryRepository.findById(req.params.id)
+//     if(!post) {
+//       res.sendStatus(404)
+//     }
     
-    next()
-  }
+//     next()
+//   }

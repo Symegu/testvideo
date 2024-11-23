@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb"
-import { BlogViewModel, BlogModel } from "../../db/blog-db"
+import { BlogViewModel, BlogModel } from "../../types/db-types/blog-db"
 import { blogsCollection } from "../../db/mongoDb"
-import { PaginatorBlogModel } from "../other/paginator-types"
+import { PaginatorBlogModel } from "../../types/paginator-types"
 
 export const blogsQueryRepository = {
   async getAllBlogs(
@@ -58,8 +58,7 @@ export const blogsQueryRepository = {
 
     const _id = new ObjectId(id);
     const blog = await blogsCollection.findOne(
-        { _id },
-        { projection: { _id: 0 } }
+        { _id }
     );
     if (!blog) {
       return null;

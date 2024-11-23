@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb"
 import { usersCollection } from '../../db/mongoDb';
-import { UserModel, UserViewModel } from '../../db/user-db';
-import { PaginatorUsersModel } from "../other/paginator-types";
+import { UserModel, UserViewModel } from '../../types/db-types/user-db';
+import { PaginatorUsersModel } from "../../types/paginator-types";
 
 export const usersQueryRepository = {
   async getAllUsers(
@@ -81,19 +81,15 @@ export const usersQueryRepository = {
 
     const _id = new ObjectId(id);
     const user = await usersCollection.findOne(
-        { _id },
-        { projection: { _id: 0 } }
-    );
+        { _id }
+    )
+    console.log('findById user', user);
+    
     if (!user) {
-      return null;
+      return null
     }
     
-    return {
-      id: _id.toString(),
-      login: user.login,
-      email: user.email,
-      createdAt: user.createdAt
-    };
+    return this.mapUserToOutput(user)
   },
 
   async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserModel | null> {
@@ -103,7 +99,9 @@ export const usersQueryRepository = {
         {email: {$regex: loginOrEmail}}
       ]
     })
-
+    if (!user) {
+      return null
+    }
     return user
   },
 

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
-import { FieldNamesType, OutputErrorsType } from "../input-output-types/output-errors-type";
+import { FieldNamesType, OutputErrorsType } from "../types/input-output-types/output-errors-type";
 
 export const errorResultMiddleware = async (req: Request, res: Response<OutputErrorsType>, next: NextFunction) => {
   const errors = validationResult(req)

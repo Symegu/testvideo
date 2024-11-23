@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb"
 import { usersCollection } from "../../db/mongoDb"
-import { UserModel } from "../../db/user-db"
-import { UserInputModel } from "../../input-output-types/user-types"
+import { UserModel } from "../../types/db-types/user-db"
+import { UserInputModel } from "../../types/input-output-types/user-types"
 import bcrypt from 'bcrypt';
 
 export const usersRepository = {

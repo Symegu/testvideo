@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb"
-import { PostViewModel, PostModel } from "../../db/post-db"
+import { PostViewModel, PostModel } from "../../types/db-types/post-db"
 import { postsCollection } from "../../db/mongoDb"
-import { PaginatorPostModel } from "../other/paginator-types"
+import { PaginatorPostModel } from "../../types/paginator-types"
 
 export const postsQueryRepository = {
   async getAllPosts(
@@ -68,8 +68,7 @@ export const postsQueryRepository = {
 
     const _id = new ObjectId(id);
     const post = await postsCollection.findOne(
-        { _id },
-        { projection: { _id: 0 } }
+        { _id }
     );
     if (!post) {
       return null;

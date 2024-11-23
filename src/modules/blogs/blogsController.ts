@@ -1,12 +1,12 @@
 import { Request, Response } from 'express'
 import { paginationQueries } from "../other/paginationQueries"
 import { blogsService } from "./blogsService"
-import { BlogViewModel } from '../../db/blog-db'
+import { BlogViewModel } from '../../types/db-types/blog-db'
 import { blogsRepository } from './blogsRepository'
-import { BlogInputModel } from '../../input-output-types/blog-types'
-import { PostInputModel } from '../../input-output-types/post-types'
-import { PostViewModel } from '../../db/post-db'
-import { PaginatorBlogModel } from '../other/paginator-types'
+import { BlogInputModel } from '../../types/input-output-types/blog-types'
+import { PostInputModel } from '../../types/input-output-types/post-types'
+import { PostViewModel } from '../../types/db-types/post-db'
+import { PaginatorBlogModel } from '../../types/paginator-types'
 import { blogsQueryRepository } from './blogsQueryRepository'
 import { postsService } from '../posts/postsService'
 import { postsQueryRepository } from '../posts/postsQueryRepository'

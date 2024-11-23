@@ -1,10 +1,10 @@
 import { Request, Response } from 'express'
 import { usersService } from './usersService'
-import { UserInputModel } from '../../input-output-types/user-types'
-import { UserViewModel } from '../../db/user-db'
+import { UserInputModel } from '../../types/input-output-types/user-types'
+import { UserViewModel } from '../../types/db-types/user-db'
 import { usersQueryRepository } from './usersQueryRepository'
 import { paginationQueries } from '../other/paginationQueries'
-import { PaginatorUsersModel } from '../other/paginator-types';
+import { PaginatorUsersModel } from '../../types/paginator-types';
 
 export const usersController = {
   async getUsers(req: Request, res: Response<PaginatorUsersModel>) {
@@ -20,6 +20,7 @@ export const usersController = {
       res.sendStatus(400)
       return
     }
+    console.log('usersService newUserId', newUserId)
 
     const newUser = await usersQueryRepository.findById(newUserId)
     if(!newUser) {

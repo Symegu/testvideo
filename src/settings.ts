@@ -8,6 +8,7 @@ export const SETTINGS = {
         POSTS: '/posts',
         BLOGS: '/blogs',
         USERS: '/users',
+        COMMENTS: '/COMMENTS',
         AUTH: '/auth',
         TESTING: '/testing/all-data'
     },
@@ -16,5 +17,6 @@ export const SETTINGS = {
         PASSWORD: 'qwerty'
     },
     MONGO_URL: process.env.MONGO_URL || 'mongodb://0.0.0.0:27017', 
-    DB_NAME: process.env.DB_NAME || ''
+    DB_NAME: process.env.DB_NAME || '',
+    JWT_SECRET: process.env.JWT_SECRET || 'jwtsecret'
 }

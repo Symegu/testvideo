@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { adminAuthorizationMiddleware } from '../../global-middlewares/adminAuthorizationMiddleware'
+import { adminAuthorizationMiddleware } from '../../globalMiddlewares/adminAuthorizationMiddleware'
 import { descriptionValidator, nameValidator, websiteUrlValidator } from './middlewares/blogValidators'
-import { errorResultMiddleware } from '../../global-middlewares/errorResultMiddleware'
+import { errorResultMiddleware } from '../../globalMiddlewares/errorResultMiddleware'
 import { blogsController } from './blogsController'
 import { titleValidator, shortDescriptionValidator, contentValidator } from '../posts/middlewares/postValidators'
 

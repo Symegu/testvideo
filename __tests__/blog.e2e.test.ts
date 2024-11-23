@@ -2,7 +2,7 @@ import { req } from './test-helpers'
 import { setBlogsDB } from '../src/db/localDb'
 import { codedAuth } from './datasets'
 import { SETTINGS } from '../src/settings'
-import { BlogInputModel } from '../src/input-output-types/blog-types'
+import { BlogInputModel } from '../src/types/input-output-types/blog-types'
 import { runDB, blogsCollection } from '../src/db/mongoDb'
 import { MongoClient } from 'mongodb'
 
@@ -16,8 +16,6 @@ describe('/blogs', () => {
         } else {
             throw new Error("Unable to connect to the database")
         }
-        // await runDB(SETTINGS.MONGO_URL, true)
-        // await blogsCollection.drop()
     })
     afterAll(async () => {
         await client.close() // Закрываем сервер после тестов

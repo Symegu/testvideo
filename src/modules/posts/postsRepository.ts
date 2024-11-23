@@ -1,8 +1,8 @@
-import { PostModel, PostViewModel } from "../../db/post-db"
-import { PostInputModel } from "../../input-output-types/post-types"
+import { PostModel, PostViewModel } from "../../types/db-types/post-db"
+import { PostInputModel } from "../../types/input-output-types/post-types"
 import { postsCollection } from "../../db/mongoDb"
 import { ObjectId } from "mongodb"
-import { BlogViewModel } from "../../db/blog-db"
+import { BlogViewModel } from "../../types/db-types/blog-db"
 
 
 export const postsRepository = {

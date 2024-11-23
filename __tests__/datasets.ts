@@ -1,8 +1,8 @@
 import { DBType } from '../src/db/localDb'
-import { BlogModel } from '../src/db/blog-db'
-import { PostModel } from '../src/db/post-db'
+import { BlogModel } from '../src/types/db-types/blog-db'
+import { PostModel } from '../src/types/db-types/post-db'
 import { SETTINGS } from '../src/settings'
-import { fromUTF8ToBase64 } from '../src/global-middlewares/adminAuthorizationMiddleware'
+import { fromUTF8ToBase64 } from '../src/globalMiddlewares/adminAuthorizationMiddleware'
 import { ObjectId } from 'mongodb'
 
 // готовые данные для переиспользования в тестах

@@ -1,8 +1,8 @@
 import { Router } from "express"
 import { usersController } from "./usersController"
-import { adminAuthorizationMiddleware } from '../../global-middlewares/adminAuthorizationMiddleware';
+import { adminAuthorizationMiddleware } from '../../globalMiddlewares/adminAuthorizationMiddleware';
 import { emailValidator, loginValidator, passwordValidator } from "./middlewares/userValidators";
-import { errorResultMiddleware } from "../../global-middlewares/errorResultMiddleware";
+import { errorResultMiddleware } from "../../globalMiddlewares/errorResultMiddleware";
 
 export const usersRouter = Router()
 
