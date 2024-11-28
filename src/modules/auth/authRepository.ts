@@ -1,6 +1,8 @@
-import { ObjectId } from "mongodb";
-import { usersCollection } from "../../db/mongoDb";
-import { UserModel } from "../../types/db-types/user-db";
+import { ObjectId } from "mongodb"
+import { usersCollection } from "../../db/mongoDb"
+import { UserModel } from "../../types/db-types/user-db"
+import { randomUUID } from "crypto"
+import { addDays } from 'date-fns'
 
 
 export const authRepository = {
@@ -12,9 +14,9 @@ export const authRepository = {
     }
 
     const _id = new ObjectId(id)
-    const user = await usersCollection.findOne({_id})
+    const user = await usersCollection.findOne({ _id })
 
-    if(!user) {
+    if (!user) {
       return null
     }
 
@@ -31,22 +33,42 @@ export const authRepository = {
   async findByConfirmationCode(
     code: string
   ): Promise<UserModel | null> {
-    const user = await usersCollection.findOne({'emailConfirmation.confirmationCode': code})
+    const user = await usersCollection.findOne({ 'emailConfirmation.confirmationCode': code })
     console.log('findByConfirmationCode user', user);
-    
+
     if (!user) {
       return null
     }
-    
+
     return user
   },
-  
+
   async confirmEmail(
     code: string,
   ) {
-    const res = await usersCollection.updateOne({'emailConfirmation.confirmationCode': code}, {$set: {'emailConfirmation.status': 1}})
+    const res = await usersCollection.updateOne({ 'emailConfirmation.confirmationCode': code }, { $set: { 'emailConfirmation.status': 1 } })
     console.log(res);
-    
+
     return res.matchedCount === 1
+  },
+
+  async changeConfirmation(
+    email: string
+  ) {
+    const dateNow = Date.now()
+    const newConfirmInfo = {
+
+      status: 0,
+      confirmationCode: randomUUID(),
+      expirationDate: addDays(dateNow, 1).toISOString()
+
+    }
+    const res = await usersCollection.updateOne({ email: email }, { $set: { emailConfirmation: newConfirmInfo } })
+
+    if(res.matchedCount === 1) {
+      return newConfirmInfo.confirmationCode
+    }
+
+    return null
   }
 }

@@ -13,13 +13,13 @@ export const emailExamples = {
   registrationEmail(code: string) {
     return ` <h1>Thank for your registration</h1>
              <p>To finish registration please follow the link below:<br>
-                <a href='http://localhost:3005/registration-confirmation?code=${code}'>complete registration</a>
+                <a href='https://429b301d51cdfe.lhr.life/auth/registration-confirmation?code=${code}'>https://9e8a61a631fb74.lhr.life/auth/registration-confirmation?code=${code}</a>
             </p>`
   },
   passwordRecoveryEmail(code: string) {
     return `<h1>Password recovery</h1>
       <p>To finish password recovery please follow the link below:
-          <a href=https://localhost:3005/password-recovery?recoveryCode=${code}'>recovery password</a>
+          <a href='https://40bdc384729b51.lhr.life/password-recovery?recoveryCode=${code}'>recovery password</a>
       </p>`
   }
 }
@@ -51,16 +51,18 @@ export const authService = {
     code: string,
     template: (code: string) => string
   ): Promise<Result<{ messageId: string } | null>> {
-    let transporter = nodemailer.createTransport({
-      host: "smtp.yandex.ru",
-      port: 465,
-      secure: true,
-      auth: {
-        user: SETTINGS.EMAIL,
-        pass: SETTINGS.EMAIL_PASS,
-      },
-    });
+    
     try {
+      let transporter = nodemailer.createTransport({
+        host: "smtp.yandex.ru",
+        port: 465,
+        secure: true,
+        auth: {
+          user: SETTINGS.EMAIL,
+          pass: SETTINGS.EMAIL_PASS,
+        },
+      });
+      
       let info = await transporter.sendMail({
         from: `"testingNodemailer" <${SETTINGS.EMAIL}>`,
         to: email,
@@ -104,7 +106,7 @@ export const authService = {
         errorMessage: 'Bad Request',
         data: null,
         extensions: [
-          { field: 'confirmationCode', message: 'Incorrect code' }
+          { field: 'code', message: 'Incorrect code' }
         ],
       }
     }
@@ -117,7 +119,7 @@ export const authService = {
         errorMessage: 'Bad Request',
         data: null,
         extensions: [
-          { field: 'confirmationCode', message: 'No user matching this code' }
+          { field: 'code', message: 'No user matching this code' }
         ],
       }
     }
@@ -128,7 +130,7 @@ export const authService = {
         errorMessage: 'Bad Request',
         data: null,
         extensions: [
-          { field: 'confirmationCode', message: 'Already confirmed' }
+          { field: 'code', message: 'Already confirmed' }
         ],
       }
     }
@@ -139,14 +141,14 @@ export const authService = {
         errorMessage: 'Bad Request',
         data: null,
         extensions: [
-          { field: 'confirmationCode', message: 'Code expired' }
+          { field: 'code', message: 'Code expired' }
         ],
       }
     }
 
     const result = await authRepository.confirmEmail(code)
-    console.log(await authRepository.findByConfirmationCode(code));
-    console.log(result);
+    console.log(await authRepository.findByConfirmationCode(code), 'findByConfirmationCode confirmEmail');
+    console.log(result, 'confirmEmail result');
     
 
     return {
@@ -161,14 +163,15 @@ export const authService = {
   ): Promise<Result<any>> {
     const user = await usersQueryRepository.findUserByLoginOrEmail(email)
     const dateNow = Date.now()
-
+    console.log(user, 'resendConfirmation user');
+    
     if(!user) {
       return {
         status: ResultStatus.BadRequest,
         errorMessage: 'Bad Request',
         data: null,
         extensions: [
-          { field: 'confirmationCode', message: 'No user matching this email' }
+          { field: 'email', message: 'No user matching this email' }
         ],
       }
     }
@@ -179,23 +182,26 @@ export const authService = {
         errorMessage: 'Bad Request',
         data: null,
         extensions: [
-          { field: 'confirmationCode', message: 'Already confirmed' }
+          { field: 'email', message: 'Already confirmed' }
         ],
       }
     }
 
-    if(isBefore(parseISO(user.emailConfirmation.expirationDate), dateNow)) {
+    const newCode = await authRepository.changeConfirmation(email)
+
+    if(!newCode) {
       return {
         status: ResultStatus.BadRequest,
         errorMessage: 'Bad Request',
         data: null,
         extensions: [
-          { field: 'confirmationCode', message: 'Code expired' }
+          { field: 'email', message: 'Cant make new confirmation info' }
         ],
       }
     }
-
-    const result = await this.sendEmail(email, user.emailConfirmation.confirmationCode, emailExamples.registrationEmail)
+    console.log(newCode, 'newCode resendConfirmation changeConfirmation');
+    
+    const result = await this.sendEmail(email, newCode, emailExamples.registrationEmail)
     
     if(result.status !== ResultStatus.Success) {
       return {

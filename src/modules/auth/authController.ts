@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { LoginInputModel, UserInputModel } from '../../types/input-output-types/user-types'
 import { usersQueryRepository } from '../users/usersQueryRepository';
-import { HttpStatuses, OutputErrorsType, ResultStatus } from '../../types/input-output-types/output-errors-type'
+import { HttpStatuses, OutputErrorsType, ResultStatus } from '../../types/input-output-types/output-errors-type';
 import { authService, emailExamples } from './authService'
 import { usersService } from '../users/usersService'
 
@@ -49,6 +49,7 @@ export const authController = {
       login: user.login,
       email: user.email
     })
+    return
   },
 
   async register(req: Request<UserInputModel>, res: Response) {
@@ -57,49 +58,53 @@ export const authController = {
       res.sendStatus(HttpStatuses.ServerError)
       return
     }
-    const user = await usersQueryRepository.findById(result.data!.userId)
+    const newUser = await usersQueryRepository.findById(result.data!.userId)
     
-    if (!user) {
+    if (!newUser) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
-    const userInfo = await authService.findConfirmationInfo(user.id)
+    const userInfo = await authService.findConfirmationInfo(newUser.id)
 
     if(!userInfo) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
 
-    const messageId = await authService.sendEmail(user.email, userInfo.emailConfirmation.confirmationCode, emailExamples.registrationEmail)
+    const messageId = authService.sendEmail(newUser.email, userInfo.emailConfirmation.confirmationCode, emailExamples.registrationEmail)
     if(!messageId) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
     
-    res.status(HttpStatuses.NoContent)
+    res.sendStatus(HttpStatuses.NoContent)
+    return
   },
 
   async confirmRegistration(req: Request<{code: string}>, res:Response) {
-    console.log(req.query.code);
-    
-    const result = await authService.confirmEmail(req.query.code!.toString())
-    console.log(result);
+    console.log(req.query.code, 'confirmRegistration req.query.code');
+    console.log(req.body.code, 'confirmRegistration req.body.code');
+    const confirmCode = req.query.code ? req.query.code.toString() : req.body.code.toString()
+    const result = await authService.confirmEmail(confirmCode.toString())
+    console.log(result, 'result confirmRegistration authController');
     
     if(result.status !== ResultStatus.Success) {
-      res.sendStatus(HttpStatuses.BadRequest).json(result.extensions)
+      res.status(HttpStatuses.BadRequest).json({errorsMessages:result.extensions})
       return
     }
 
     res.sendStatus(HttpStatuses.NoContent)
+    return
   },
 
   async resendEmailConfirmation(req: Request<{email: string}>, res: Response) {
     const result = await authService.resendConfirmation(req.body.email)
     if(result.status !== ResultStatus.Success) {
-      res.sendStatus(HttpStatuses.BadRequest).json(result.extensions)
+      res.status(HttpStatuses.BadRequest).json({errorsMessages:result.extensions})
       return
     }
 
     res.sendStatus(HttpStatuses.NoContent)
+    return
   }
 }

@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { errorResultMiddleware } from "../../globalMiddlewares/errorResultMiddleware"
-import { authValidator, emailValidator, loginValidator, passwordValidator } from "../users/middlewares/userValidators"
+import { authValidator, emailValidator, loginValidator, passwordValidator } from '../users/middlewares/userValidators';
 import { authController } from "./authController"
 import { tokenAuthMiddleware } from "../../globalMiddlewares/tokenAuthMiddleware"
 
@@ -15,5 +15,5 @@ authRouter.post('/registration',
   authController.register)
 
 authRouter.post('/registration-confirmation', errorResultMiddleware, authController.confirmRegistration)
-authRouter.post('/registration-email-resending', emailValidator, errorResultMiddleware, authController.resendEmailConfirmation)
+authRouter.post('/registration-email-resending', errorResultMiddleware, authController.resendEmailConfirmation)
 authRouter.get('/me', tokenAuthMiddleware, errorResultMiddleware, authController.getLoggedUserInfo)
