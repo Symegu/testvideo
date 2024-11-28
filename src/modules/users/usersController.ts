@@ -5,6 +5,7 @@ import { UserViewModel } from '../../types/db-types/user-db'
 import { usersQueryRepository } from './usersQueryRepository'
 import { paginationQueries } from '../other/paginationQueries'
 import { PaginatorUsersModel } from '../../types/paginator-types';
+import { HttpStatuses, ResultStatus } from '../../types/input-output-types/output-errors-type'
 
 export const usersController = {
   async getUsers(req: Request, res: Response<PaginatorUsersModel>) {
@@ -15,20 +16,19 @@ export const usersController = {
   }, 
   
   async createUser(req: Request<UserInputModel>, res: Response<UserViewModel>) {
-    const newUserId = await usersService.createUser(req.body)
-    if(!newUserId) {
-      res.sendStatus(400)
+    const result = await usersService.createUser(req.body, true)
+    if(result.status !== ResultStatus.Success) {
+      res.sendStatus(HttpStatuses.ServerError)
       return
     }
-    console.log('usersService newUserId', newUserId)
-
-    const newUser = await usersQueryRepository.findById(newUserId)
+    
+    const newUser = await usersQueryRepository.findById(result.data!.userId)
     if(!newUser) {
-      res.sendStatus(404)
+      res.sendStatus(HttpStatuses.NotFound)
       return
     }
 
-    res.status(201).json(newUser)
+    res.status(HttpStatuses.Success).json(newUser)
   },
 
   async deleteUser(req: Request<{id: string}>, res: Response) {

@@ -10,15 +10,20 @@
     "jest:coverage": "jest -i --coverage"
   },
   "dependencies": {
+    "@types/nodemailer": "^6.4.17",
     "back-lesson-01": "file:.",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-validator": "^7.2.0",
+    "google-auth-library": "^9.15.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.10.0",
-    "test-videoserver": "file:"
+    "nodemailer": "^6.9.16",
+    "test-videoserver": "file:",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

@@ -1,19 +1,27 @@
-import { SETTINGS } from "../../settings"
-import { UserViewModel } from "../../types/db-types/user-db"
+import { ResultStatus, Result } from "../../types/input-output-types/output-errors-type"
 import { UserInputModel } from "../../types/input-output-types/user-types"
 import { usersRepository } from './usersRepository'
-import jwt from 'jsonwebtoken'
 
 export const usersService = {
 
-  async createUser(user: UserInputModel): Promise<string | null> {
-    const newUserId = await usersRepository.createUser(user)
+  async createUser(user: UserInputModel, adminCreation?: boolean): Promise<Result<{userId: string} | null>> {
+    const newUserId = await usersRepository.createUser(user, adminCreation)
     if (!newUserId) {
-      return null
+      return {
+        status: ResultStatus.InternalServerError,
+        errorMessage: 'failed to add user to database',
+        extensions: [],
+        data: null
+      }
     }
-    console.log('usersService newUserId', newUserId)
     
-    return newUserId
+    return {
+      status: ResultStatus.Success,
+      extensions: [],
+      data: {
+        userId: newUserId
+      }
+    }
   },
 
   async deleteUser(id: string) {
