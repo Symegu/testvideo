@@ -28,13 +28,51 @@ export const authController = {
       return
     }
 
-    const accessToken = await authService.generateToken(usersQueryRepository.mapUserToOutput(user))
-    console.log('accessToken', accessToken)
+    const tokens = await authService.createTokens({id: user._id.toString(), login: user.login})
+    console.log('tokens', tokens)
 
-    res.status(200).json({ accessToken: accessToken })
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 20 * 1000,
+    })
+
+    res.status(200).json({ accessToken: tokens.accessToken })
     return
   },
 
+  async refreshTokens(req: Request, res: Response) {
+    const currentRefreshToken = req.cookies.refreshToken;
+
+    if (!currentRefreshToken) {
+      res.sendStatus(401)
+      return
+    }
+
+    const tokens = await authService.createTokens(currentRefreshToken)
+    await authService.updateRefreshToken(currentRefreshToken, tokens.refreshToken)
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 20 * 1000,
+    });
+
+    res.status(200).json({ accessToken: tokens.accessToken })
+  },
+
+  async logout(req: Request, res: Response) {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      res.sendStatus(401)
+      return
+    }
+
+    await authService.deleteRefreshToken(refreshToken)
+
+    res.clearCookie('refreshToken')
+    res.sendStatus(204)
+  },
   async getLoggedUserInfo(req: Request, res: Response) {
     console.log(req.userId, req.userLogin);
 
@@ -59,37 +97,37 @@ export const authController = {
       return
     }
     const newUser = await usersQueryRepository.findById(result.data!.userId)
-    
+
     if (!newUser) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
     const userInfo = await authService.findConfirmationInfo(newUser.id)
 
-    if(!userInfo) {
+    if (!userInfo) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
 
     const messageId = authService.sendEmail(newUser.email, userInfo.emailConfirmation.confirmationCode, emailExamples.registrationEmail)
-    if(!messageId) {
+    if (!messageId) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
-    
+
     res.sendStatus(HttpStatuses.NoContent)
     return
   },
 
-  async confirmRegistration(req: Request<{code: string}>, res:Response) {
+  async confirmRegistration(req: Request<{ code: string }>, res: Response) {
     console.log(req.query.code, 'confirmRegistration req.query.code');
     console.log(req.body.code, 'confirmRegistration req.body.code');
     const confirmCode = req.query.code ? req.query.code.toString() : req.body.code.toString()
     const result = await authService.confirmEmail(confirmCode.toString())
     console.log(result, 'result confirmRegistration authController');
-    
-    if(result.status !== ResultStatus.Success) {
-      res.status(HttpStatuses.BadRequest).json({errorsMessages:result.extensions})
+
+    if (result.status !== ResultStatus.Success) {
+      res.status(HttpStatuses.BadRequest).json({ errorsMessages: result.extensions })
       return
     }
 
@@ -97,10 +135,10 @@ export const authController = {
     return
   },
 
-  async resendEmailConfirmation(req: Request<{email: string}>, res: Response) {
+  async resendEmailConfirmation(req: Request<{ email: string }>, res: Response) {
     const result = await authService.resendConfirmation(req.body.email)
-    if(result.status !== ResultStatus.Success) {
-      res.status(HttpStatuses.BadRequest).json({errorsMessages:result.extensions})
+    if (result.status !== ResultStatus.Success) {
+      res.status(HttpStatuses.BadRequest).json({ errorsMessages: result.extensions })
       return
     }
 

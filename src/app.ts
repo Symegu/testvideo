@@ -7,10 +7,12 @@ import { testingRouter } from './modules/other'
 import { usersRouter } from './modules/users'
 import { authRouter } from './modules/auth'
 import { commentsRouter } from './modules/comments'
+import cookieParser from 'cookie-parser'
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body во всех реквестах
 app.use(cors()) // разрешить любым фронтам делать запросы на наш бэк
+app.use(cookieParser())
 
 app.get('/', (req, res) => {
     // эндпоинт, который будет показывать на верселе какая версия бэкэнда сейчас залита

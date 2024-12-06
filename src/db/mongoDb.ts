@@ -4,6 +4,7 @@ import { BlogModel } from "../types/db-types/blog-db";
 import { PostModel } from "../types/db-types/post-db";
 import { UserModel } from "../types/db-types/user-db";
 import { CommentModel } from "../types/db-types/comment-db";
+import { TokenModel } from "../types/db-types/token-db";
 // const uri = "mongodb+srv://symegu:admin@lessons.ri9n5.mongodb.net/?retryWrites=true&w=majority&appName=Lessons";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -12,6 +13,7 @@ export let blogsCollection: Collection<BlogModel>
 export let postsCollection: Collection<PostModel>
 export let usersCollection: Collection<UserModel>
 export let commentsCollection: Collection<CommentModel>
+export let tokensCollection: Collection<TokenModel>
 
 export async function runDB(url: string, testDb?: boolean): Promise<{ client: MongoClient, status?: boolean } | null> {
     const client = new MongoClient(url)
@@ -20,6 +22,7 @@ export async function runDB(url: string, testDb?: boolean): Promise<{ client: Mo
     usersCollection = db.collection<UserModel>(SETTINGS.PATH.USERS)
     postsCollection = db.collection<PostModel>(SETTINGS.PATH.POSTS)
     commentsCollection = db.collection<CommentModel>(SETTINGS.PATH.COMMENTS)
+    tokensCollection = db.collection<TokenModel>(SETTINGS.PATH.AUTH)
 
     try {
         // Connect the client to the server	(optional starting in v4.7)

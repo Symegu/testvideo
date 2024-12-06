@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt"
 import { SETTINGS } from "../../settings"
-import { UserViewModel } from "../../types/db-types/user-db"
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import { authRepository } from "./authRepository"
 import nodemailer from "nodemailer"
 import { Result, ResultStatus } from "../../types/input-output-types/output-errors-type"
 import { isBefore, parseISO } from 'date-fns'
 import { usersQueryRepository } from "../users/usersQueryRepository"
+import { tokenRepository } from "./tokenRepository"
 
 
 export const emailExamples = {
@@ -31,10 +31,51 @@ export const authService = {
     return match
   },
 
-  async generateToken(user: UserViewModel) {
+  async getInfoFromPayload(token:string) {
+    const decoded = jwt.verify(token, SETTINGS.JWT_REFRESH_SECRET) as JwtPayload
+    const userId = decoded.userId
+    const userLogin = decoded.userLogin
+
+    return {
+      id: userId,
+      login: userLogin
+    }
+  },
+
+  async generateAccessToken(user:{id: string, login: string}) {
     console.log(user, user.id, user.login, 'generateToken user');
 
-    return jwt.sign({ userId: user.id, userLogin: user.login }, SETTINGS.JWT_SECRET)
+    return jwt.sign({ userId: user.id, userLogin: user.login }, SETTINGS.JWT_SECRET, { expiresIn: '10s' })
+  },
+
+  async generateRefreshToken(user:{id: string, login: string}) {
+    console.log(user, user.id, user.login, 'generateRefreshToken user');
+
+    return jwt.sign({ userId: user.id, userLogin: user.login }, SETTINGS.JWT_SECRET, { expiresIn: '20s' })
+  },
+
+  async createTokens(user:{id: string, login: string}) {
+    const accessToken = await this.generateAccessToken(user)
+    const refreshToken = await this.generateRefreshToken(user)
+
+    return {accessToken: accessToken, refreshToken: refreshToken}
+  }, 
+  
+
+  async refreshTokens(oldRefreshToken: string) {
+    const user = await this.getInfoFromPayload(oldRefreshToken)
+
+    const { accessToken, refreshToken } = await this.createTokens(user)
+
+    return { accessToken, refreshToken }
+  },
+
+  async updateRefreshToken(oldToken: string, newToken: string) {
+    await tokenRepository.updateToken(oldToken, newToken)
+  },
+
+  async deleteRefreshToken(refreshToken: string) {
+    await tokenRepository.deleteToken(refreshToken)
   },
 
   async findConfirmationInfo(id: string) {
@@ -51,7 +92,7 @@ export const authService = {
     code: string,
     template: (code: string) => string
   ): Promise<Result<{ messageId: string } | null>> {
-    
+
     try {
       let transporter = nodemailer.createTransport({
         host: "smtp.yandex.ru",
@@ -62,7 +103,7 @@ export const authService = {
           pass: SETTINGS.EMAIL_PASS,
         },
       });
-      
+
       let info = await transporter.sendMail({
         from: `"testingNodemailer" <${SETTINGS.EMAIL}>`,
         to: email,
@@ -83,7 +124,7 @@ export const authService = {
       return {
         status: ResultStatus.InternalServerError,
         extensions: [
-          {field: 'email', message: 'ServerError sending email'}
+          { field: 'email', message: 'ServerError sending email' }
         ],
         data: null
       } as Result<null>
@@ -94,7 +135,7 @@ export const authService = {
     code: string
   ): Promise<Result<any>> {
     console.log(code);
-    
+
     const isUuid = new RegExp(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
     ).test(code)
@@ -112,8 +153,8 @@ export const authService = {
     }
 
     const user = await authRepository.findByConfirmationCode(code)
-  
-    if(!user) {
+
+    if (!user) {
       return {
         status: ResultStatus.BadRequest,
         errorMessage: 'Bad Request',
@@ -124,7 +165,7 @@ export const authService = {
       }
     }
 
-    if(user.emailConfirmation.status !== 0) {
+    if (user.emailConfirmation.status !== 0) {
       return {
         status: ResultStatus.BadRequest,
         errorMessage: 'Bad Request',
@@ -135,7 +176,7 @@ export const authService = {
       }
     }
 
-    if(isBefore(parseISO(user.emailConfirmation.expirationDate), dateNow)) {
+    if (isBefore(parseISO(user.emailConfirmation.expirationDate), dateNow)) {
       return {
         status: ResultStatus.BadRequest,
         errorMessage: 'Bad Request',
@@ -149,7 +190,7 @@ export const authService = {
     const result = await authRepository.confirmEmail(code)
     console.log(await authRepository.findByConfirmationCode(code), 'findByConfirmationCode confirmEmail');
     console.log(result, 'confirmEmail result');
-    
+
 
     return {
       status: ResultStatus.Success,
@@ -164,8 +205,8 @@ export const authService = {
     const user = await usersQueryRepository.findUserByLoginOrEmail(email)
     const dateNow = Date.now()
     console.log(user, 'resendConfirmation user');
-    
-    if(!user) {
+
+    if (!user) {
       return {
         status: ResultStatus.BadRequest,
         errorMessage: 'Bad Request',
@@ -176,7 +217,7 @@ export const authService = {
       }
     }
 
-    if(user.emailConfirmation.status !== 0) {
+    if (user.emailConfirmation.status !== 0) {
       return {
         status: ResultStatus.BadRequest,
         errorMessage: 'Bad Request',
@@ -189,7 +230,7 @@ export const authService = {
 
     const newCode = await authRepository.changeConfirmation(email)
 
-    if(!newCode) {
+    if (!newCode) {
       return {
         status: ResultStatus.BadRequest,
         errorMessage: 'Bad Request',
@@ -200,14 +241,14 @@ export const authService = {
       }
     }
     console.log(newCode, 'newCode resendConfirmation changeConfirmation');
-    
+
     const result = await this.sendEmail(email, newCode, emailExamples.registrationEmail)
-    
-    if(result.status !== ResultStatus.Success) {
+
+    if (result.status !== ResultStatus.Success) {
       return {
         status: ResultStatus.InternalServerError,
         extensions: [
-          {field: 'email', message: 'ServerError sending email'}
+          { field: 'email', message: 'ServerError sending email' }
         ],
         data: null
       } as Result<null>
@@ -218,5 +259,5 @@ export const authService = {
       extensions: [],
       data: null
     } as Result<null>
-  }
+  },
 }
