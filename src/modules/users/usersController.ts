@@ -12,7 +12,7 @@ export const usersController = {
     const { pageNumber, pageSize, sortBy, sortDirection, searchEmailTerm, searchLoginTerm } = paginationQueries(req)    
     const users = await usersQueryRepository.getAllUsers(pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm)
     
-    res.status(200).json(users)
+    res.status(HttpStatuses.Created).json(users)
   }, 
   
   async createUser(req: Request<UserInputModel>, res: Response<UserViewModel>) {
@@ -28,7 +28,7 @@ export const usersController = {
       return
     }
 
-    res.status(HttpStatuses.Success).json(newUser)
+    res.status(HttpStatuses.Created).json(newUser)
   },
 
   async deleteUser(req: Request<{id: string}>, res: Response) {

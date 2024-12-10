@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { LoginInputModel, UserInputModel } from '../../types/input-output-types/user-types'
 import { usersQueryRepository } from '../users/usersQueryRepository';
 import { HttpStatuses, OutputErrorsType, ResultStatus } from '../../types/input-output-types/output-errors-type';
-import { authService, emailExamples } from './authService'
+import { authService, emailExamples } from './authService';
 import { usersService } from '../users/usersService'
 
 
@@ -31,50 +31,61 @@ export const authController = {
     const tokens = await authService.createTokens({id: user._id.toString(), login: user.login})
     console.log('tokens', tokens)
 
-    res.cookie('refreshToken', tokens.refreshToken, {
+    res.cookie('refreshToken', tokens!.refreshToken, {
       httpOnly: true,
       secure: true,
       maxAge: 20 * 1000,
     })
 
-    res.status(200).json({ accessToken: tokens.accessToken })
+    res.status(200).json({ accessToken: tokens!.accessToken })
     return
   },
 
   async refreshTokens(req: Request, res: Response) {
-    const currentRefreshToken = req.cookies.refreshToken;
+    const currentRefreshToken = req.cookies.refreshToken
 
     if (!currentRefreshToken) {
       res.sendStatus(401)
       return
     }
-
-    const tokens = await authService.createTokens(currentRefreshToken)
-    await authService.updateRefreshToken(currentRefreshToken, tokens.refreshToken)
-    res.cookie('refreshToken', tokens.refreshToken, {
+    const validToken = await authService.findRefreshToken(currentRefreshToken)
+    console.log(validToken, 'refreshTokens validToken');
+    
+    if (!validToken) {
+      res.sendStatus(401)
+      return
+    }
+    const tokens = await authService.refreshTokens(currentRefreshToken)
+    await authService.updateRefreshToken(currentRefreshToken, tokens!.refreshToken)
+    res.cookie('refreshToken', tokens!.refreshToken, {
       httpOnly: true,
       secure: true,
       maxAge: 20 * 1000,
     });
 
-    res.status(200).json({ accessToken: tokens.accessToken })
+    res.status(200).json({ accessToken: tokens!.accessToken })
   },
 
   async logout(req: Request, res: Response) {
     const refreshToken = req.cookies.refreshToken;
-
-    if (!refreshToken) {
+    console.log(refreshToken, 'refreshToken logout');
+    const validToken = await authService.findRefreshToken(refreshToken)
+    if (!refreshToken || !validToken) {
       res.sendStatus(401)
       return
     }
-
-    await authService.deleteRefreshToken(refreshToken)
-
+    console.log(validToken, 'validToken logout');
+    const deletedToken = await authService.deleteRefreshToken(refreshToken)
+    if(!deletedToken) {
+      res.sendStatus(401)
+      return
+    }
     res.clearCookie('refreshToken')
     res.sendStatus(204)
+    return
   },
   async getLoggedUserInfo(req: Request, res: Response) {
-    console.log(req.userId, req.userLogin);
+    console.log(req.userId, req.userLogin, 'getLoggedUserInfo');
 
     const user = await usersQueryRepository.findById(req.userId!)
     if (!user) {
@@ -87,7 +98,6 @@ export const authController = {
       login: user.login,
       email: user.email
     })
-    return
   },
 
   async register(req: Request<UserInputModel>, res: Response) {

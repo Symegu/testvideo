@@ -32,5 +32,5 @@ authRouter.get('/me',
   authController.getLoggedUserInfo)
 
 authRouter.post('/refresh-token',
-    refreshTokenValidator, errorResultMiddleware,
-    authController.refreshTokens)
+  refreshTokenValidator, errorResultMiddleware,
+  authController.refreshTokens)

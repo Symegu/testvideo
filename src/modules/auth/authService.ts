@@ -8,7 +8,10 @@ import { isBefore, parseISO } from 'date-fns'
 import { usersQueryRepository } from "../users/usersQueryRepository"
 import { tokenRepository } from "./tokenRepository"
 
-
+interface JwtUserPayload extends JwtPayload {
+  userId: string;
+  userLogin: string;
+}
 export const emailExamples = {
   registrationEmail(code: string) {
     return ` <h1>Thank for your registration</h1>
@@ -31,10 +34,12 @@ export const authService = {
     return match
   },
 
-  async getInfoFromPayload(token:string) {
-    const decoded = jwt.verify(token, SETTINGS.JWT_REFRESH_SECRET) as JwtPayload
-    const userId = decoded.userId
-    const userLogin = decoded.userLogin
+  async getInfoFromPayload(token: string) {
+    // const secret = tokenType === 'acc' ? SETTINGS.JWT_SECRET : SETTINGS.JWT_REFRESH_SECRET
+    const payload = jwt.decode(token) as JwtUserPayload
+    const userId = payload.userId
+    const userLogin = payload.userLogin
+    console.log( payload, 'getInfoFromPayload payload')
 
     return {
       id: userId,
@@ -42,40 +47,61 @@ export const authService = {
     }
   },
 
-  async generateAccessToken(user:{id: string, login: string}) {
-    console.log(user, user.id, user.login, 'generateToken user');
+  async generateAccessToken(user: { id: string, login: string }) {
 
     return jwt.sign({ userId: user.id, userLogin: user.login }, SETTINGS.JWT_SECRET, { expiresIn: '10s' })
   },
 
-  async generateRefreshToken(user:{id: string, login: string}) {
-    console.log(user, user.id, user.login, 'generateRefreshToken user');
-
-    return jwt.sign({ userId: user.id, userLogin: user.login }, SETTINGS.JWT_SECRET, { expiresIn: '20s' })
+  async generateRefreshToken(user: { id: string, login: string }) {
+    return jwt.sign({ userId: user.id, userLogin: user.login }, SETTINGS.JWT_REFRESH_SECRET, { expiresIn: '20s' })
   },
 
-  async createTokens(user:{id: string, login: string}) {
+  async createTokens(user: { id: string, login: string }) {
     const accessToken = await this.generateAccessToken(user)
     const refreshToken = await this.generateRefreshToken(user)
-
-    return {accessToken: accessToken, refreshToken: refreshToken}
-  }, 
-  
+    const addedToken = await tokenRepository.addToken(refreshToken)
+    if (!addedToken) {
+      return null
+    }
+    return { accessToken: accessToken, refreshToken: refreshToken }
+  },
 
   async refreshTokens(oldRefreshToken: string) {
     const user = await this.getInfoFromPayload(oldRefreshToken)
-
-    const { accessToken, refreshToken } = await this.createTokens(user)
-
-    return { accessToken, refreshToken }
+    console.log( user, 'refreshTokens user')
+    await this.deleteRefreshToken(oldRefreshToken)
+    const tokens = await this.createTokens(user)
+    if(!tokens) {
+      return null 
+    }
+    if (!tokens.accessToken || !tokens.refreshToken) {
+      return null
+    }
+    return { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken }
   },
 
   async updateRefreshToken(oldToken: string, newToken: string) {
-    await tokenRepository.updateToken(oldToken, newToken)
+    const updatedToken = await tokenRepository.updateToken(oldToken, newToken)
+
+    return updatedToken
   },
 
   async deleteRefreshToken(refreshToken: string) {
-    await tokenRepository.deleteToken(refreshToken)
+    const res = await tokenRepository.deleteToken(refreshToken)
+    if (!res) {
+      return null
+    }
+
+    return res
+  },
+
+  async findRefreshToken(refreshToken: string) {
+    const res = await tokenRepository.findToken(refreshToken)
+    if (!res) {
+      return null
+    }
+
+    return res
   },
 
   async findConfirmationInfo(id: string) {

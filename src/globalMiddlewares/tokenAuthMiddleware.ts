@@ -3,8 +3,8 @@ import { SETTINGS } from '../settings'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 
 interface JwtUserPayload extends JwtPayload {
-  userId: string,
-  userLogin: string
+  userId: string;
+  userLogin: string;
 }
 
 export const tokenAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
@@ -23,17 +23,19 @@ export const tokenAuthMiddleware = (req: Request, res: Response, next: NextFunct
     res.status(401).json({ message: "invalid token" })
     return
   }
-
-  jwt.verify(token, SETTINGS.JWT_SECRET, (err, user) => {
+  jwt.verify(token, SETTINGS.JWT_SECRET, (err, decoded) => {
     if (err) {
+      console.log(err, 'tokenAuthMiddleware err');
+      
       res.sendStatus(401)
       return
     }
-    console.log(token, 'tokenAuthMiddleware')
-    console.log(user, 'tokenAuthMiddleware')
-    const payload = user as JwtUserPayload
+
+    const payload = jwt.decode(token) as JwtUserPayload
     req.userId = payload.userId
     req.userLogin = payload.userLogin
+    
+    console.log( req.userId, req.userLogin, 'tokenAuthMiddleware req.')
     next()
   })
 }

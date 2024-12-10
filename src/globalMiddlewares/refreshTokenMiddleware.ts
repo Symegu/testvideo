@@ -1,23 +1,26 @@
-// import { validationResult } from 'express-validator'
 import { Request, Response, NextFunction } from 'express'
+import { SETTINGS } from '../settings'
+import jwt, { JwtPayload } from 'jsonwebtoken'
+interface JwtUserPayload extends JwtPayload {
+  userId: string,
+  userLogin: string
+}
+export const refreshTokenValidator = (req: Request, res: Response, next: NextFunction): void => {
+  const refreshToken = req.cookies.refreshToken
+  console.log(refreshToken, 'refreshTokenValidator');
 
-export const refreshTokenValidator = (req: Request, res: Response, next: NextFunction) => {
-  // Проверяем, есть ли refreshToken в куках
-  const refreshToken = req.cookies.refreshToken;
+  // const token = refreshToken.split(' ')[1]
+  jwt.verify(refreshToken, SETTINGS.JWT_REFRESH_SECRET, (err: any, user: any) => {
+    if (err) { 
+      console.log('expired or invalid', err)
+      res.sendStatus(401)
+      return
+    }
 
-  // Если токен отсутствует, возвращаем ошибку
-  if (!refreshToken) {
-    res.status(401)
-    return
-  }
-
-  // (Необязательно) Проверяем формат токена, если у вас есть определенные правила
-  // Например, проверка на длину, наличие определенных символов и т.д.
-  if (typeof refreshToken !== 'string' || refreshToken.length !== 64) { 
-    res.status(400)
-    return
-  }
-
-  // Если всё в порядке, переходим к следующему middleware
-  next()
+    const payload = jwt.decode(refreshToken) as JwtUserPayload
+    req.userId = payload.userId
+    req.userLogin = payload.userLogin
+    console.log( req.userId, req.userLogin, 'getInfoFromPayload  req.userLogin')
+    next()
+  })
 }
