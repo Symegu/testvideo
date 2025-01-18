@@ -10,6 +10,7 @@ export const SETTINGS = {
         USERS: '/users',
         COMMENTS: '/COMMENTS',
         AUTH: '/auth',
+        SECURITY: '/security',
         TESTING: '/testing/all-data'
     },
     CREDENTIALS: {

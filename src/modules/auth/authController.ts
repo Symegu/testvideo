@@ -2,12 +2,17 @@ import { Request, Response } from 'express'
 import { LoginInputModel, UserInputModel } from '../../types/input-output-types/user-types'
 import { usersQueryRepository } from '../users/usersQueryRepository';
 import { HttpStatuses, OutputErrorsType, ResultStatus } from '../../types/input-output-types/output-errors-type';
-import { authService, emailExamples } from './authService';
+import { authService } from './authService';
 import { usersService } from '../users/usersService'
+import { passwordService } from '../other/passwordService';
+import { emailExamples, emailService } from '../other/emailService';
 
 
 export const authController = {
-  async login(req: Request<LoginInputModel>, res: Response) {
+  async login(
+    req: Request<LoginInputModel>,
+    res: Response<OutputErrorsType | { accessToken: string }>
+  ) {
 
     let errors: OutputErrorsType = { errorsMessages: [] }
     const user = await usersQueryRepository.findUserByLoginOrEmail(req.body.loginOrEmail)
@@ -16,28 +21,36 @@ export const authController = {
     if (!user) {
       errors.errorsMessages.push({ message: "Incorrect Login or Email", field: 'loginOrEmail' })
 
-      res.status(401).send(errors)
+      res.status(HttpStatuses.Unauthorized).send(errors)
       return
     }
 
-    const isPasswordValid = await authService.validatePassword(req.body.password, user.password)
+    const isPasswordValid = await passwordService.validatePassword(req.body.password, user.password)
     console.log('isPasswordValid', isPasswordValid);
     if (!isPasswordValid) {
       errors.errorsMessages.push({ message: "Incorrect Password", field: 'password' })
-      res.status(401).send(errors)
+
+      res.status(HttpStatuses.Unauthorized).send(errors)
       return
     }
 
-    const tokens = await authService.createTokens({id: user._id.toString(), login: user.login})
-    console.log('tokens', tokens)
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '1'
+    const title = req.headers['user-agent'] || 'Device Name Placeholder'
 
-    res.cookie('refreshToken', tokens!.refreshToken, {
+    const tokens = await authService.createTokens({ id: user._id.toString(), login: user.login, ip: ip.toString(), title: title })
+    console.log('tokens', tokens.data)
+    if (tokens.status !== ResultStatus.Success || tokens.data === null) {
+
+      res.sendStatus(HttpStatuses.Unauthorized)
+      return
+    }
+    res.cookie('refreshToken', tokens.data!.refreshToken, {
       httpOnly: true,
       secure: true,
       maxAge: 20 * 1000,
     })
 
-    res.status(200).json({ accessToken: tokens!.accessToken })
+    res.status(200).json({ accessToken: tokens.data!.accessToken })
     return
   },
 
@@ -45,18 +58,20 @@ export const authController = {
     const currentRefreshToken = req.cookies.refreshToken
 
     if (!currentRefreshToken) {
-      res.sendStatus(401)
+
+      res.sendStatus(HttpStatuses.Unauthorized)
       return
     }
     const validToken = await authService.findRefreshToken(currentRefreshToken)
-    console.log(validToken, 'refreshTokens validToken');
-    
+    console.log(validToken, 'refreshTokens validToken'); //null
+
     if (!validToken) {
-      res.sendStatus(401)
+
+      res.sendStatus(HttpStatuses.Unauthorized)
       return
     }
     const tokens = await authService.refreshTokens(currentRefreshToken)
-    await authService.updateRefreshToken(currentRefreshToken, tokens!.refreshToken)
+
     res.cookie('refreshToken', tokens!.refreshToken, {
       httpOnly: true,
       secure: true,
@@ -67,16 +82,17 @@ export const authController = {
   },
 
   async logout(req: Request, res: Response) {
-    const refreshToken = req.cookies.refreshToken;
-    console.log(refreshToken, 'refreshToken logout');
-    const validToken = await authService.findRefreshToken(refreshToken)
+    const refreshToken: string = req.cookies.refreshToken
+    console.log(refreshToken, 'refreshToken logout')
+    const validToken = await authService.findDeviceInfo(refreshToken)
     if (!refreshToken || !validToken) {
-      res.sendStatus(401)
+
+      res.sendStatus(HttpStatuses.Unauthorized)
       return
     }
     console.log(validToken, 'validToken logout');
-    const deletedToken = await authService.deleteRefreshToken(refreshToken)
-    if(!deletedToken) {
+    const deletedToken = await authService.deleteRefreshToken(validToken)
+    if (!deletedToken) {
       res.sendStatus(401)
       return
     }
@@ -112,14 +128,14 @@ export const authController = {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
-    const userInfo = await authService.findConfirmationInfo(newUser.id)
+    const userInfo = await usersService.findConfirmationInfo(newUser.id)
 
     if (!userInfo) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
 
-    const messageId = authService.sendEmail(newUser.email, userInfo.emailConfirmation.confirmationCode, emailExamples.registrationEmail)
+    const messageId = emailService.sendEmail(newUser.email, userInfo.emailConfirmation.confirmationCode, emailExamples.registrationEmail)
     if (!messageId) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
@@ -133,7 +149,7 @@ export const authController = {
     console.log(req.query.code, 'confirmRegistration req.query.code');
     console.log(req.body.code, 'confirmRegistration req.body.code');
     const confirmCode = req.query.code ? req.query.code.toString() : req.body.code.toString()
-    const result = await authService.confirmEmail(confirmCode.toString())
+    const result = await emailService.confirmEmail(confirmCode.toString())
     console.log(result, 'result confirmRegistration authController');
 
     if (result.status !== ResultStatus.Success) {
@@ -146,7 +162,7 @@ export const authController = {
   },
 
   async resendEmailConfirmation(req: Request<{ email: string }>, res: Response) {
-    const result = await authService.resendConfirmation(req.body.email)
+    const result = await emailService.resendConfirmation(req.body.email)
     if (result.status !== ResultStatus.Success) {
       res.status(HttpStatuses.BadRequest).json({ errorsMessages: result.extensions })
       return

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { commentsController } from "./commentsController";
-import { tokenAuthMiddleware } from "../../globalMiddlewares/tokenAuthMiddleware";
+import { tokenAuthMiddleware } from "../auth/middlewares/tokenAuthMiddleware";
 import { commentContentValidator } from "./middlewares/commentsValidators";
 import { errorResultMiddleware } from "../../globalMiddlewares/errorResultMiddleware";
 

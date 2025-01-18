@@ -2,8 +2,8 @@ import { Router } from "express"
 import { errorResultMiddleware } from "../../globalMiddlewares/errorResultMiddleware"
 import { authValidator, emailValidator, loginValidator, passwordValidator } from '../users/middlewares/userValidators';
 import { authController } from "./authController"
-import { tokenAuthMiddleware } from "../../globalMiddlewares/tokenAuthMiddleware"
-import { refreshTokenValidator } from "../../globalMiddlewares/refreshTokenMiddleware";
+import { tokenAuthMiddleware } from "./middlewares/tokenAuthMiddleware"
+import { refreshTokenValidator } from "./middlewares/refreshTokenMiddleware";
 
 export const authRouter = Router()
 

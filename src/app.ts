@@ -8,6 +8,7 @@ import { usersRouter } from './modules/users'
 import { authRouter } from './modules/auth'
 import { commentsRouter } from './modules/comments'
 import cookieParser from 'cookie-parser'
+import { securityRouter } from './modules/security'
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body во всех реквестах
@@ -19,6 +20,7 @@ app.get('/', (req, res) => {
     res.status(200).json({ version: '1.0' })
 })
 
+app.use(SETTINGS.PATH.SECURITY, securityRouter)
 app.use(SETTINGS.PATH.USERS, usersRouter)
 app.use(SETTINGS.PATH.AUTH, authRouter)
 app.use(SETTINGS.PATH.BLOGS, blogsRouter)

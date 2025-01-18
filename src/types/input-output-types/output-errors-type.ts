@@ -34,9 +34,9 @@ type ExtensionType = {
     message: string
 }
 
-export type Result<T = null> =  {
+export type Result<T = null> = {
     status: ResultStatus,
     errorMessage?: string,
-    extensions: ExtensionType[],
+    extensions?: ExtensionType[],
     data: T
 }

@@ -1,74 +1,119 @@
-import { ObjectId } from "mongodb"
-import { usersCollection } from "../../db/mongoDb"
-import { UserModel } from "../../types/db-types/user-db"
-import { randomUUID } from "crypto"
-import { addDays } from 'date-fns'
-
+import { tokensCollection } from "../../db/mongoDb";
+import { DeviceViewModel, RefreshTokenModel, RefreshTokenPayloadType } from "../../types/db-types/token-db";
 
 export const authRepository = {
-  async findConfirmationInfo(
-    id: string
+  async addToken(
+    token: RefreshTokenModel
   ) {
-    if (!ObjectId.isValid(id)) {
-      return null;
+    const rtoken = {
+      lastActiveDate: token.lastActiveDate,
+      expirationDate: token.expirationDate,
+      deviceId: token.deviceId,
+      title: token.title,
+      ip: token.ip,
+      userId: token.userId
     }
+    const res = await tokensCollection.insertOne(rtoken)
+    console.log(res.insertedId)
 
-    const _id = new ObjectId(id)
-    const user = await usersCollection.findOne({ _id })
+    return res.insertedId
+  },
+  async updateToken(user: { userId: string, deviceId: string, lastActiveDate: string, expirationDate: string }) {
 
-    if (!user) {
+    const res = await tokensCollection.updateOne({
+      userId: user.userId,
+      deviceId: user.deviceId
+    }, { $set: { lastActiveDate: user.lastActiveDate, expirationDate: user.expirationDate } })//issuedAt
+
+    return res.matchedCount
+  },
+  async findTokenPayload(
+    user: RefreshTokenModel
+  ): Promise<RefreshTokenPayloadType | null> {
+    console.log(user, 'findTokenPayload');
+
+    const token = await tokensCollection.findOne(
+      {
+        userId: user.userId,
+        lastActiveDate: user.lastActiveDate,
+        deviceId: user.deviceId
+      },
+      { projection: { expirationDate: 0, _id: 0 } }) //issuedAt deviceId userId
+    console.log('findTokenPayload', token); //null
+
+    if (!token) {
+      return null
+    }
+    return token
+  },
+
+  async findUserTokens(
+    user: RefreshTokenModel
+  ): Promise<DeviceViewModel[] | null> {
+    const tokens = await tokensCollection.find(
+      {
+        userId: user.userId
+      },
+      { projection: { _id: 0 } })
+      .toArray()//issuedAt deviceId userId
+    if (!tokens) {
+      return null
+    }
+    const mappedTokens: DeviceViewModel[] = tokens.map(token => {
+      return {
+        lastActiveDate: token.lastActiveDate,
+        deviceId: token.deviceId,
+        ip: token.ip,
+        title: token.title
+      }
+    })
+    return mappedTokens
+  },
+
+  async findUserSession(
+    user: RefreshTokenModel
+  ): Promise<DeviceViewModel | null> {
+    const token = await tokensCollection.findOne(
+      {
+        userId: user.userId,
+        deviceId: user.deviceId
+      },
+      { projection: { expirationDate: 0, _id: 0, userId: 0 } })//issuedAt deviceId userId
+    if (!token) {
       return null
     }
 
     return {
-      id: user._id.toString(),
-      emailConfirmation: {
-        status: user.emailConfirmation.status,
-        confirmationCode: user.emailConfirmation.confirmationCode,
-        expirationDate: user.emailConfirmation.expirationDate
-      }
+      ip: token.ip,
+      title: token.title,
+      lastActiveDate: token.lastActiveDate,
+      deviceId: token.deviceId
     }
   },
 
-  async findByConfirmationCode(
-    code: string
-  ): Promise<UserModel | null> {
-    const user = await usersCollection.findOne({ 'emailConfirmation.confirmationCode': code })
-    console.log('findByConfirmationCode user', user);
-
-    if (!user) {
+  async findDeviceByToken(
+    user: RefreshTokenPayloadType
+  ): Promise<DeviceViewModel | null> {
+    const token = await tokensCollection.findOne(
+      {
+        userId: user.userId,
+        lastActiveDate: user.lastActiveDate,
+        deviceId: user.deviceId
+      },
+      { projection: { expirationDate: 0, _id: 0, userId: 0 } }) //issuedAt deviceId userId
+    if (!token) {
       return null
     }
-
-    return user
+    return token
   },
-
-  async confirmEmail(
-    code: string,
-  ) {
-    const res = await usersCollection.updateOne({ 'emailConfirmation.confirmationCode': code }, { $set: { 'emailConfirmation.status': 1 } })
-    console.log(res);
-
-    return res.matchedCount === 1
-  },
-
-  async changeConfirmation(
-    email: string
-  ) {
-    const dateNow = Date.now()
-    const newConfirmInfo = {
-
-      status: 0,
-      confirmationCode: randomUUID(),
-      expirationDate: addDays(dateNow, 1).toISOString()
-
-    }
-    const res = await usersCollection.updateOne({ email: email }, { $set: { emailConfirmation: newConfirmInfo } })
-
-    if(res.matchedCount === 1) {
-      return newConfirmInfo.confirmationCode
-    }
-
-    return null
+  async deleteToken(user: DeviceViewModel) {
+    const res = await tokensCollection.deleteOne(
+      {
+        ip: user.ip,
+        title: user.title,
+        lastActiveDate: user.lastActiveDate,
+        deviceId: user.deviceId
+      })
+    return res.deletedCount === 1
   },
 }
