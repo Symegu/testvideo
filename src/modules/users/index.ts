@@ -6,6 +6,18 @@ import { errorResultMiddleware } from "../../globalMiddlewares/errorResultMiddle
 
 export const usersRouter = Router()
 
-usersRouter.get('/', adminAuthorizationMiddleware, errorResultMiddleware, usersController.getUsers)
-usersRouter.post('/', adminAuthorizationMiddleware, loginValidator, passwordValidator, emailValidator, errorResultMiddleware, usersController.createUser)
-usersRouter.delete('/:id', adminAuthorizationMiddleware, errorResultMiddleware, usersController.deleteUser)
+usersRouter.get('/',
+  adminAuthorizationMiddleware,
+  errorResultMiddleware,
+  usersController.getUsers)
+usersRouter.post('/',
+  adminAuthorizationMiddleware,
+  loginValidator,
+  passwordValidator,
+  emailValidator,
+  errorResultMiddleware,
+  usersController.createUser)
+usersRouter.delete('/:id',
+  adminAuthorizationMiddleware,
+  errorResultMiddleware,
+  usersController.deleteUser)

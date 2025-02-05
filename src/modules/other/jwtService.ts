@@ -16,14 +16,14 @@ export const jwtService = {
     return jwt.sign({
       userId: id,
       userLogin: log
-    }, SETTINGS.JWT_SECRET, { expiresIn: '1h' })
+    }, SETTINGS.JWT_SECRET, { expiresIn: '10s' })
   },
 
   async generateRefreshToken(user: { id: string, deviceId?: string }) {
     const dId = user.deviceId
       ? user.deviceId
       : await securityRepository.createDeviceUID()
-    return jwt.sign({ deviceId: dId, userId: user.id }, SETTINGS.JWT_REFRESH_SECRET, { expiresIn: '2h' })
+    return jwt.sign({ deviceId: dId, userId: user.id }, SETTINGS.JWT_REFRESH_SECRET, { expiresIn: '20s' })
   },
 
   async decodeAccessToken(token: string) {
@@ -39,6 +39,7 @@ export const jwtService = {
   },
 
   async decodeRefreshToken(token: string): Promise<RefreshTokenModel> {
+
     const payload = jwt.decode(token) as JwtPayload
     const userId = payload.userId
     const iat = payload.iat
@@ -63,8 +64,10 @@ export const jwtService = {
     const payload = await this.decodeRefreshToken(token)
     const repoTokens = await authRepository.findUserTokens(payload)
 
-    if (!repoTokens || repoTokens.forEach(token => {
-      token.lastActiveDate > payload.lastActiveDate
+    if (!repoTokens || repoTokens.length === 0 || !repoTokens.some(repoToken => {
+      console.log(new Date(repoToken.lastActiveDate), new Date(payload.lastActiveDate))
+
+      return new Date(repoToken.lastActiveDate) <= new Date(payload.lastActiveDate)
     })) {
       return {
         status: ResultStatus.Unauthorized,
@@ -73,15 +76,6 @@ export const jwtService = {
         data: null
       }
     }
-
-    // if (payload.userId !== repoToken.userId) {
-    //   return {
-    //     status: ResultStatus.Forbidden,
-    //     errorMessage: 'Refresh token userId does not match',
-    //     extensions: [],
-    //     data: null
-    //   }
-    // }
 
     return {
       status: ResultStatus.Success,

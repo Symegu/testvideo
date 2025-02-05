@@ -8,13 +8,13 @@ export const emailExamples = {
   registrationEmail(code: string) {
     return ` <h1>Thank for your registration</h1>
              <p>To finish registration please follow the link below:<br>
-                <a href='https://429b301d51cdfe.lhr.life/auth/registration-confirmation?code=${code}'>https://9e8a61a631fb74.lhr.life/auth/registration-confirmation?code=${code}</a>
+                <a href='https://6f1c8f889a0b81.lhr.life/auth/registration-confirmation?code=${code}'>register</a>
             </p>`
   },
   passwordRecoveryEmail(code: string) {
     return `<h1>Password recovery</h1>
       <p>To finish password recovery please follow the link below:
-          <a href='https://40bdc384729b51.lhr.life/password-recovery?recoveryCode=${code}'>recovery password</a>
+          <a href='https://6f1c8f889a0b81.lhr.life/password-recovery?recoveryCode=${code}'>recovery password</a>
       </p>`
   }
 }

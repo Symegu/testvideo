@@ -17,8 +17,8 @@ export const SETTINGS = {
         LOGIN: 'admin',
         PASSWORD: 'qwerty'
     },
-    MONGO_URL: 'mongodb://0.0.0.0:27017', 
-    DB_NAME: process.env.DB_NAME || '',
+    MONGO_URL: 'mongodb://0.0.0.0:27017',
+    DB_NAME: process.env.DB_NAME || 'TestDbName',
     JWT_SECRET: process.env.JWT_SECRET || 'jwtsecret',
     JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'jwtrefreshsecret',
     EMAIL: process.env.EMAIL as string,

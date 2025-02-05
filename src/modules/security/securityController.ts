@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { securityService } from './securityService'
+import { HttpStatuses, ResultStatus } from '../../types/input-output-types/output-errors-type'
 
 export const securityController = {
   async getUserSessions(req: Request, res: Response) {
@@ -28,14 +29,18 @@ export const securityController = {
 
   async deleteUserSession(req: Request<{ id: string }>, res: Response) {
     const currentRefreshToken = req.cookies.refreshToken
-    const session = await securityService.deleteUserSession(currentRefreshToken, req.params.id)
+    const result = await securityService.deleteUserSession(currentRefreshToken, req.params.id)
     console.log('deleteUserSession req.params.id', req.params.id);
 
-    if (!session) {
-      res.sendStatus(401)
+    if (result.status === ResultStatus.Forbidden) {
+      res.sendStatus(HttpStatuses.Forbidden)
       return
     }
 
+    if (result.status === ResultStatus.NotFound) {
+      res.sendStatus(HttpStatuses.NotFound)
+      return
+    }
     res.sendStatus(204)
     return
   }

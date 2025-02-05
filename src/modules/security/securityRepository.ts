@@ -14,16 +14,33 @@ export const securityRepository = {
   ): Promise<RefreshTokenModel[]> {
     const tokens = await tokensCollection.find(
       { userId: userId },
-      { projection: { _id: 0, userId: 0 } }
+      { projection: { _id: 0, userId: 0, expirationDate: 0 } }
     ).toArray()
+    console.log(tokens, 'tokens');
+
+    return tokens
+  },
+
+  async findDevice(
+    deviceId: string
+  ) {
+    const tokens = await tokensCollection.find(
+      { deviceId: deviceId },
+      { projection: { _id: 0, expirationDate: 0 } }
+    ).toArray()
+
     return tokens
   },
 
   async deleteSessions(
-    userId: string
+    userId: string,
+    deviceId: string
   ) {
     const res = await tokensCollection.deleteMany(
-      { userId: userId }
+      {
+        userId: userId,
+        deviceId: { $ne: deviceId }
+      }
     )
     return res.deletedCount
   },

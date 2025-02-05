@@ -1,7 +1,7 @@
 import { BlogModel } from '../types/db-types/blog-db'
 import { PostModel } from '../types/db-types/post-db'
 import { blogsCollection, postsCollection } from './mongoDb'
-import { blogInvalid, blogValid, postInvalid, postValid } from '../../__tests__/datasets';
+// import { blogInvalid, blogValid, postInvalid, postValid } from '../../__tests__/datasets';
 
 export type DBType = { // типизация базы данных (что мы будем в ней хранить)
     blogs: BlogModel[],
@@ -19,7 +19,7 @@ export const setBlogsDB = async (empty?: boolean) => {
         await blogsCollection.deleteMany()
     }
     await blogsCollection.deleteMany()
-    await blogsCollection.insertMany([{...blogValid}, {...blogInvalid}])
+    // await blogsCollection.insertMany([{...blogValid}, {...blogInvalid}])
 }
 
 export const setPostsDB = async (empty?: boolean) => {
@@ -27,5 +27,5 @@ export const setPostsDB = async (empty?: boolean) => {
         await postsCollection.deleteMany()
     }
     await postsCollection.deleteMany()
-    await postsCollection.insertMany([{...postValid}, {...postInvalid}])
+    // await postsCollection.insertMany([{...postValid}, {...postInvalid}])
 }

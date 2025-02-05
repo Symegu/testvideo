@@ -49,6 +49,11 @@ export const authService = {
       return null
     }
 
+    const valid = await jwtService.verifyRefreshTokenVersion(oldRefreshToken)
+    if (!validUserToken) {
+      return null
+    }
+
     const refreshToken = await jwtService.generateRefreshToken({ id: user.userId, deviceId: user.deviceId })
     const accessToken = await jwtService.generateAccessToken(user.userId)
 

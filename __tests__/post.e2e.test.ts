@@ -1,27 +1,33 @@
 import { req } from './test-helpers'
-import { setBlogsDB, setPostsDB } from '../src/db/localDb'
 import { codedAuth } from './datasets'
 import { SETTINGS } from '../src/settings'
-import { PostInputModel } from '../src/input-output-types/post-types'
+import { PostInputModel } from '../src/types/input-output-types/post-types'
 import { MongoClient } from 'mongodb'
-import { runDB, postsCollection } from '../src/db/mongoDb'
+import { runDB, postsCollection, blogsCollection } from '../src/db/mongoDb'
+import { BlogInputModel } from '../src/types/input-output-types/blog-types'
+import { postsQueryRepository } from '../src/modules/posts/postsQueryRepository'
+import { blogsQueryRepository } from '../src/modules/blogs/blogsQueryRepository'
+import { CommentInputModel } from '../src/types/input-output-types/comment-types'
 
 let client: MongoClient
 describe('/posts', () => {
   beforeAll(async () => { // очистка базы данных перед началом тестирования
-    const result = await runDB(SETTINGS.MONGO_URL, true);
+    const result = await runDB(SETTINGS.MONGO_URL);
     if (result) {
-        client = result.client
-        await postsCollection.deleteMany({})
+      client = result.client
+      await postsCollection.deleteMany({})
+      await blogsCollection.deleteMany({})
     } else {
-        throw new Error("Unable to connect to the database")
+      throw new Error("Unable to connect to the database")
     }
     // await runDB(SETTINGS.MONGO_URL, true)
     // await postsCollection.drop()
-})
-afterAll(async () => {
+  })
+  afterAll(async () => {
+    await blogsCollection.deleteMany({})
+    await postsCollection.deleteMany({})
     await client.close() // Закрываем сервер после тестов
-})
+  })
 
   it('should get empty array', async () => {
     //setPostsDB() // очистка базы данных если нужно
@@ -32,73 +38,89 @@ afterAll(async () => {
 
     console.log(res.body) // можно посмотреть ответ эндпоинта
 
-    expect(res.body.length).toBe(0) // проверяем ответ эндпоинта
+    expect(res.body.items.length).toBe(0) // проверяем ответ эндпоинта
   })
-  it('should get not empty array', async () => {
-    await setPostsDB() // заполнение базы данных начальными данными если нужно
-    
-    const res = await req
-      .get(SETTINGS.PATH.POSTS)
-      .expect(200)
 
-    console.log(res.body)
+  it('should create blog and post for this blog', async () => {
+    const newBlog: BlogInputModel = {
+      "name": "string",
+      "description": "string",
+      "websiteUrl": "https://qwerty.com"
+    }
 
-    expect(res.body.length).toBe(2)
-  })
-  it('should create', async () => {
-    //setPostsDB()
-    await setBlogsDB()
+    const blog = await req
+      .post(SETTINGS.PATH.BLOGS)
+      .set({ 'Authorization': 'Basic ' + codedAuth })
+      .send(newBlog)
+
     const newPost: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
       "content": "string",
-      "blogId": "12345"
+      "blogId": blog.body.id.toString()
     }
-
-    const res = await req
+    const res = await req// отправка данных
       .post(SETTINGS.PATH.POSTS)
       .set({ 'Authorization': 'Basic ' + codedAuth })
-      .send(newPost) // отправка данных
+      .send(newPost)
+      .expect(201)
+
+    console.log(res.body)
+  })
+
+  it('should create blog and post for this blog', async () => {
+    const newBlog: BlogInputModel = {
+      "name": "string",
+      "description": "string",
+      "websiteUrl": "https://qwerty.com"
+    }
+
+    const blog = await req
+      .post(SETTINGS.PATH.BLOGS)
+      .set({ 'Authorization': 'Basic ' + codedAuth })
+      .send(newBlog)
+
+    const newPost: PostInputModel = {
+      "title": "string2",
+      "shortDescription": "string2",
+      "content": "string2",
+      "blogId": blog.body.id.toString()
+    }
+    const res = await req// отправка данных
+      .post(SETTINGS.PATH.POSTS)
+      .set({ 'Authorization': 'Basic ' + codedAuth })
+      .send(newPost)
       .expect(201)
 
     console.log(res.body)
   })
   it('shouldn\'t create | valid but unauthorized', async () => {
-   //setPostsDB()
+    const newBlog: BlogInputModel = {
+      "name": "string",
+      "description": "string",
+      "websiteUrl": "https://qwerty.com"
+    }
+
+    const blog = await req
+      .post(SETTINGS.PATH.BLOGS)
+      .set({ 'Authorization': 'Basic ' + codedAuth })
+      .send(newBlog)
+
     const newPost: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
       "content": "string",
-      "blogId": "12345"
+      "blogId": blog.body.id.toString()
     }
-
-    const res = await req
+    const res = await req// отправка данных
       .post(SETTINGS.PATH.POSTS)
-      .send(newPost) // отправка данных
+      .send(newPost)
       .expect(401)
 
     console.log(res.body)
   })
-  it('shouldn\'t create | valid but authorize invalid', async () => {
-   //setPostsDB()
-    const newPost: PostInputModel = {
-      "title": "string",
-      "shortDescription": "string",
-      "content": "string",
-      "blogId": "12345"
-    }
-
-    const res = await req
-      .post(SETTINGS.PATH.POSTS)
-      .set({ 'Authorization': 'Bearer ' + codedAuth })
-      .send(newPost) // отправка данных
-      .expect(401)
-
-    console.log(res.body)
-  })
-
   it('shouldn\'t create | invalid data', async () => {
-   //setPostsDB()
+
     const newPost: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
@@ -116,12 +138,23 @@ afterAll(async () => {
   })
 
   it('shouldn\'t create | invalid data', async () => {
-   //setPostsDB()
+
+    const newBlog: BlogInputModel = {
+      "name": "string",
+      "description": "string",
+      "websiteUrl": "https://qwerty.com"
+    }
+
+    const blog = await req
+      .post(SETTINGS.PATH.BLOGS)
+      .set({ 'Authorization': 'Basic ' + codedAuth })
+      .send(newBlog)
+
     const newPost: PostInputModel = {
       "title": "string 12345678989172387834456389476582736582123123123123",
       "shortDescription": "string",
       "content": "string",
-      "blogId": "12345"
+      "blogId": blog.body.id.toString()
     }
 
     const res = await req
@@ -131,6 +164,16 @@ afterAll(async () => {
       .expect(400)
 
     console.log(res.body)
+  })
+  it('should get not empty array', async () => {
+
+    const res = await req
+      .get(SETTINGS.PATH.POSTS)
+      .expect(200)
+
+    console.log(res.body)
+
+    expect(res.body.items.length).toBe(2)
   })
   it('shouldn\'t find', async () => {
     //setPostsDB()
@@ -143,23 +186,24 @@ afterAll(async () => {
   })
   it('should find', async () => {
     //setPostsDB()
-
+    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
     const res = await req
-      .get(SETTINGS.PATH.POSTS + '/1234567')
+      .get(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}`)
       .expect(200)
 
     console.log(res.body)
   })
   it('should change', async () => {
-    //setPostsDB()
+    const blogId = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
+    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
     const changedBlog: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
       "content": "string",
-      "blogId": "12345"
+      "blogId": blogId.items[0].id.toString()
     }
     const res = await req
-      .put(SETTINGS.PATH.POSTS + '/1234567')
+      .put(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}`)
       .set({ 'Authorization': 'Basic ' + codedAuth })
       .send(changedBlog)
       .expect(204)
@@ -167,22 +211,23 @@ afterAll(async () => {
     console.log(res.body)
   })
   it('should\'t change | unauthorized', async () => {
-    //setPostsDB()
+    const blogId = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
+    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
     const changedBlog: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
       "content": "string",
-      "blogId": "12345"
+      "blogId": blogId.items[0].id.toString()
     }
     const res = await req
-      .put(SETTINGS.PATH.POSTS + '/1234567')
+      .put(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}`)
       .send(changedBlog)
       .expect(401)
 
     console.log(res.body)
   })
   it('should\'t change | invalid data', async () => {
-    //setPostsDB()
+    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
     const changedBlog: PostInputModel = {
       "title": "string",
       "shortDescription": "string",
@@ -190,7 +235,7 @@ afterAll(async () => {
       "blogId": "12345678678678678678"
     }
     const res = await req
-      .put(SETTINGS.PATH.POSTS + '/1234567')
+      .put(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}`)
       .set({ 'Authorization': 'Basic ' + codedAuth })
       .send(changedBlog)
       .expect(400)
@@ -198,15 +243,16 @@ afterAll(async () => {
     console.log(res.body)
   })
   it('should\'t change | invalid data', async () => {
-    //setPostsDB()
+    const blogId = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
+    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
     const changedBlog: PostInputModel = {
-      "title": "string 12345678978978997987978987987978987987978",
+      "title": "string 12345678678678678678 12345678678678678678",
       "shortDescription": "string",
       "content": "string",
-      "blogId": "12345"
+      "blogId": blogId.items[0].id.toString()
     }
     const res = await req
-      .put(SETTINGS.PATH.POSTS + '/1234567')
+      .put(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}`)
       .set({ 'Authorization': 'Basic ' + codedAuth })
       .send(changedBlog)
       .expect(400)
@@ -214,7 +260,6 @@ afterAll(async () => {
     console.log(res.body)
   })
   it('shouldn\'t delete | no matching id', async () => {
-    //setPostsDB()
 
     const res = await req
       .delete(SETTINGS.PATH.POSTS + '/1')
@@ -224,23 +269,111 @@ afterAll(async () => {
     console.log(res.body)
   })
   it('shouldn\'t delete | unauthorized', async () => {
-    //setPostsDB()
-
+    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
     const res = await req
-      .delete(SETTINGS.PATH.POSTS + '/1234567')
+      .delete(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}`)
       .expect(401)
 
     console.log(res.body)
   })
   it('should delete', async () => {
-    //setPostsDB()
-
+    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
     const res = await req
-      .delete(SETTINGS.PATH.POSTS + '/1234567')
+      .delete(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}`)
       .set({ 'Authorization': 'Basic ' + codedAuth })
       .expect(204)
 
     console.log(res.body)
   })
-  
+
+  it('should not get posts comments | empty post', async () => {
+    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
+    const res = await req
+      .delete(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}/comments`)
+      .set({ 'Authorization': 'Basic ' + codedAuth })
+      .expect(404)
+
+    console.log(res.body)
+  })
+
+  it('should create and login user and posts comment', async () => {
+    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
+
+    const newComment: CommentInputModel = {
+      content: 'valid comment content'
+    }
+
+    const user = await req
+      .post(SETTINGS.PATH.AUTH + '/registration')
+      .set({ 'Authorization': 'Basic ' + codedAuth })
+      .send({ login: 'masterUser', password: 'password', email: 'email@mail.com' })
+
+    const token = await req
+      .post(SETTINGS.PATH.AUTH + '/login')
+      .set({ 'Authorization': 'Basic ' + codedAuth })
+      .send({ loginOrEmail: 'masterUser', password: 'password' })
+    console.log(user)
+
+    const res = await req
+      .post(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}/comments`)
+      .set({ 'Authorization': 'Bearer ' + token.body.accessToken.toString() })
+      .send(newComment)
+      .expect(201)
+
+    console.log(res.body)
+  })
+
+  it('should not create and login user and posts comment | unauthorized', async () => {
+    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
+
+    const newComment: CommentInputModel = {
+      content: 'valid comment content'
+    }
+
+    // const user = await req
+    //   .post(SETTINGS.PATH.AUTH + '/registration')
+    //   .set({ 'Authorization': 'Basic ' + codedAuth })
+    //   .send({ login: 'masterUser', password: 'password', email: 'email@mail.com' })
+
+    // const token = await req
+    //   .post(SETTINGS.PATH.AUTH + '/login')
+    //   .set({ 'Authorization': 'Basic ' + codedAuth })
+    //   .send({ loginOrEmail: 'masterUser', password: 'password' })
+    // console.log(user)
+
+    const res = await req
+      .post(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}/comments`)
+      // .set({ 'Authorization': 'Bearer ' + token.body.accessToken.toString() })
+      .send(newComment)
+      .expect(401)
+
+    console.log(res.body)
+  })
+
+  it('should get posts comments', async () => {
+    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
+
+    // const newComment: CommentInputModel = {
+    //   content: 'valid comment content'
+    // }
+
+    // const user = await req
+    //   .post(SETTINGS.PATH.AUTH + '/registration')
+    //   .set({ 'Authorization': 'Basic ' + codedAuth })
+    //   .send({ login: 'masterUser', password: 'password', email: 'email@mail.com' })
+
+    // const token = await req
+    //   .post(SETTINGS.PATH.AUTH + '/login')
+    //   .set({ 'Authorization': 'Basic ' + codedAuth })
+    //   .send({ loginOrEmail: 'masterUser', password: 'password' })
+    // console.log(user)
+
+    const res = await req
+      .get(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}/comments`)
+      .expect(200)
+
+    console.log(res.body)
+    expect(res.body.items.length).toBe(1)
+  })
+
 })

@@ -1,15 +1,17 @@
 import { req } from './test-helpers'
-import { setBlogsDB } from '../src/db/localDb'
 import { codedAuth } from './datasets'
 import { SETTINGS } from '../src/settings'
 import { BlogInputModel } from '../src/types/input-output-types/blog-types'
-import { runDB, blogsCollection } from '../src/db/mongoDb'
+import { runDB, blogsCollection, postsCollection } from '../src/db/mongoDb'
 import { MongoClient } from 'mongodb'
+import { blogsQueryRepository } from '../src/modules/blogs/blogsQueryRepository'
+import { PostInputModel } from '../src/types/input-output-types/post-types'
 
 let client: MongoClient
 describe('/blogs', () => {
     beforeAll(async () => { // очистка базы данных перед началом тестирования
-        const result = await runDB(SETTINGS.MONGO_URL, true);
+        const result = await runDB(SETTINGS.MONGO_URL);
+
         if (result) {
             client = result.client
             await blogsCollection.deleteMany({})
@@ -18,10 +20,12 @@ describe('/blogs', () => {
         }
     })
     afterAll(async () => {
+        await blogsCollection.deleteMany({})
+        await postsCollection.deleteMany({})
         await client.close() // Закрываем сервер после тестов
     });
+
     it('should get empty array', async () => {
-        // setBlogsDB() // очистка базы данных если нужно
 
         const res = await req
             .get(SETTINGS.PATH.BLOGS)
@@ -29,35 +33,38 @@ describe('/blogs', () => {
 
         console.log(res.body) // можно посмотреть ответ эндпоинта
 
-        expect(res.body.length).toBe(0) // проверяем ответ эндпоинта
-    })
-    it('should get not empty array', async () => {
-        await setBlogsDB() // заполнение базы данных начальными данными если нужно
-
-        const res = await req
-            .get(SETTINGS.PATH.BLOGS)
-            .expect(200)
-
-        console.log(res.body)
-
-        expect(res.body.length).toBe(2)
+        expect(res.body.items.length).toBe(0) // проверяем ответ эндпоинта
     })
     it('should create', async () => {
-      //setBlogsDB()
-      const newBlog: BlogInputModel = {
-          "name": "string",
-          "description": "string",
-          "websiteUrl": "https://qwerty.com"
-      }
+        const newBlog: BlogInputModel = {
+            "name": "string",
+            "description": "string",
+            "websiteUrl": "https://qwerty.com"
+        }
 
-      const res = await req
-          .post(SETTINGS.PATH.BLOGS)
-          .set({'Authorization': 'Basic ' + codedAuth})
-          .send(newBlog) // отправка данных
-          .expect(201)
+        const res = await req
+            .post(SETTINGS.PATH.BLOGS)
+            .set({ 'Authorization': 'Basic ' + codedAuth })
+            .send(newBlog) // отправка данных
+            .expect(201)
 
-      console.log(res.body)
-  })
+        console.log(res.body)
+    })
+    it('should create', async () => {
+        const newBlog: BlogInputModel = {
+            "name": "string2",
+            "description": "string2",
+            "websiteUrl": "https://qwerty2.com"
+        }
+
+        const res = await req
+            .post(SETTINGS.PATH.BLOGS)
+            .set({ 'Authorization': 'Basic ' + codedAuth })
+            .send(newBlog) // отправка данных
+            .expect(201)
+
+        console.log(res.body)
+    })
     it('shouldn\'t create | valid but unauthorized', async () => {
         //setBlogsDB()
         const newBlog: BlogInputModel = {
@@ -74,54 +81,64 @@ describe('/blogs', () => {
         console.log(res.body)
     })
     it('shouldn\'t create | valid but authorize invalid', async () => {
-      //setBlogsDB()
-      const newBlog: BlogInputModel = {
-          "name": "string",
-          "description": "string",
-          "websiteUrl": "https://qwerty.com"
-      }
+        //setBlogsDB()
+        const newBlog: BlogInputModel = {
+            "name": "string",
+            "description": "string",
+            "websiteUrl": "https://qwerty.com"
+        }
 
-      const res = await req
-          .post(SETTINGS.PATH.BLOGS)
-          .set({'Authorization': 'Bearer ' + codedAuth})
-          .send(newBlog) // отправка данных
-          .expect(401)
+        const res = await req
+            .post(SETTINGS.PATH.BLOGS)
+            .set({ 'Authorization': 'Bearer ' + codedAuth })
+            .send(newBlog) // отправка данных
+            .expect(401)
 
-      console.log(res.body)
+        console.log(res.body)
     })
 
     it('shouldn\'t create | invalid data', async () => {
-      //setBlogsDB()
-      const newBlog: BlogInputModel = {
-          "name": "string 1234567890",
-          "description": "string",
-          "websiteUrl": "https://qwerty.com"
-      }
+        //setBlogsDB()
+        const newBlog: BlogInputModel = {
+            "name": "string 1234567890",
+            "description": "string",
+            "websiteUrl": "https://qwerty.com"
+        }
 
-      const res = await req
-          .post(SETTINGS.PATH.BLOGS)
-          .set({'Authorization': 'Basic ' + codedAuth})
-          .send(newBlog) // отправка данных
-          .expect(400)
+        const res = await req
+            .post(SETTINGS.PATH.BLOGS)
+            .set({ 'Authorization': 'Basic ' + codedAuth })
+            .send(newBlog) // отправка данных
+            .expect(400)
 
-      console.log(res.body)
+        console.log(res.body)
     })
 
     it('shouldn\'t create | invalid data', async () => {
-      //setBlogsDB()
-      const newBlog: BlogInputModel = {
-          "name": "string",
-          "description": "string",
-          "websiteUrl": "https://XyIO0OXFjEfAOnMi55eLn8uhl-g4cZL8v5Tig0.2N8uTKO1j4dUy.YSCL29YpVYfww_slzGgbYt6ewj7cYzV.V9wrDiM.commmmm54754567467547564756"
-      }
+        //setBlogsDB()
+        const newBlog: BlogInputModel = {
+            "name": "string",
+            "description": "string",
+            "websiteUrl": "https://XyIO0OXFjEfAOnMi55eLn8uhl-g4cZL8v5Tig0.2N8uTKO1j4dUy.YSCL29YpVYfww_slzGgbYt6ewj7cYzV.V9wrDiM.commmmm54754567467547564756"
+        }
 
-      const res = await req
-          .post(SETTINGS.PATH.BLOGS)
-          .set({'Authorization': 'Basic ' + codedAuth})
-          .send(newBlog) // отправка данных
-          .expect(400)
+        const res = await req
+            .post(SETTINGS.PATH.BLOGS)
+            .set({ 'Authorization': 'Basic ' + codedAuth })
+            .send(newBlog) // отправка данных
+            .expect(400)
 
-      console.log(res.body)
+        console.log(res.body)
+    })
+    it('should get not empty array', async () => {
+
+        const res = await req
+            .get(SETTINGS.PATH.BLOGS)
+            .expect(200)
+
+        console.log(res.body)
+
+        expect(res.body.items.length).toBe(2)
     })
     it('shouldn\'t find', async () => {
         //setBlogsDB()
@@ -134,68 +151,57 @@ describe('/blogs', () => {
     })
     it('should find', async () => {
         //setBlogsDB()
-        
+        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
         const res = await req
-            .get(SETTINGS.PATH.BLOGS + '/12345')
+            .get(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}`)
             .expect(200)
 
         console.log(res.body)
     })
-    
+
     it('should change', async () => {
         //setBlogsDB()
         const changedBlog: BlogInputModel = {
-            "name": "string",
-            "description": "string",
-            "websiteUrl": "https://changed-url.com"
+            "name": "string2",
+            "description": "string2",
+            "websiteUrl": "https://changed-url2.com"
         }
+
+        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
+
         const res = await req
-            .put(SETTINGS.PATH.BLOGS + '/12345')
-            .set({'Authorization': 'Basic ' + codedAuth})
+            .put(SETTINGS.PATH.BLOGS + `/${ids.items[1].id.toString()}`)
+            .set({ 'Authorization': 'Basic ' + codedAuth })
             .send(changedBlog)
             .expect(204)
 
         console.log(res.body)
     })
     it('should\'t change | unauthorized', async () => {
-        //setBlogsDB()
+        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
+
         const changedBlog: BlogInputModel = {
             "name": "string",
             "description": "string",
             "websiteUrl": "https://changed-url.com"
         }
         const res = await req
-            .put(SETTINGS.PATH.BLOGS + '/12345')
+            .put(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}`)
             .send(changedBlog)
             .expect(401)
 
         console.log(res.body)
     })
     it('should\'t change | invalid data', async () => {
-        //setBlogsDB()
+        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
         const changedBlog: BlogInputModel = {
             "name": "string 1234567890000",
             "description": "string",
             "websiteUrl": "https://changed-url.com"
         }
         const res = await req
-            .put(SETTINGS.PATH.BLOGS + '/12345')
-            .set({'Authorization': 'Basic ' + codedAuth})
-            .send(changedBlog)
-            .expect(400)
-
-        console.log(res.body)
-    })
-    it('should\'t change | invalid data', async () => {
-        //setBlogsDB()
-        const changedBlog: BlogInputModel = {
-            "name": "string",
-            "description": "string",
-            "websiteUrl": "https://changed-url----------------------------------------------.com"
-        }
-        const res = await req
-            .put(SETTINGS.PATH.BLOGS + '/12345')
-            .set({'Authorization': 'Basic ' + codedAuth})
+            .put(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}`)
+            .set({ 'Authorization': 'Basic ' + codedAuth })
             .send(changedBlog)
             .expect(400)
 
@@ -205,28 +211,112 @@ describe('/blogs', () => {
         //setBlogsDB()
 
         const res = await req
-            .delete(SETTINGS.PATH.BLOGS + '/1')
-            .set({'Authorization': 'Basic ' + codedAuth})
+            .delete(SETTINGS.PATH.BLOGS + '/11a1b1de1111111e11e11b11')
+            .set({ 'Authorization': 'Basic ' + codedAuth })
             .expect(404)
 
         console.log(res.body)
     })
     it('shouldn\'t delete | unauthorized', async () => {
-        //setBlogsDB()
+        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
 
         const res = await req
-            .delete(SETTINGS.PATH.BLOGS + '/12345')
+            .delete(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}`)
             .expect(401)
 
         console.log(res.body)
     })
     it('should delete', async () => {
-        //setBlogsDB()
+        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
 
         const res = await req
-            .delete(SETTINGS.PATH.BLOGS + '/12345')
-            .set({'Authorization': 'Basic ' + codedAuth})
+            .delete(SETTINGS.PATH.BLOGS + `/${ids.items[1].id.toString()}`)
+            .set({ 'Authorization': 'Basic ' + codedAuth })
             .expect(204)
+
+        console.log(res.body)
+    })
+
+    it('should create blogs post valid authorized', async () => {
+        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
+
+        const newPost: PostInputModel = {
+            title: 'blogs post title',
+            shortDescription: 'blogs post short description',
+            content: 'blogs post content',
+            blogId: `/${ids.items[0].id.toString()}`
+        }
+
+        const res = await req
+            .post(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}/posts`)
+            .set({ 'Authorization': 'Basic ' + codedAuth })
+            .send(newPost)
+            .expect(201)
+
+        console.log(res.body)
+    })
+    it('should create blogs post valid authorized', async () => {
+        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
+
+        const newPost: PostInputModel = {
+            title: 'blogs post2 title',
+            shortDescription: 'blogs post2 short description',
+            content: 'blogs post2 content',
+            blogId: `/${ids.items[0].id.toString()}`
+        }
+
+        const res = await req
+            .post(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}/posts`)
+            .set({ 'Authorization': 'Basic ' + codedAuth })
+            .send(newPost)
+            .expect(201)
+
+        console.log(res.body)
+    })
+
+    it('should not create blogs post valid unauthorized', async () => {
+        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
+
+        const newPost: PostInputModel = {
+            title: 'blogs post title',
+            shortDescription: 'blogs post short description',
+            content: 'blogs post content',
+            blogId: `/${ids.items[0].id.toString()}`
+        }
+
+        const res = await req
+            .post(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}/posts`)
+            .send(newPost)
+            .expect(401)
+
+        console.log(res.body)
+    })
+    it('should not create blogs post invalid authorized', async () => {
+        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
+
+        const newPost: PostInputModel = {
+            title: 'blogs post title 11111111111111111111111111111111111111111111111111111111',
+            shortDescription: 'blogs post short description',
+            content: 'blogs post content',
+            blogId: `/${ids.items[0].id.toString()}`
+        }
+
+        const res = await req
+            .post(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}/posts`)
+            .set({ 'Authorization': 'Basic ' + codedAuth })
+            .send(newPost)
+            .expect(400)
+
+        console.log(res.body)
+    })
+
+    it('should get blogs posts authorized', async () => {
+        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
+
+        const res = await req
+            .get(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}/posts`)
+            .set({ 'Authorization': 'Basic ' + codedAuth })
+            .expect(200)
 
         console.log(res.body)
     })
