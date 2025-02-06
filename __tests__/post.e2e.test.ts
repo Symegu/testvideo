@@ -1,5 +1,5 @@
 import { req } from './test-helpers'
-import { codedAuth } from './datasets'
+import { codedAuth, commentValid, createBlog, createBlogAndPost, createUserFromAdmin, postValid } from './datasets'
 import { SETTINGS } from '../src/settings'
 import { PostInputModel } from '../src/types/input-output-types/post-types'
 import { MongoClient } from 'mongodb'
@@ -7,7 +7,6 @@ import { runDB, postsCollection, blogsCollection } from '../src/db/mongoDb'
 import { BlogInputModel } from '../src/types/input-output-types/blog-types'
 import { postsQueryRepository } from '../src/modules/posts/postsQueryRepository'
 import { blogsQueryRepository } from '../src/modules/blogs/blogsQueryRepository'
-import { CommentInputModel } from '../src/types/input-output-types/comment-types'
 
 let client: MongoClient
 describe('/posts', () => {
@@ -42,79 +41,34 @@ describe('/posts', () => {
   })
 
   it('should create blog and post for this blog', async () => {
-    const newBlog: BlogInputModel = {
-      "name": "string",
-      "description": "string",
-      "websiteUrl": "https://qwerty.com"
-    }
+    const blog = await createBlog()
 
-    const blog = await req
-      .post(SETTINGS.PATH.BLOGS)
-      .set({ 'Authorization': 'Basic ' + codedAuth })
-      .send(newBlog)
-
-    const newPost: PostInputModel = {
-      "title": "string",
-      "shortDescription": "string",
-      "content": "string",
-      "blogId": blog.body.id.toString()
-    }
     const res = await req// отправка данных
       .post(SETTINGS.PATH.POSTS)
       .set({ 'Authorization': 'Basic ' + codedAuth })
-      .send(newPost)
+      .send(postValid(blog.blogId))
       .expect(201)
 
     console.log(res.body)
   })
 
   it('should create blog and post for this blog', async () => {
-    const newBlog: BlogInputModel = {
-      "name": "string",
-      "description": "string",
-      "websiteUrl": "https://qwerty.com"
-    }
+    const blog = await createBlog()
 
-    const blog = await req
-      .post(SETTINGS.PATH.BLOGS)
-      .set({ 'Authorization': 'Basic ' + codedAuth })
-      .send(newBlog)
-
-    const newPost: PostInputModel = {
-      "title": "string2",
-      "shortDescription": "string2",
-      "content": "string2",
-      "blogId": blog.body.id.toString()
-    }
     const res = await req// отправка данных
       .post(SETTINGS.PATH.POSTS)
       .set({ 'Authorization': 'Basic ' + codedAuth })
-      .send(newPost)
+      .send(postValid(blog.blogId))
       .expect(201)
 
     console.log(res.body)
   })
   it('shouldn\'t create | valid but unauthorized', async () => {
-    const newBlog: BlogInputModel = {
-      "name": "string",
-      "description": "string",
-      "websiteUrl": "https://qwerty.com"
-    }
+    const blog = await createBlog()
 
-    const blog = await req
-      .post(SETTINGS.PATH.BLOGS)
-      .set({ 'Authorization': 'Basic ' + codedAuth })
-      .send(newBlog)
-
-    const newPost: PostInputModel = {
-      "title": "string",
-      "shortDescription": "string",
-      "content": "string",
-      "blogId": blog.body.id.toString()
-    }
     const res = await req// отправка данных
       .post(SETTINGS.PATH.POSTS)
-      .send(newPost)
+      .send(postValid(blog.blogId))
       .expect(401)
 
     console.log(res.body)
@@ -297,79 +251,44 @@ describe('/posts', () => {
   })
 
   it('should create and login user and posts comment', async () => {
-    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
 
-    const newComment: CommentInputModel = {
-      content: 'valid comment content'
-    }
-
-    const user = await req
-      .post(SETTINGS.PATH.AUTH + '/registration')
-      .set({ 'Authorization': 'Basic ' + codedAuth })
-      .send({ login: 'masterUser', password: 'password', email: 'email@mail.com' })
-
-    const token = await req
-      .post(SETTINGS.PATH.AUTH + '/login')
-      .set({ 'Authorization': 'Basic ' + codedAuth })
-      .send({ loginOrEmail: 'masterUser', password: 'password' })
-    console.log(user)
+    const user = await createUserFromAdmin()
+    const post = await createBlogAndPost()
 
     const res = await req
-      .post(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}/comments`)
-      .set({ 'Authorization': 'Bearer ' + token.body.accessToken.toString() })
-      .send(newComment)
+      .post(SETTINGS.PATH.POSTS + `/${post.postId}/comments`)
+      .set({ 'Authorization': 'Bearer ' + user.token })
+      .send(commentValid())
       .expect(201)
 
     console.log(res.body)
   })
 
   it('should not create and login user and posts comment | unauthorized', async () => {
-    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
-
-    const newComment: CommentInputModel = {
-      content: 'valid comment content'
-    }
-
-    // const user = await req
-    //   .post(SETTINGS.PATH.AUTH + '/registration')
-    //   .set({ 'Authorization': 'Basic ' + codedAuth })
-    //   .send({ login: 'masterUser', password: 'password', email: 'email@mail.com' })
-
-    // const token = await req
-    //   .post(SETTINGS.PATH.AUTH + '/login')
-    //   .set({ 'Authorization': 'Basic ' + codedAuth })
-    //   .send({ loginOrEmail: 'masterUser', password: 'password' })
-    // console.log(user)
+    //const user = await createUserFromAdmin()
+    const post = await createBlogAndPost()
 
     const res = await req
-      .post(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}/comments`)
-      // .set({ 'Authorization': 'Bearer ' + token.body.accessToken.toString() })
-      .send(newComment)
+      .post(SETTINGS.PATH.POSTS + `/${post.postId}/comments`)
+      // .set({ 'Authorization': 'Bearer ' + user.token })
+      .send(commentValid())
       .expect(401)
 
     console.log(res.body)
   })
 
   it('should get posts comments', async () => {
-    const ids = await postsQueryRepository.getAllPosts(1, 10, 'name', 'asc', 'str')
-
-    // const newComment: CommentInputModel = {
-    //   content: 'valid comment content'
-    // }
-
-    // const user = await req
-    //   .post(SETTINGS.PATH.AUTH + '/registration')
-    //   .set({ 'Authorization': 'Basic ' + codedAuth })
-    //   .send({ login: 'masterUser', password: 'password', email: 'email@mail.com' })
-
-    // const token = await req
-    //   .post(SETTINGS.PATH.AUTH + '/login')
-    //   .set({ 'Authorization': 'Basic ' + codedAuth })
-    //   .send({ loginOrEmail: 'masterUser', password: 'password' })
-    // console.log(user)
+    const user = await createUserFromAdmin()
+    const post = await createBlogAndPost()
+    const comment = await req
+      .post(SETTINGS.PATH.POSTS + `/${post.postId}/comments`)
+      .set({ 'Authorization': 'Bearer ' + user.token })
+      .send(commentValid())
+      .expect(201)
 
     const res = await req
-      .get(SETTINGS.PATH.POSTS + `/${ids.items[0].id.toString()}/comments`)
+      .get(SETTINGS.PATH.POSTS + `/${post.postId}/comments`)
+      .set({ 'Authorization': 'Bearer ' + user.token })
       .expect(200)
 
     console.log(res.body)

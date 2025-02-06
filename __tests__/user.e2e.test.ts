@@ -2,7 +2,7 @@ import { req } from './test-helpers'
 import { MongoClient } from "mongodb"
 import { runDB, usersCollection } from "../src/db/mongoDb"
 import { SETTINGS } from "../src/settings"
-import { codedAuth } from './datasets'
+import { codedAuth, createUserFromAdmin } from './datasets'
 import { UserInputModel } from '../src/types/input-output-types/user-types'
 import { usersQueryRepository } from '../src/modules/users/usersQueryRepository'
 
@@ -36,9 +36,9 @@ describe('/auth', () => {
   it('should create user', async () => {
 
     const user: UserInputModel = {
-      login: 'masterUser',
-      password: 'password',
-      email: 'master@mail.com'
+      login: 'user2',
+      password: 'password2',
+      email: 'master2@mail.com'
     }
 
     const res = await req
@@ -65,7 +65,7 @@ describe('/auth', () => {
     console.log(res.body)
   })
   it('should get not empty array', async () => {
-
+    await createUserFromAdmin()
     const res = await req
       .get(SETTINGS.PATH.USERS)
       .set({ 'Authorization': 'Basic ' + codedAuth })
@@ -73,7 +73,7 @@ describe('/auth', () => {
 
     console.log(res.body) // можно посмотреть ответ эндпоинта
 
-    expect(res.body.items.length).toBe(1) // проверяем ответ эндпоинта
+    expect(res.body.items.length).toBe(2) // проверяем ответ эндпоинта
   })
   it('should not delete user | unauthorized', async () => {
     const ids = await usersQueryRepository.getAllUsers(1, 10, 'name', 'asc', '', '')

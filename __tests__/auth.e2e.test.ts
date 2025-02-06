@@ -3,6 +3,7 @@ import { runDB, usersCollection } from "../src/db/mongoDb"
 import { SETTINGS } from "../src/settings"
 import { UserInputModel } from "../src/types/input-output-types/user-types"
 import { req } from "./test-helpers"
+import { createUserFromAdmin, loginValid } from "./datasets"
 
 //TODO: add email resending and confirmation test
 
@@ -38,7 +39,7 @@ describe('/users', () => {
   })
   it('should register user', async () => {
     const user: UserInputModel = {
-      login: 'masterUser',
+      login: 'master',
       password: 'password',
       email: 'master@mail.com'
     }
@@ -51,14 +52,11 @@ describe('/users', () => {
     console.log(res.body)
   })
   it('should get logged user info', async () => {
-    const token = await req
-      .post(SETTINGS.PATH.AUTH + '/login')
-      .send({ loginOrEmail: 'masterUser', password: 'password' })
-    console.log(token.body)
+    const user = await createUserFromAdmin()
 
     const res = await req
       .get(SETTINGS.PATH.AUTH + '/me')
-      .set({ 'Authorization': 'Bearer ' + token.body.accessToken.toString() })
+      .set({ 'Authorization': 'Bearer ' + user.token })
       .expect(200)
 
     console.log(res.body)
@@ -66,7 +64,7 @@ describe('/users', () => {
   it('should not get logged user info | unauthorized', async () => {
     const token = await req
       .post(SETTINGS.PATH.AUTH + '/login')
-      .send({ loginOrEmail: 'masterUser', password: 'password' })
+      .send(loginValid())
     console.log(token.body)
 
     const res = await req
@@ -78,7 +76,7 @@ describe('/users', () => {
   it('should logout user', async () => {
     const tokenResponse = await req
       .post(SETTINGS.PATH.AUTH + '/login')
-      .send({ loginOrEmail: 'masterUser', password: 'password' })
+      .send(loginValid())
     const refreshToken = tokenResponse.headers['set-cookie']
 
     const res = await req
@@ -109,7 +107,7 @@ describe('/users', () => {
   it('should login user after getting 429 error', async () => {
     const res = await req
       .post(SETTINGS.PATH.AUTH + '/login')
-      .send({ loginOrEmail: 'masterUser', password: 'password' })
+      .send(loginValid())
       .expect(429)
     expect(200)
 
@@ -118,10 +116,10 @@ describe('/users', () => {
   it('should refresh tokens', async () => {
     const tokenResponse = await req
       .post(SETTINGS.PATH.AUTH + '/login')
-      .send({ loginOrEmail: 'masterUser', password: 'password' });
+      .send(loginValid())
 
     if (tokenResponse.status === 429) {
-      console.log('Too many requests, please try again later.');
+      console.log('Too many requests, please try again later.')
       return // или выбросьте ошибку, если это необходимо
     }
 

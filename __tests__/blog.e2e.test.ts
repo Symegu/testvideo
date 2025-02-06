@@ -1,5 +1,5 @@
 import { req } from './test-helpers'
-import { codedAuth } from './datasets'
+import { blogValid, codedAuth, createBlogAndPost, postValid } from './datasets'
 import { SETTINGS } from '../src/settings'
 import { BlogInputModel } from '../src/types/input-output-types/blog-types'
 import { runDB, blogsCollection, postsCollection } from '../src/db/mongoDb'
@@ -36,67 +36,44 @@ describe('/blogs', () => {
         expect(res.body.items.length).toBe(0) // проверяем ответ эндпоинта
     })
     it('should create', async () => {
-        const newBlog: BlogInputModel = {
-            "name": "string",
-            "description": "string",
-            "websiteUrl": "https://qwerty.com"
-        }
 
         const res = await req
             .post(SETTINGS.PATH.BLOGS)
             .set({ 'Authorization': 'Basic ' + codedAuth })
-            .send(newBlog) // отправка данных
+            .send(blogValid()) // отправка данных
             .expect(201)
 
         console.log(res.body)
     })
     it('should create', async () => {
-        const newBlog: BlogInputModel = {
-            "name": "string2",
-            "description": "string2",
-            "websiteUrl": "https://qwerty2.com"
-        }
 
         const res = await req
             .post(SETTINGS.PATH.BLOGS)
             .set({ 'Authorization': 'Basic ' + codedAuth })
-            .send(newBlog) // отправка данных
+            .send(blogValid()) // отправка данных
             .expect(201)
 
         console.log(res.body)
     })
     it('shouldn\'t create | valid but unauthorized', async () => {
-        //setBlogsDB()
-        const newBlog: BlogInputModel = {
-            "name": "string",
-            "description": "string",
-            "websiteUrl": "https://qwerty.com"
-        }
 
         const res = await req
             .post(SETTINGS.PATH.BLOGS)
-            .send(newBlog) // отправка данных
+            .send(blogValid()) // отправка данных
             .expect(401)
 
         console.log(res.body)
     })
     it('shouldn\'t create | valid but authorize invalid', async () => {
-        //setBlogsDB()
-        const newBlog: BlogInputModel = {
-            "name": "string",
-            "description": "string",
-            "websiteUrl": "https://qwerty.com"
-        }
 
         const res = await req
             .post(SETTINGS.PATH.BLOGS)
             .set({ 'Authorization': 'Bearer ' + codedAuth })
-            .send(newBlog) // отправка данных
+            .send(blogValid()) // отправка данных
             .expect(401)
 
         console.log(res.body)
     })
-
     it('shouldn\'t create | invalid data', async () => {
         //setBlogsDB()
         const newBlog: BlogInputModel = {
@@ -113,7 +90,6 @@ describe('/blogs', () => {
 
         console.log(res.body)
     })
-
     it('shouldn\'t create | invalid data', async () => {
         //setBlogsDB()
         const newBlog: BlogInputModel = {
@@ -141,7 +117,6 @@ describe('/blogs', () => {
         expect(res.body.items.length).toBe(2)
     })
     it('shouldn\'t find', async () => {
-        //setBlogsDB()
 
         const res = await req
             .get(SETTINGS.PATH.BLOGS + '/1')
@@ -150,7 +125,7 @@ describe('/blogs', () => {
         console.log(res.body)
     })
     it('should find', async () => {
-        //setBlogsDB()
+
         const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
         const res = await req
             .get(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}`)
@@ -158,7 +133,6 @@ describe('/blogs', () => {
 
         console.log(res.body)
     })
-
     it('should change', async () => {
         //setBlogsDB()
         const changedBlog: BlogInputModel = {
@@ -236,80 +210,56 @@ describe('/blogs', () => {
 
         console.log(res.body)
     })
-
     it('should create blogs post valid authorized', async () => {
-        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
-
-        const newPost: PostInputModel = {
-            title: 'blogs post title',
-            shortDescription: 'blogs post short description',
-            content: 'blogs post content',
-            blogId: `/${ids.items[0].id.toString()}`
-        }
+        const blog = await createBlogAndPost()
 
         const res = await req
-            .post(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}/posts`)
+            .post(SETTINGS.PATH.BLOGS + `/${blog.blogId}/posts`)
             .set({ 'Authorization': 'Basic ' + codedAuth })
-            .send(newPost)
+            .send(postValid(blog.blogId))
             .expect(201)
 
         console.log(res.body)
     })
     it('should create blogs post valid authorized', async () => {
-        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
-
-        const newPost: PostInputModel = {
-            title: 'blogs post2 title',
-            shortDescription: 'blogs post2 short description',
-            content: 'blogs post2 content',
-            blogId: `/${ids.items[0].id.toString()}`
-        }
+        const blog = await createBlogAndPost()
 
         const res = await req
-            .post(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}/posts`)
+            .post(SETTINGS.PATH.BLOGS + `/${blog.blogId}/posts`)
             .set({ 'Authorization': 'Basic ' + codedAuth })
-            .send(newPost)
+            .send(postValid(blog.blogId))
             .expect(201)
 
         console.log(res.body)
     })
-
     it('should not create blogs post valid unauthorized', async () => {
-        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
-
-        const newPost: PostInputModel = {
-            title: 'blogs post title',
-            shortDescription: 'blogs post short description',
-            content: 'blogs post content',
-            blogId: `/${ids.items[0].id.toString()}`
-        }
+        const blog = await createBlogAndPost()
 
         const res = await req
-            .post(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}/posts`)
-            .send(newPost)
+            .post(SETTINGS.PATH.BLOGS + `/${blog.blogId}/posts`)
+            .send(postValid(blog.blogId))
             .expect(401)
 
         console.log(res.body)
     })
     it('should not create blogs post invalid authorized', async () => {
-        const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
+        const blog = await createBlogAndPost()
 
         const newPost: PostInputModel = {
             title: 'blogs post title 11111111111111111111111111111111111111111111111111111111',
             shortDescription: 'blogs post short description',
             content: 'blogs post content',
-            blogId: `/${ids.items[0].id.toString()}`
+            blogId: `${blog.blogId}`
         }
 
         const res = await req
-            .post(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}/posts`)
+            .post(SETTINGS.PATH.BLOGS + `/${blog.blogId}/posts`)
             .set({ 'Authorization': 'Basic ' + codedAuth })
             .send(newPost)
             .expect(400)
 
         console.log(res.body)
     })
-
     it('should get blogs posts authorized', async () => {
         const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
 
