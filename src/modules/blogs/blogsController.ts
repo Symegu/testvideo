@@ -9,6 +9,7 @@ import { PostViewModel } from '../../types/db-types/post-db'
 import { PaginatorBlogModel } from '../../types/paginator-types'
 import { blogsQueryRepository } from './blogsQueryRepository'
 import { postsQueryRepository } from '../posts/postsQueryRepository'
+import { HttpStatuses } from '../../types/input-output-types/output-errors-type'
 
 export const blogsController = {
   async getBlogsController(
@@ -17,25 +18,25 @@ export const blogsController = {
   ) {
     const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
     const blogs = await blogsQueryRepository.getAllBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
-    res.status(200).json(blogs)
+    res.status(HttpStatuses.Success).json(blogs)
     return
   },
   async getBlogPostsController(
-    req: Request<{id: string}>,
+    req: Request<{ id: string }>,
     res: Response
   ) {
     const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
     const blog = await blogsQueryRepository.findById(req.params.id)
-    if(!blog) {
-      res.sendStatus(404)
+    if (!blog) {
+      res.sendStatus(HttpStatuses.NotFound)
       return
     }
     const posts = await postsQueryRepository.getAllPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, req.params.id)
     if (!posts) {
-      res.sendStatus(404)
+      res.sendStatus(HttpStatuses.NotFound)
       return
     }
-    res.status(200).json(posts)
+    res.status(HttpStatuses.Success).json(posts)
   },
   async createBlogController(
     req: Request<BlogInputModel>,
@@ -43,10 +44,10 @@ export const blogsController = {
   ) {
     const createdBlog = await blogsService.createBlog(req.body)
     if (!createdBlog) {
-      res.sendStatus(400)
+      res.sendStatus(HttpStatuses.BadRequest)
       return
     }
-    res.status(201).json(createdBlog)
+    res.status(HttpStatuses.Created).json(createdBlog)
   },
 
   async changeBlogController(
@@ -55,10 +56,10 @@ export const blogsController = {
   ) {
     const updateStatus = await blogsService.changeById(req.body, req.params.id)
     if (!updateStatus) {
-      res.sendStatus(404)
+      res.sendStatus(HttpStatuses.NotFound)
       return
     }
-    res.sendStatus(204)
+    res.sendStatus(HttpStatuses.NoContent)
   },
 
   async findBlogController(
@@ -66,13 +67,13 @@ export const blogsController = {
     res: Response<BlogViewModel>
   ) {
     const blog = await blogsQueryRepository.findById(req.params.id)
-    
+
     console.log(blog)
     if (!blog) {
-      res.sendStatus(404)
+      res.sendStatus(HttpStatuses.NotFound)
       return
     }
-    res.status(200).json(blog)
+    res.status(HttpStatuses.Success).json(blog)
     return
   },
 
@@ -82,10 +83,10 @@ export const blogsController = {
   ) {
     const blog = await blogsRepository.deleteById(req.params.id)
     if (!blog) {
-      res.sendStatus(404)
+      res.sendStatus(HttpStatuses.NotFound)
       return
     }
-    res.sendStatus(204)
+    res.sendStatus(HttpStatuses.NoContent)
   },
 
   async createBlogsPostController(
@@ -94,16 +95,16 @@ export const blogsController = {
   ) {
     const currentBlog = await blogsQueryRepository.findById(req.params.id)
     if (!currentBlog) {
-      console.log('createBlogsPostController currentBlog',currentBlog);
-      res.sendStatus(404)
+      console.log('createBlogsPostController currentBlog', currentBlog);
+      res.sendStatus(HttpStatuses.NotFound)
       return
     }
 
     const createdPost = await blogsService.createBlogsPost(req.body, currentBlog)
     if (!createdPost) {
-      res.sendStatus(400)
+      res.sendStatus(HttpStatuses.BadRequest)
       return
     }
-    res.status(201).json(createdPost)
+    res.status(HttpStatuses.Created).json(createdPost)
   },
 }

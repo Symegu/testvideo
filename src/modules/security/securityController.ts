@@ -7,11 +7,11 @@ export const securityController = {
     const currentRefreshToken = req.cookies.refreshToken
     const sessions = await securityService.getUserSessions(currentRefreshToken)
     if (!sessions) {
-      res.sendStatus(401)
+      res.sendStatus(HttpStatuses.Unauthorized)
       return
     }
 
-    res.status(200).json(sessions)
+    res.status(HttpStatuses.Success).json(sessions)
     return
   },
 
@@ -19,11 +19,11 @@ export const securityController = {
     const currentRefreshToken = req.cookies.refreshToken
     const sessions = await securityService.deleteAllUserSessions(currentRefreshToken)
     if (!sessions) {
-      res.sendStatus(401)
+      res.sendStatus(HttpStatuses.Unauthorized)
       return
     }
 
-    res.sendStatus(204)
+    res.sendStatus(HttpStatuses.NoContent)
     return
   },
 
@@ -41,7 +41,7 @@ export const securityController = {
       res.sendStatus(HttpStatuses.NotFound)
       return
     }
-    res.sendStatus(204)
+    res.sendStatus(HttpStatuses.NoContent)
     return
   }
 }

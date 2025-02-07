@@ -1,14 +1,13 @@
-import { ObjectId } from "mongodb"
+import { WithId } from "mongodb"
 
-export type PostModel = {
-  _id: ObjectId,
+export type PostModel = WithId<{
   title: string,
   shortDescription: string,
   content: string,
   blogId: string,
   blogName: string,
   createdAt: string
-}
+}>
 
 export type PostViewModel = {
   id: string,

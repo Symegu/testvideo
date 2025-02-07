@@ -50,7 +50,7 @@ export const authController = {
       maxAge: 20 * 1000,
     })
 
-    res.status(200).json({ accessToken: tokens.data!.accessToken })
+    res.status(HttpStatuses.Success).json({ accessToken: tokens.data!.accessToken })
     return
   },
 
@@ -78,7 +78,7 @@ export const authController = {
       maxAge: 20 * 1000,
     });
 
-    res.status(200).json({ accessToken: tokens!.accessToken })
+    res.status(HttpStatuses.Success).json({ accessToken: tokens!.accessToken })
   },
 
   async logout(req: Request, res: Response) {
@@ -93,11 +93,11 @@ export const authController = {
     console.log(validToken, 'validToken logout');
     const deletedToken = await authService.deleteRefreshToken(validToken)
     if (!deletedToken) {
-      res.sendStatus(401)
+      res.sendStatus(HttpStatuses.Unauthorized)
       return
     }
     res.clearCookie('refreshToken')
-    res.sendStatus(204)
+    res.sendStatus(HttpStatuses.NoContent)
     return
   },
   async getLoggedUserInfo(req: Request, res: Response) {
@@ -105,11 +105,11 @@ export const authController = {
 
     const user = await usersQueryRepository.findById(req.userId!)
     if (!user) {
-      res.sendStatus(404)
+      res.sendStatus(HttpStatuses.NotFound)
       return
     }
 
-    res.status(200).json({
+    res.status(HttpStatuses.Success).json({
       userId: user.id,
       login: user.login,
       email: user.email

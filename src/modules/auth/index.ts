@@ -12,7 +12,7 @@ const limiter1 = rateLimit({
   message: {
     status: 429,
     error: 'Too Many Requests',
-    message: 'You have exceeded the number of allowed requests. Please try again later.'
+    message: '1You have exceeded the number of allowed requests. Please try again later.'
   },
   handler: (req: Request, res: Response, next: NextFunction) => {
     // Обработчик для кода 429
@@ -25,7 +25,7 @@ const limiter2 = rateLimit({
   message: {
     status: 429,
     error: 'Too Many Requests',
-    message: 'You have exceeded the number of allowed requests. Please try again later.'
+    message: '2You have exceeded the number of allowed requests. Please try again later.'
   },
   handler: (req: Request, res: Response, next: NextFunction) => {
     // Обработчик для кода 429
@@ -38,7 +38,7 @@ const limiter3 = rateLimit({
   message: {
     status: 429,
     error: 'Too Many Requests',
-    message: 'You have exceeded the number of allowed requests. Please try again later.'
+    message: '3You have exceeded the number of allowed requests. Please try again later.'
   },
   handler: (req: Request, res: Response, next: NextFunction) => {
     // Обработчик для кода 429
@@ -51,7 +51,7 @@ const limiter4 = rateLimit({
   message: {
     status: 429,
     error: 'Too Many Requests',
-    message: 'You have exceeded the number of allowed requests. Please try again later.'
+    message: '4You have exceeded the number of allowed requests. Please try again later.'
   },
   handler: (req: Request, res: Response, next: NextFunction) => {
     // Обработчик для кода 429

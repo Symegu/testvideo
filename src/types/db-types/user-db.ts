@@ -1,13 +1,12 @@
-import { ObjectId } from "mongodb"
+import { WithId } from "mongodb"
 
-export type UserModel = {
-  _id: ObjectId,
+export type UserModel = WithId<{
   login: string,
   email: string,
   password: string,
   createdAt: string,
   emailConfirmation: EmailConfirmation
-}
+}>
 
 export type UserViewModel = {
   id: string,

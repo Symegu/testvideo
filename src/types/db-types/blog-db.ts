@@ -1,19 +1,18 @@
-import { ObjectId } from "mongodb"
+import { WithId } from "mongodb"
 
-export type BlogModel = {
-  _id: ObjectId,
-  name:	string,
+export type BlogModel = WithId<{
+  name: string,
   description: string,
-  websiteUrl:	string,
+  websiteUrl: string,
   createdAt: string,
   isMembership: boolean
-}
+}>
 
 export type BlogViewModel = {
   id: string,
-  name:	string,
+  name: string,
   description: string,
-  websiteUrl:	string,
+  websiteUrl: string,
   createdAt: string,
   isMembership: boolean
 }
