@@ -1,47 +1,63 @@
-import { BlogModel, BlogViewModel } from "../../types/db-types/blog-db"
 import { BlogInputModel } from "../../types/input-output-types/blog-types"
-import { blogsCollection } from '../../db/mongoDb';
-import { ObjectId } from "mongodb"
+import { BlogModelClass } from '../../db/mongoDb'
+import { Result, ResultStatus } from "../../types/input-output-types/output-errors-type"
 
 export const blogsRepository = {
 
   async deleteById(
     id: string
-  ): Promise<boolean> {
-    const res = await blogsCollection.deleteOne({ _id: new ObjectId(id) })
-    return res.deletedCount === 1
+  ): Promise<Result<boolean | null>> {
+    const blogInstance = await BlogModelClass.findOne({ _id: id })
+    if (!blogInstance) return {
+      status: ResultStatus.NotFound,
+      errorMessage: 'Blog with this Id not found in repository ::changeById',
+      data: null
+    }
+    const res = await blogInstance.deleteOne()
+
+    return {
+      status: ResultStatus.Success,
+      data: res.deletedCount === 1
+    }
   },
+
   async createBlog(
     blog: BlogInputModel
   ): Promise<string> {
-    const dateNow = Date.now()
-    const createdAtISO = new Date(dateNow).toISOString()
-    const newBlog: BlogModel = {
-      _id: new ObjectId(),
-      name: blog.name,
-      description: blog.description,
-      websiteUrl: blog.websiteUrl,
-      createdAt: createdAtISO,
-      isMembership: false
-    }
-    const res = await blogsCollection.insertOne(newBlog)
-    return res.insertedId.toString()
+    const blogInstance = new BlogModelClass(blog)
+    blogInstance.isMembership = false
+    const res = await blogInstance.save()
+    return res._id.toString()
   },
+
   async changeById(
     blog: BlogInputModel,
-    id: string,
-    currentBlog: BlogViewModel
-  ): Promise<boolean | null> {
-    const changedBlog = {
+    id: string
+  ): Promise<Result<boolean | null>> {
+
+    const blogInstance = await BlogModelClass.findOne({ _id: id })
+    if (!blogInstance) return {
+      status: ResultStatus.NotFound,
+      errorMessage: 'Blog with this Id not found in repository ::changeById',
+      data: null
+    }
+
+    blogInstance.set({
       name: blog.name,
       description: blog.description,
-      websiteUrl: blog.websiteUrl,
-      createdAt: currentBlog.createdAt,
-      isMembership: false
+      websiteUrl: blog.websiteUrl
+    })
+    const res = blogInstance.isModified()
+    if (!res) return {
+      status: ResultStatus.BadRequest,
+      errorMessage: 'Changed blog is equal with current ::changeById',
+      data: null
     }
-    const res = await blogsCollection.updateOne(
-      { _id: new ObjectId(id) }, { $set: { ...changedBlog } }
-    )
-    return res.matchedCount === 1
+    await blogInstance.save()
+
+    return {
+      status: ResultStatus.Success,
+      data: res
+    }
   }
 }

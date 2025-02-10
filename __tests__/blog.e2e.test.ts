@@ -2,7 +2,7 @@ import { req } from './test-helpers'
 import { blogValid, codedAuth, createBlogAndPost, postValid } from './datasets'
 import { SETTINGS } from '../src/settings'
 import { BlogInputModel } from '../src/types/input-output-types/blog-types'
-import { runDB, blogsCollection, postsCollection } from '../src/db/mongoDb'
+import { runDB, BlogModelClass } from '../src/db/mongoDb'
 import { MongoClient } from 'mongodb'
 import { blogsQueryRepository } from '../src/modules/blogs/blogsQueryRepository'
 import { PostInputModel } from '../src/types/input-output-types/post-types'
@@ -14,14 +14,13 @@ describe('/blogs', () => {
 
         if (result) {
             client = result.client
-            await blogsCollection.deleteMany({})
+            await BlogModelClass.deleteMany({})
         } else {
             throw new Error("Unable to connect to the database")
         }
     })
     afterAll(async () => {
-        await blogsCollection.deleteMany({})
-        await postsCollection.deleteMany({})
+        await BlogModelClass.deleteMany({})
         await client.close() // Закрываем сервер после тестов
     });
 

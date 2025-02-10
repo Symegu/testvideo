@@ -3,7 +3,7 @@ import { codedAuth, commentValid, createBlog, createBlogAndPost, createUserFromA
 import { SETTINGS } from '../src/settings'
 import { PostInputModel } from '../src/types/input-output-types/post-types'
 import { MongoClient } from 'mongodb'
-import { runDB, postsCollection, blogsCollection } from '../src/db/mongoDb'
+import { runDB, BlogModelClass, PostModelClass } from '../src/db/mongoDb'
 import { BlogInputModel } from '../src/types/input-output-types/blog-types'
 import { postsQueryRepository } from '../src/modules/posts/postsQueryRepository'
 import { blogsQueryRepository } from '../src/modules/blogs/blogsQueryRepository'
@@ -14,8 +14,8 @@ describe('/posts', () => {
     const result = await runDB(SETTINGS.MONGO_URL);
     if (result) {
       client = result.client
-      await postsCollection.deleteMany({})
-      await blogsCollection.deleteMany({})
+      await PostModelClass.deleteMany({})
+      await BlogModelClass.deleteMany({})
     } else {
       throw new Error("Unable to connect to the database")
     }
@@ -23,8 +23,8 @@ describe('/posts', () => {
     // await postsCollection.drop()
   })
   afterAll(async () => {
-    await blogsCollection.deleteMany({})
-    await postsCollection.deleteMany({})
+    await BlogModelClass.deleteMany({})
+    await PostModelClass.deleteMany({})
     await client.close() // Закрываем сервер после тестов
   })
 

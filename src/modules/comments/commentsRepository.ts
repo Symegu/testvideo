@@ -1,6 +1,6 @@
-import { CommentModel, CommentViewModel } from "../../types/db-types/comment-db"
+import { CommentModel } from "../../types/db-types/comment-db"
 import { CommentInputModel } from "../../types/input-output-types/comment-types"
-import { commentsCollection } from "../../db/mongoDb"
+import { CommentModelClass } from "../../db/mongoDb"
 import { ObjectId } from "mongodb"
 
 
@@ -23,9 +23,9 @@ export const commentsRepository = {
       },
       createdAt: createdAtISO
     }
-    const res = await commentsCollection.insertOne(newComment)
+    const res = await CommentModelClass.create(newComment)
 
-    return res.insertedId.toString()
+    return res._id.toString()
   },
 
   async changeById(
@@ -43,7 +43,7 @@ export const commentsRepository = {
       },
       createdAt: currentComment.createdAt
     }
-    const res = await commentsCollection.updateOne(
+    const res = await CommentModelClass.updateOne(
       { _id: new ObjectId(commentId) }, { $set: { ...changedComment } }
     )
 
@@ -51,7 +51,7 @@ export const commentsRepository = {
   },
 
   async deleteById(id: string): Promise<boolean> {
-    const res = await commentsCollection.deleteOne({ _id: new ObjectId(id) })
+    const res = await CommentModelClass.deleteOne({ _id: new ObjectId(id) })
     return res.deletedCount === 1
   },
 }

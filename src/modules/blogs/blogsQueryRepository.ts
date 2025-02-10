@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb"
 import { BlogViewModel, BlogModel } from "../../types/db-types/blog-db"
-import { blogsCollection } from "../../db/mongoDb"
+import { BlogModelClass } from "../../db/mongoDb"
 import { PaginatorBlogModel } from "../../types/paginator-types"
 
 export const blogsQueryRepository = {
@@ -16,13 +16,13 @@ export const blogsQueryRepository = {
       filter.name = { $regex: searchNameTerm, $options: 'i' }
     }
     console.log(filter, 'filter');
-    const dbBlogs= await blogsCollection
+    const dbBlogs = await BlogModelClass
       .find(filter)
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
-      .toArray()
-    
+      .lean()
+
     const mappedBlogs: BlogViewModel[] = dbBlogs.map(blog => {
       return this.mapBlogToOutput(blog)
     })
@@ -44,7 +44,7 @@ export const blogsQueryRepository = {
     if (searchNameTerm) {
       filter.name = { $regex: searchNameTerm, $options: 'i' }
     }
-    const count = await blogsCollection.countDocuments(filter)
+    const count = await BlogModelClass.countDocuments(filter)
     console.log(count, 'count');
     return count
   },
@@ -57,13 +57,13 @@ export const blogsQueryRepository = {
     }
 
     const _id = new ObjectId(id);
-    const blog = await blogsCollection.findOne(
-        { _id }
-    );
+    const blog = await BlogModelClass.findOne(
+      { _id }
+    ).lean();
     if (!blog) {
       return null;
     }
-    
+
     return this.mapBlogToOutput(blog)
   },
 
@@ -73,7 +73,7 @@ export const blogsQueryRepository = {
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.websiteUrl,
-      createdAt: blog.createdAt,
+      createdAt: blog.createdAt.toISOString(),
       isMembership: blog.isMembership
     } as BlogViewModel
   }

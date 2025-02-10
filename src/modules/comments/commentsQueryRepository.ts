@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb"
-import { commentsCollection } from "../../db/mongoDb"
+import { CommentModelClass } from "../../db/mongoDb"
 import { PaginatorCommentsModel } from "../../types/paginator-types"
 import { CommentModel, CommentViewModel } from "../../types/db-types/comment-db"
 
@@ -21,19 +21,19 @@ export const commentsQueryRepository = {
       filter.postId = { $regex: postId }
     }
     console.log('getComments', filter)
-    const dbComments = await commentsCollection
+    const dbComments = await CommentModelClass
       .find(filter)
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
-      .toArray()
-    
-      console.log(dbComments, 'dbComments');
+      .lean()
+
+    console.log(dbComments, 'dbComments');
     const mappedComments: CommentViewModel[] = dbComments.map(comment => {
       return this.mapCommentToOutput(comment)
     })
     console.log(mappedComments, 'mappedComments');
-    
+
     const commentsCount = await this.getCommentsCount(searchNameTerm, postId)
     const comments = {
       pagesCount: Math.ceil(commentsCount / pageSize),
@@ -58,7 +58,7 @@ export const commentsQueryRepository = {
     if (postId) {
       filter.postId = { $regex: postId }
     }
-    const count = await commentsCollection.countDocuments(filter)
+    const count = await CommentModelClass.countDocuments(filter)
     console.log(count, 'count');
     return count
   },
@@ -71,13 +71,13 @@ export const commentsQueryRepository = {
     }
 
     const _id = new ObjectId(id);
-    const comment = await commentsCollection.findOne(
-        { _id }
+    const comment = await CommentModelClass.findOne(
+      { _id }
     );
     if (!comment) {
       return null;
     }
-    
+
     return this.mapCommentToOutput(comment)
   },
 
@@ -89,8 +89,8 @@ export const commentsQueryRepository = {
     }
 
     const _id = new ObjectId(id);
-    const comment = await commentsCollection.findOne(
-        { _id }
+    const comment = await CommentModelClass.findOne(
+      { _id }
     );
     if (!comment) {
       return null;

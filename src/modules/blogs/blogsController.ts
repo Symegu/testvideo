@@ -21,6 +21,7 @@ export const blogsController = {
     res.status(HttpStatuses.Success).json(blogs)
     return
   },
+
   async getBlogPostsController(
     req: Request<{ id: string }>,
     res: Response
@@ -38,6 +39,7 @@ export const blogsController = {
     }
     res.status(HttpStatuses.Success).json(posts)
   },
+
   async createBlogController(
     req: Request<BlogInputModel>,
     res: Response<BlogViewModel | null>
@@ -47,7 +49,7 @@ export const blogsController = {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
-    res.status(HttpStatuses.Created).json(createdBlog)
+    res.status(HttpStatuses.Created).json(createdBlog.data)
   },
 
   async changeBlogController(
@@ -82,7 +84,7 @@ export const blogsController = {
     res: Response
   ) {
     const blog = await blogsRepository.deleteById(req.params.id)
-    if (!blog) {
+    if (blog.status !== 'Success') {
       res.sendStatus(HttpStatuses.NotFound)
       return
     }

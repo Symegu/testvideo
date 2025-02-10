@@ -5,21 +5,34 @@ import { PostInputModel } from "../../types/input-output-types/post-types"
 import { PostViewModel } from "../../types/db-types/post-db"
 import { postsService } from '../posts/postsService';
 import { blogsQueryRepository } from "./blogsQueryRepository"
+import { Result, ResultStatus } from "../../types/input-output-types/output-errors-type"
 
 export const blogsService = {
   async createBlog(
     blog: BlogInputModel
-  ): Promise<BlogViewModel | null> {
+  ): Promise<Result<BlogViewModel | null>> {
     const createdBlogId: string = await blogsRepository.createBlog(blog)
     if (!createdBlogId) {
-      return null
+      return {
+        status: ResultStatus.InternalServerError,
+        errorMessage: 'CreatedBlog not found blogsService from blogsQueryRepository',
+        data: null
+      }
     }
     const createdBlog = await blogsQueryRepository.findById(createdBlogId)
     if (!createdBlog) {
-      return null
+      return {
+        status: ResultStatus.NotFound,
+        errorMessage: 'CreatedBlog not found blogsService from blogsQueryRepository',
+        data: null
+      }
     }
-    return createdBlog
+    return {
+      status: ResultStatus.Success,
+      data: createdBlog
+    }
   },
+
   async createBlogsPost(
     post: PostInputModel,
     currentBlog: BlogViewModel
@@ -31,23 +44,28 @@ export const blogsService = {
 
     return newPost
   },
+
   async changeById(
     blog: BlogInputModel, id: string
-  ): Promise<boolean | null> {
-    const currentBlog = await blogsQueryRepository.findById(id)
-    if (!currentBlog) {
-      return null
+  ): Promise<Result<boolean | null>> {
+    const res = await blogsRepository.changeById(blog, id)
+
+    return {
+      status: res.status,
+      errorMessage: res.errorMessage,
+      data: res.data
     }
-    const changedBlog = await blogsRepository.changeById(blog, id, currentBlog)
-    if (!changedBlog) {
-      return null
-    }
-    return changedBlog
   },
+
   async deleteById(
     id: string
-  ): Promise<boolean> {
+  ): Promise<Result<boolean | null>> {
     const res = await blogsRepository.deleteById(id)
-    return res
+
+    return {
+      status: res.status,
+      errorMessage: res.errorMessage,
+      data: res.data
+    }
   },
 }

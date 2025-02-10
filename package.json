@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "watch": "tsc -w",
-    "dev": "yarn nodemon --inspect dist/src/index.js",
+    "dev": "yarn nodemon --inspect dist/index.js",
     "jest": "jest -i",
     "jest:coverage": "jest -i --coverage"
   },

@@ -4,7 +4,7 @@ import { SETTINGS } from './settings'
 
 const startApp = async () => {
     const res = await runDB(SETTINGS.MONGO_URL)
-    //if (!res) { process.exit() }
+    if (!res) { process.exit() }
     app.set('trust proxy', true)
     app.listen(SETTINGS.PORT, () => {
         console.log('...server started in port ' + SETTINGS.PORT)

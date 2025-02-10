@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb"
 import { PostViewModel, PostModel } from "../../types/db-types/post-db"
-import { postsCollection } from "../../db/mongoDb"
+import { PostModelClass } from "../../db/mongoDb"
 import { PaginatorPostModel } from "../../types/paginator-types"
 
 export const postsQueryRepository = {
@@ -21,13 +21,13 @@ export const postsQueryRepository = {
       filter.blogId = { $regex: blogId }
     }
     console.log('getPosts', filter)
-    const dbPosts= await postsCollection
+    const dbPosts = await PostModelClass
       .find(filter)
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
-      .toArray()
-    
+      .lean()
+
     const mappedPosts: PostViewModel[] = dbPosts.map(post => {
       return this.mapPostToOutput(post)
     })
@@ -54,7 +54,7 @@ export const postsQueryRepository = {
     if (blogId) {
       filter.blogId = { $regex: blogId }
     }
-    const count = await postsCollection.countDocuments(filter)
+    const count = await PostModelClass.countDocuments(filter)
     console.log(count, 'count');
     return count
   },
@@ -67,13 +67,13 @@ export const postsQueryRepository = {
     }
 
     const _id = new ObjectId(id);
-    const post = await postsCollection.findOne(
-        { _id }
+    const post = await PostModelClass.findOne(
+      { _id }
     );
     if (!post) {
       return null;
     }
-    
+
     return this.mapPostToOutput(post)
   },
 

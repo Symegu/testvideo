@@ -1,5 +1,5 @@
 import { MongoClient } from "mongodb"
-import { runDB, postsCollection, blogsCollection, commentsCollection } from "../src/db/mongoDb"
+import { runDB, CommentModelClass, BlogModelClass, PostModelClass } from "../src/db/mongoDb"
 import { SETTINGS } from "../src/settings"
 import { createBlogPostComment } from "./datasets"
 import { req } from "./test-helpers"
@@ -10,17 +10,17 @@ describe('/comments', () => {
     const result = await runDB(SETTINGS.MONGO_URL);
     if (result) {
       client = result.client
-      await commentsCollection.deleteMany({})
-      await postsCollection.deleteMany({})
-      await blogsCollection.deleteMany({})
+      await CommentModelClass.deleteMany({})
+      await PostModelClass.deleteMany({})
+      await BlogModelClass.deleteMany({})
     } else {
       throw new Error("Unable to connect to the database")
     }
   })
   afterAll(async () => {
-    await blogsCollection.deleteMany({})
-    await postsCollection.deleteMany({})
-    await commentsCollection.deleteMany({})
+    await BlogModelClass.deleteMany({})
+    await PostModelClass.deleteMany({})
+    await CommentModelClass.deleteMany({})
     await client.close() // Закрываем сервер после тестов
   })
 

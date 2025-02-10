@@ -1,13 +1,13 @@
 import { PostModel, PostViewModel } from "../../types/db-types/post-db"
 import { PostInputModel } from "../../types/input-output-types/post-types"
-import { postsCollection } from "../../db/mongoDb"
+import { PostModelClass } from "../../db/mongoDb"
 import { ObjectId } from "mongodb"
 import { BlogViewModel } from "../../types/db-types/blog-db"
 
 
 export const postsRepository = {
   async deleteById(id: string): Promise<boolean> {
-    const res = await postsCollection.deleteOne({ _id: new ObjectId(id) })
+    const res = await PostModelClass.deleteOne({ _id: new ObjectId(id) })
     return res.deletedCount === 1
   },
   async createPost(
@@ -25,9 +25,9 @@ export const postsRepository = {
       blogName: currentBlog.name,
       createdAt: createdAtISO
     }
-    const res = await postsCollection.insertOne(newPost)
+    const res = await PostModelClass.create(newPost)
 
-    return res.insertedId.toString()
+    return res._id.toString()
   },
   async changeById(
     post: PostInputModel,
@@ -43,7 +43,7 @@ export const postsRepository = {
       blogName: currentBlog.name,
       createdAt: currentPost.createdAt
     }
-    const res = await postsCollection.updateOne(
+    const res = await PostModelClass.updateOne(
       { _id: new ObjectId(id) }, { $set: { ...changedPost } }
     )
 
