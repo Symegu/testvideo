@@ -1,20 +1,20 @@
-import { WithId } from "mongodb"
+import { Document } from "mongoose";
 
-export type CommentModel = WithId<{
-  content: string,
-  commentatorInfo: CommentatorInfo,
-  postId: string,
-  createdAt: string
-}>
+export interface CommentModel extends Document {
+  content: string;
+  commentatorInfo: CommentatorInfo;
+  postId: string;
+  createdAt: Date;
+}
+
+export interface CommentatorInfo {
+  userId: string;
+  userLogin: string;
+}
 
 export type CommentViewModel = {
-  id: string,
-  content: string,
-  commentatorInfo: CommentatorInfo,
-  createdAt: string
-}
-
-export type CommentatorInfo = {
-  userId: string,
-  userLogin: string
-}
+  id: string;
+  content: string;
+  commentatorInfo: CommentatorInfo;
+  createdAt: string;
+};

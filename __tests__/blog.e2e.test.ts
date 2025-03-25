@@ -4,14 +4,16 @@ import { SETTINGS } from '../src/settings'
 import { BlogInputModel } from '../src/types/input-output-types/blog-types'
 import { runDB, BlogModelClass } from '../src/db/mongoDb'
 import { MongoClient } from 'mongodb'
-import { blogsQueryRepository } from '../src/modules/blogs/blogsQueryRepository'
+import { BlogsQueryRepository } from '../src/modules/blogs/blogsQueryRepository'
 import { PostInputModel } from '../src/types/input-output-types/post-types'
+import { container } from '../src/modules/other/composition-root'
 
 let client: MongoClient
+let blogsQueryRepository: BlogsQueryRepository
 describe('/blogs', () => {
     beforeAll(async () => { // очистка базы данных перед началом тестирования
         const result = await runDB(SETTINGS.MONGO_URL);
-
+        blogsQueryRepository = container.get(BlogsQueryRepository)
         if (result) {
             client = result.client
             await BlogModelClass.deleteMany({})

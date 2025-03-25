@@ -2,8 +2,11 @@ import { ObjectId } from "mongodb"
 import { BlogViewModel, BlogModel } from "../../types/db-types/blog-db"
 import { BlogModelClass } from "../../db/mongoDb"
 import { PaginatorBlogModel } from "../../types/paginator-types"
+import { injectable } from "inversify"
 
-export const blogsQueryRepository = {
+@injectable()
+export class BlogsQueryRepository {
+  
   async getAllBlogs(
     pageNumber: number,
     pageSize: number,
@@ -21,7 +24,6 @@ export const blogsQueryRepository = {
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
-      .lean()
 
     const mappedBlogs: BlogViewModel[] = dbBlogs.map(blog => {
       return this.mapBlogToOutput(blog)
@@ -35,7 +37,7 @@ export const blogsQueryRepository = {
       items: mappedBlogs
     }
     return blogs
-  },
+  }
 
   async getBlogsCount(
     searchNameTerm: string | null
@@ -47,29 +49,25 @@ export const blogsQueryRepository = {
     const count = await BlogModelClass.countDocuments(filter)
     console.log(count, 'count');
     return count
-  },
+  }
 
   async findById(
     id: string
   ): Promise<BlogViewModel | null> {
-    if (!ObjectId.isValid(id)) {
-      return null;
-    }
 
-    const _id = new ObjectId(id);
     const blog = await BlogModelClass.findOne(
-      { _id }
-    ).lean();
+      { id }
+    )
     if (!blog) {
       return null;
     }
 
     return this.mapBlogToOutput(blog)
-  },
+  }
 
   mapBlogToOutput(blog: BlogModel) {
     return {
-      id: blog._id.toString(),
+      id: blog.id.toString(),
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.websiteUrl,

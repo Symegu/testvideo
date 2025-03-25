@@ -1,21 +1,23 @@
-export type RefreshTokenModel = {
-  ip: string, //IP address of device during signing in
-  title: string, //Device name
-  lastActiveDate: string,
-  expirationDate: string, //Date of the last generating of refresh/access tokens
-  deviceId: string, //Id of connected device session
-  userId: string
+import { Document } from "mongoose"
+
+export interface RefreshTokenModel extends Document{
+  ip: string;
+  title: string;
+  lastActiveDate: Date;
+  expirationDate: Date;
+  deviceId: string;
+  userId: string;
 }
 
 export type DeviceViewModel = {
-  ip: string, //IP address of device during signing in
-  title: string, //Device name
-  lastActiveDate: string, //Date of the last generating of refresh/access tokens
-  deviceId: string //Id of connected device session
+  ip: string;
+  title: string;
+  lastActiveDate: string;  // ISO string format
+  deviceId: string;
 }
 
 export type RefreshTokenPayloadType = {
-  userId: string,
-  lastActiveDate: string,
-  deviceId: string
+  userId: string;
+  lastActiveDate: string;  // ISO string format
+  deviceId: string;
 }

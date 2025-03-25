@@ -1,12 +1,35 @@
-import { Request } from "express"
+import { Request } from 'express'
+import { injectable } from 'inversify'
 
-export const paginationQueries = (req: Request) => {
-  let pageNumber: number = req.query.pageNumber ? +req.query.pageNumber : 1
-  let pageSize: number = req.query.pageSize ? +req.query.pageSize : 10
-  let sortBy: string = req.query.sortBy ? req.query.sortBy.toString() : 'createdAt'
-  let sortDirection: 'asc' | 'desc' = req.query.sortDirection && req.query.sortDirection.toString() === 'asc' ? 'asc' : 'desc'
-  let searchNameTerm: string | null = req.query.searchNameTerm ? req.query.searchNameTerm.toString() : null
-  let searchLoginTerm: string | null = req.query.searchLoginTerm ? req.query.searchLoginTerm.toString() : null
-  let searchEmailTerm: string | null = req.query.searchEmailTerm ? req.query.searchEmailTerm.toString() : null
-  return {pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, searchLoginTerm, searchEmailTerm}
+@injectable()
+export class PaginationQueries {
+  pageNumber: number
+  pageSize: number
+  sortBy: string
+  sortDirection: 'asc' | 'desc'
+  searchNameTerm: string | null
+  searchLoginTerm: string | null
+  searchEmailTerm: string | null
+
+  constructor(req: Request) {
+    this.pageNumber = req.query.pageNumber ? +req.query.pageNumber : 1
+    this.pageSize = req.query.pageSize ? +req.query.pageSize : 10
+    this.sortBy = req.query.sortBy ? req.query.sortBy.toString() : 'createdAt'
+    this.sortDirection = req.query.sortDirection && req.query.sortDirection.toString() === 'asc' ? 'asc' : 'desc'
+    this.searchNameTerm = req.query.searchNameTerm ? req.query.searchNameTerm.toString() : null
+    this.searchLoginTerm = req.query.searchLoginTerm ? req.query.searchLoginTerm.toString() : null
+    this.searchEmailTerm = req.query.searchEmailTerm ? req.query.searchEmailTerm.toString() : null
+  }
+
+  getPaginationParams() {
+    return {
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize,
+      sortBy: this.sortBy,
+      sortDirection: this.sortDirection,
+      searchNameTerm: this.searchNameTerm,
+      searchLoginTerm: this.searchLoginTerm,
+      searchEmailTerm: this.searchEmailTerm
+    }
+  }
 }

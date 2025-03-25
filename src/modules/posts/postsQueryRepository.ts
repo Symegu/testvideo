@@ -1,9 +1,10 @@
-import { ObjectId } from "mongodb"
 import { PostViewModel, PostModel } from "../../types/db-types/post-db"
 import { PostModelClass } from "../../db/mongoDb"
 import { PaginatorPostModel } from "../../types/paginator-types"
+import { injectable } from "inversify"
 
-export const postsQueryRepository = {
+@injectable()
+export class PostsQueryRepository {
   async getAllPosts(
     pageNumber: number,
     pageSize: number,
@@ -26,7 +27,6 @@ export const postsQueryRepository = {
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
-      .lean()
 
     const mappedPosts: PostViewModel[] = dbPosts.map(post => {
       return this.mapPostToOutput(post)
@@ -40,7 +40,7 @@ export const postsQueryRepository = {
       items: mappedPosts
     }
     return posts
-  },
+  }
 
   async getPostsCount(
     searchNameTerm: string | null,
@@ -57,35 +57,31 @@ export const postsQueryRepository = {
     const count = await PostModelClass.countDocuments(filter)
     console.log(count, 'count');
     return count
-  },
+  }
 
   async findById(
     id: string
   ): Promise<PostViewModel | null> {
-    if (!ObjectId.isValid(id)) {
-      return null;
-    }
-
-    const _id = new ObjectId(id);
+    
     const post = await PostModelClass.findOne(
-      { _id }
-    );
+      { id }
+    )
     if (!post) {
       return null;
     }
 
     return this.mapPostToOutput(post)
-  },
+  }
 
   mapPostToOutput(post: PostModel) {
     return {
-      id: post._id.toString(),
+      id: post.id.toString(),
       title: post.title,
       shortDescription: post.shortDescription,
       content: post.content,
       blogId: post.blogId,
       blogName: post.blogName,
-      createdAt: post.createdAt
+      createdAt: post.createdAt.toISOString()
     } as PostViewModel
   }
 }

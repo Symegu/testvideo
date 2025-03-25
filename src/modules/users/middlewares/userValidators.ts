@@ -1,8 +1,8 @@
 import { body } from "express-validator"
-import { usersCollection } from "../../../db/mongoDb"
+import { UserModelClass } from "../../../db/mongoDb"
 
 export async function checkUnique(loginOrEmail: string): Promise<boolean>{
-  const res = await usersCollection.findOne(
+  const res = await UserModelClass.findOne(
     {$or: [
       {login: loginOrEmail},
       {email: loginOrEmail}

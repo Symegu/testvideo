@@ -1,74 +1,85 @@
 import { Request, Response } from 'express'
-import { paginationQueries } from "../other/paginationQueries"
-import { blogsService } from "./blogsService"
+import { PaginationQueries } from "../other/paginationQueries"
+import { BlogsService } from "./blogsService"
 import { BlogViewModel } from '../../types/db-types/blog-db'
-import { blogsRepository } from './blogsRepository'
+import { BlogsRepository } from './blogsRepository'
 import { BlogInputModel } from '../../types/input-output-types/blog-types'
 import { PostInputModel } from '../../types/input-output-types/post-types'
 import { PostViewModel } from '../../types/db-types/post-db'
 import { PaginatorBlogModel } from '../../types/paginator-types'
-import { blogsQueryRepository } from './blogsQueryRepository'
-import { postsQueryRepository } from '../posts/postsQueryRepository'
+import { BlogsQueryRepository } from './blogsQueryRepository'
+import { PostsQueryRepository } from '../posts/postsQueryRepository'
 import { HttpStatuses } from '../../types/input-output-types/output-errors-type'
+import { injectable } from 'inversify'
 
-export const blogsController = {
+@injectable()
+export class BlogsController {
+
+  constructor(
+    protected paginationQueries: PaginationQueries,
+    protected blogsService: BlogsService,
+    protected blogsRepository: BlogsRepository,
+    protected blogsQueryRepository: BlogsQueryRepository,
+    protected postsQueryRepository: PostsQueryRepository,
+  ){}
+
   async getBlogsController(
     req: Request,
     res: Response<PaginatorBlogModel>
   ) {
-    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
-    const blogs = await blogsQueryRepository.getAllBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
+    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = this.paginationQueries.getPaginationParams()
+    const blogs = await this.blogsQueryRepository.getAllBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
     res.status(HttpStatuses.Success).json(blogs)
     return
-  },
+  }
 
   async getBlogPostsController(
     req: Request<{ id: string }>,
     res: Response
   ) {
-    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries(req)
-    const blog = await blogsQueryRepository.findById(req.params.id)
+    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = this.paginationQueries.getPaginationParams()
+    const blog = await this.blogsQueryRepository.findById(req.params.id)
     if (!blog) {
       res.sendStatus(HttpStatuses.NotFound)
       return
     }
-    const posts = await postsQueryRepository.getAllPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, req.params.id)
+    const posts = await this.postsQueryRepository.getAllPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, req.params.id)
     if (!posts) {
       res.sendStatus(HttpStatuses.NotFound)
       return
     }
     res.status(HttpStatuses.Success).json(posts)
-  },
+  }
 
   async createBlogController(
     req: Request<BlogInputModel>,
     res: Response<BlogViewModel | null>
   ) {
-    const createdBlog = await blogsService.createBlog(req.body)
+    const createdBlog = await this.blogsService.createBlog(req.body)
     if (!createdBlog) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
     res.status(HttpStatuses.Created).json(createdBlog.data)
-  },
+  }
 
   async changeBlogController(
     req: Request<{ id: string }, any, BlogInputModel>,
     res: Response<boolean>
   ) {
-    const updateStatus = await blogsService.changeById(req.body, req.params.id)
+    const updateStatus = await this.blogsService.changeById(req.body, req.params.id)
     if (!updateStatus) {
       res.sendStatus(HttpStatuses.NotFound)
       return
     }
     res.sendStatus(HttpStatuses.NoContent)
-  },
+  }
 
   async findBlogController(
     req: Request<{ id: string }>,
     res: Response<BlogViewModel>
   ) {
-    const blog = await blogsQueryRepository.findById(req.params.id)
+    const blog = await this.blogsQueryRepository.findById(req.params.id)
 
     console.log(blog)
     if (!blog) {
@@ -77,36 +88,36 @@ export const blogsController = {
     }
     res.status(HttpStatuses.Success).json(blog)
     return
-  },
+  }
 
   async deleteBlogController(
     req: Request<{ id: string }>,
     res: Response
   ) {
-    const blog = await blogsRepository.deleteById(req.params.id)
+    const blog = await this.blogsRepository.deleteById(req.params.id)
     if (blog.status !== 'Success') {
       res.sendStatus(HttpStatuses.NotFound)
       return
     }
     res.sendStatus(HttpStatuses.NoContent)
-  },
+  }
 
   async createBlogsPostController(
     req: Request<{ id: string }, PostInputModel>,
     res: Response<PostViewModel | null>
   ) {
-    const currentBlog = await blogsQueryRepository.findById(req.params.id)
+    const currentBlog = await this.blogsQueryRepository.findById(req.params.id)
     if (!currentBlog) {
       console.log('createBlogsPostController currentBlog', currentBlog);
       res.sendStatus(HttpStatuses.NotFound)
       return
     }
 
-    const createdPost = await blogsService.createBlogsPost(req.body, currentBlog)
+    const createdPost = await this.blogsService.createBlogsPost(req.body, currentBlog)
     if (!createdPost) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
     res.status(HttpStatuses.Created).json(createdPost)
-  },
+  }
 }

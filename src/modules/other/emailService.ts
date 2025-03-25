@@ -1,25 +1,33 @@
 import { isBefore, parseISO } from 'date-fns'
-import nodemailer from 'nodemailer';
-import { SETTINGS } from '../../settings';
-import { Result, ResultStatus } from '../../types/input-output-types/output-errors-type';
-import { emailRepository } from './emailRepository'
-import { usersQueryRepository } from '../users/usersQueryRepository';
-export const emailExamples = {
-  registrationEmail(code: string) {
-    return ` <h1>Thank for your registration</h1>
-             <p>To finish registration please follow the link below:<br>
-                <a href='https://6f1c8f889a0b81.lhr.life/auth/registration-confirmation?code=${code}'>register</a>
-            </p>`
-  },
-  passwordRecoveryEmail(code: string) {
-    return `<h1>Password recovery</h1>
-      <p>To finish password recovery please follow the link below:
-          <a href='https://6f1c8f889a0b81.lhr.life/password-recovery?recoveryCode=${code}'>recovery password</a>
-      </p>`
-  }
-}
+import nodemailer from 'nodemailer'
+import { SETTINGS } from '../../settings'
+import { Result, ResultStatus } from '../../types/input-output-types/output-errors-type'
+import { injectable } from 'inversify'
+import { EmailRepository } from './emailRepository'
+import { UsersQueryRepository } from '../users/usersQueryRepository';
 
-export const emailService = {
+@injectable()
+export class EmailService {
+  public emailExamples = {
+    registrationEmail(code: string) {
+      return ` <h1>Thank for your registration</h1>
+               <p>To finish registration please follow the link below:<br>
+                  <a href='https://1c68ff11ce4124.lhr.life/auth/registration-confirmation?code=${code}'>register</a>
+              </p>`
+    },
+    passwordRecoveryEmail(code: string) {
+      return `<h1>Password recovery</h1>
+        <p>To finish password recovery please follow the link below:
+            <a href='https://1c68ff11ce4124.lhr.life/password-recovery?recoveryCode=${code}'>recovery password</a>
+        </p>`
+    }
+  }
+
+  constructor(
+    protected emailRepository: EmailRepository,
+    protected usersQueryRepository: UsersQueryRepository
+  ){}
+
   async sendEmail(
     email: string,
     code: string,
@@ -62,7 +70,7 @@ export const emailService = {
         data: null
       } as Result<null>
     }
-  },
+  }
 
   async confirmEmail(
     code: string
@@ -85,7 +93,7 @@ export const emailService = {
       }
     }
 
-    const user = await emailRepository.findByConfirmationCode(code)
+    const user = await this.emailRepository.findByConfirmationCode(code)
 
     if (!user) {
       return {
@@ -120,25 +128,20 @@ export const emailService = {
       }
     }
 
-    const result = await emailRepository.confirmEmail(code)
-    console.log(await emailRepository.findByConfirmationCode(code), 'findByConfirmationCode confirmEmail');
-    console.log(result, 'confirmEmail result');
-
-
+    const result = await this.emailRepository.confirmEmail(code)
+    
     return {
       status: ResultStatus.Success,
       data: null,
       extensions: [],
     }
-  },
+  }
 
   async resendConfirmation(
     email: string
   ): Promise<Result<any>> {
-    const user = await usersQueryRepository.findUserByLoginOrEmail(email)
-    const dateNow = Date.now()
-    console.log(user, 'resendConfirmation user');
-
+    const user = await this.usersQueryRepository.findUserByLoginOrEmail(email)
+    // const dateNow = Date.now()
     if (!user) {
       return {
         status: ResultStatus.BadRequest,
@@ -161,7 +164,7 @@ export const emailService = {
       }
     }
 
-    const newCode = await emailRepository.changeConfirmation(email)
+    const newCode = await this.emailRepository.changeConfirmation(email)
 
     if (!newCode) {
       return {
@@ -175,7 +178,7 @@ export const emailService = {
     }
     console.log(newCode, 'newCode resendConfirmation changeConfirmation');
 
-    const result = await this.sendEmail(email, newCode, emailExamples.registrationEmail)
+    const result = await this.sendEmail(email, newCode, this.emailExamples.registrationEmail)
 
     if (result.status !== ResultStatus.Success) {
       return {
@@ -192,5 +195,5 @@ export const emailService = {
       extensions: [],
       data: null
     } as Result<null>
-  },
+  }
 }

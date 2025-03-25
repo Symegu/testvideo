@@ -1,20 +1,20 @@
-import { WithId } from "mongodb"
+import { Document } from "mongoose"
 
-export type PostModel = WithId<{
-  title: string,
-  shortDescription: string,
-  content: string,
-  blogId: string,
-  blogName: string,
-  createdAt: string
-}>
+export interface PostModel extends Document {
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
+  blogName: string;
+  createdAt: Date;
+}
 
 export type PostViewModel = {
-  id: string,
-  title: string,
-  shortDescription: string,
-  content: string,
-  blogId: string,
-  blogName: string,
-  createdAt: string
-}
+  id: string;
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
+  blogName: string;
+  createdAt: string;
+};

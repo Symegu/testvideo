@@ -1,25 +1,21 @@
 import { BlogInputModel } from "../../types/input-output-types/blog-types"
 import { BlogModelClass } from '../../db/mongoDb'
 import { Result, ResultStatus } from "../../types/input-output-types/output-errors-type"
+import { injectable } from "inversify"
 
-export const blogsRepository = {
+@injectable()
+export class BlogsRepository {
 
   async deleteById(
     id: string
   ): Promise<Result<boolean | null>> {
-    const blogInstance = await BlogModelClass.findOne({ _id: id })
-    if (!blogInstance) return {
-      status: ResultStatus.NotFound,
-      errorMessage: 'Blog with this Id not found in repository ::changeById',
-      data: null
-    }
-    const res = await blogInstance.deleteOne()
+    const res = await BlogModelClass.deleteOne({ _id: id })
 
     return {
       status: ResultStatus.Success,
       data: res.deletedCount === 1
     }
-  },
+  }
 
   async createBlog(
     blog: BlogInputModel
@@ -27,8 +23,8 @@ export const blogsRepository = {
     const blogInstance = new BlogModelClass(blog)
     blogInstance.isMembership = false
     const res = await blogInstance.save()
-    return res._id.toString()
-  },
+    return res.id.toString()
+  }
 
   async changeById(
     blog: BlogInputModel,

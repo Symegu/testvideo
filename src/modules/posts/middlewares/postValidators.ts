@@ -1,8 +1,6 @@
 import { body } from "express-validator"
-import { Request, Response, NextFunction } from "express"
-import { OutputErrorsType } from "../../../types/input-output-types/output-errors-type"
-import { blogsQueryRepository } from "../../blogs/blogsQueryRepository"
-import { postsQueryRepository } from "../postsQueryRepository"
+import { BlogsQueryRepository } from "../../blogs/blogsQueryRepository"
+import { container } from "../../other/composition-root"
 
 export const titleValidator = body('title')
   .trim()
@@ -25,6 +23,7 @@ export const contentValidator = body('content')
   .isLength({ min: 1, max: 1000 })
   .withMessage('content length is more than 1000 or less than 1')
 
+const blogsQueryRepository = container.get(BlogsQueryRepository)
 export const blogIdValidator = body('blogId')
   .trim()
   .isString()

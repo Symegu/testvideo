@@ -1,10 +1,11 @@
 import { Request, Response } from "express"
-import { blogsCollection, postsCollection, tokensCollection, usersCollection } from "../../db/mongoDb"
+import { BlogModelClass, CommentModelClass, PostModelClass, RefreshTokenModelClass, UserModelClass } from "../../db/mongoDb"
 
 export const deleteAllDataController = async (req: Request, res: Response<any>) => {
-  await blogsCollection.deleteMany()
-  await postsCollection.deleteMany()
-  await usersCollection.deleteMany()
-  await tokensCollection.deleteMany()
+  await BlogModelClass.deleteMany()
+  await PostModelClass.deleteMany()
+  await UserModelClass.deleteMany()
+  await RefreshTokenModelClass.deleteMany()
+  await CommentModelClass.deleteMany()
   res.sendStatus(204)
 }

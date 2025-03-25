@@ -1,29 +1,29 @@
-import { WithId } from "mongodb"
+import { Document } from "mongoose"
 
-export type UserModel = WithId<{
-  login: string,
-  email: string,
-  password: string,
-  createdAt: string,
-  emailConfirmation: EmailConfirmation
-}>
-
-export type UserViewModel = {
-  id: string,
-  login: string,
-  email: string,
-  createdAt: string
+export interface EmailConfirmation {
+  confirmationCode: string;
+  expirationDate: string;
+  status: ConfirmationStatus;
 }
 
-export type EmailConfirmation = {
-  confirmationCode: string,
-  expirationDate: string,
-  status: ConfirmationStatus
-}
-
-enum ConfirmationStatus {
+export enum ConfirmationStatus {
   NotConfirmed = 0,
   Confirmed = 1,
   Declined = 2,
   Canceled = 3
 }
+
+export interface UserModel extends Document {
+  login: string;
+  email: string;
+  password: string;
+  createdAt: Date;
+  emailConfirmation: EmailConfirmation;
+}
+
+export type UserViewModel = {
+  id: string;
+  login: string;
+  email: string;
+  createdAt: string;
+};

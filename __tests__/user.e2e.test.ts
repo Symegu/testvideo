@@ -4,12 +4,15 @@ import { runDB, usersCollection } from "../src/db/mongoDb"
 import { SETTINGS } from "../src/settings"
 import { codedAuth, createUserFromAdmin } from './datasets'
 import { UserInputModel } from '../src/types/input-output-types/user-types'
-import { usersQueryRepository } from '../src/modules/users/usersQueryRepository'
+import { UsersQueryRepository } from '../src/modules/users/usersQueryRepository'
+import { container } from '../src/modules/other/composition-root'
 
 let client: MongoClient
+let usersQueryRepository: UsersQueryRepository
 describe('/auth', () => {
   beforeAll(async () => { // очистка базы данных перед началом тестирования
     const result = await runDB(SETTINGS.MONGO_URL)
+    usersQueryRepository = container.get(UsersQueryRepository)
     if (result) {
       client = result.client
       await usersCollection.deleteMany({})

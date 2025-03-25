@@ -1,11 +1,15 @@
 import { Request, Response } from 'express'
-import { securityService } from './securityService'
+import { SecurityService } from './securityService'
 import { HttpStatuses, ResultStatus } from '../../types/input-output-types/output-errors-type'
+import { injectable } from 'inversify'
 
-export const securityController = {
+@injectable()
+export class SecurityController {
+
+  constructor(protected securityService: SecurityService){}
   async getUserSessions(req: Request, res: Response) {
     const currentRefreshToken = req.cookies.refreshToken
-    const sessions = await securityService.getUserSessions(currentRefreshToken)
+    const sessions = await this.securityService.getUserSessions(currentRefreshToken)
     if (!sessions) {
       res.sendStatus(HttpStatuses.Unauthorized)
       return
@@ -13,11 +17,11 @@ export const securityController = {
 
     res.status(HttpStatuses.Success).json(sessions)
     return
-  },
+  }
 
   async deleteAllUserSessions(req: Request, res: Response) {
     const currentRefreshToken = req.cookies.refreshToken
-    const sessions = await securityService.deleteAllUserSessions(currentRefreshToken)
+    const sessions = await this.securityService.deleteAllUserSessions(currentRefreshToken)
     if (!sessions) {
       res.sendStatus(HttpStatuses.Unauthorized)
       return
@@ -25,11 +29,11 @@ export const securityController = {
 
     res.sendStatus(HttpStatuses.NoContent)
     return
-  },
+  }
 
   async deleteUserSession(req: Request<{ id: string }>, res: Response) {
     const currentRefreshToken = req.cookies.refreshToken
-    const result = await securityService.deleteUserSession(currentRefreshToken, req.params.id)
+    const result = await this.securityService.deleteUserSession(currentRefreshToken, req.params.id)
     console.log('deleteUserSession req.params.id', req.params.id);
 
     if (result.status === ResultStatus.Forbidden) {

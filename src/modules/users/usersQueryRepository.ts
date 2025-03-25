@@ -1,9 +1,11 @@
 import { ObjectId } from "mongodb"
-import { usersCollection } from '../../db/mongoDb';
 import { UserModel, UserViewModel } from '../../types/db-types/user-db';
 import { PaginatorUsersModel } from "../../types/paginator-types";
+import { injectable } from "inversify";
+import { UserModelClass } from "../../db/mongoDb";
 
-export const usersQueryRepository = {
+@injectable()
+export class UsersQueryRepository {
   async getAllUsers(
     pageNumber: number,
     pageSize: number,
@@ -26,18 +28,17 @@ export const usersQueryRepository = {
       filter = {}
     }
     console.log(filter, 'filter');
-    const dbUsers= await usersCollection
+    const dbUsers= await UserModelClass
       .find(filter)
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [sortBy]: sortDirection === 'asc' ? 'asc' : 'desc' })
-      .toArray()
     
     const mappedUsers: UserViewModel[] = dbUsers.map(user => {
       return this.mapUserToOutput(user)
     })
     const usersCount = await this.getUsersCount(searchLoginTerm, searchEmailTerm)
-    console.log(usersCount, 'usersCount');
+
     const users = {
       pagesCount: Math.ceil(usersCount / pageSize),
       page: pageNumber,
@@ -45,9 +46,9 @@ export const usersQueryRepository = {
       totalCount: usersCount,
       items: mappedUsers
     }
-    console.log(users, 'users');
+    
     return users
-  },
+  }
 
   async getUsersCount(
     searchLoginTerm: string | null,
@@ -67,10 +68,10 @@ export const usersQueryRepository = {
       filter = {}
     }
     console.log(filter, 'filter');
-    const count = await usersCollection.countDocuments(filter)
+    const count = await UserModelClass.countDocuments(filter)
     console.log(count, 'count');
     return count
-  },
+  }
 
   async findById(
     id: string
@@ -80,7 +81,7 @@ export const usersQueryRepository = {
     }
 
     const _id = new ObjectId(id);
-    const user = await usersCollection.findOne(
+    const user = await UserModelClass.findOne(
         { _id }
     )
     console.log('findById user', user);
@@ -90,10 +91,10 @@ export const usersQueryRepository = {
     }
     
     return this.mapUserToOutput(user)
-  },
+  }
 
   async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserModel | null> {
-    const user = await usersCollection.findOne({
+    const user = await UserModelClass.findOne({
       $or: [
         {login: {$regex: loginOrEmail}},
         {email: {$regex: loginOrEmail}}
@@ -103,14 +104,14 @@ export const usersQueryRepository = {
       return null
     }
     return user
-  },
-
+  }
+  
   mapUserToOutput(user: UserModel) {
     return {
-      id: user._id.toString(),
+      id: user.id.toString(),
       login: user.login,
       email: user.email,
-      createdAt: user.createdAt
+      createdAt: user.createdAt.toString()
     } as UserViewModel
   }
 }

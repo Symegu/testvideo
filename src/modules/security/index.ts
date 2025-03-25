@@ -1,19 +1,24 @@
-import { Router } from "express";
-import { refreshTokenValidator } from "../auth/middlewares/refreshTokenMiddleware";
-import { errorResultMiddleware } from "../../globalMiddlewares/errorResultMiddleware";
-import { securityController } from "./securityController";
+import { Router } from "express"
+import { RefreshTokenValidator } from "../auth/middlewares/refreshTokenMiddleware"
+import { ErrorResultMiddleware } from "../../globalMiddlewares/errorResultMiddleware"
+import { SecurityController } from "./securityController"
+import { container } from "../other/composition-root"
+
+const securityController = container.get(SecurityController)
+const refreshTokenValidator = container.get(RefreshTokenValidator)
+const errorResultMiddleware = container.get(ErrorResultMiddleware)
 
 export const securityRouter = Router()
 
 securityRouter.get('/devices',
-  refreshTokenValidator,
-  errorResultMiddleware,
-  securityController.getUserSessions)
+  refreshTokenValidator.refreshTokenValidator,
+  errorResultMiddleware.errorResultMiddleware,
+  securityController.getUserSessions.bind(securityController))
 securityRouter.delete('/devices',
-  refreshTokenValidator,
-  errorResultMiddleware,
-  securityController.deleteAllUserSessions)
+  refreshTokenValidator.refreshTokenValidator,
+  errorResultMiddleware.errorResultMiddleware,
+  securityController.deleteAllUserSessions.bind(securityController))
 securityRouter.delete('/devices/:id',
-  refreshTokenValidator,
-  errorResultMiddleware,
-  securityController.deleteUserSession)
+  refreshTokenValidator.refreshTokenValidator,
+  errorResultMiddleware.errorResultMiddleware,
+  securityController.deleteUserSession.bind(securityController))

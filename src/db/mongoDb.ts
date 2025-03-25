@@ -1,22 +1,15 @@
 import { SETTINGS } from "../settings"
-import { Collection, MongoClient } from 'mongodb'
-import { BlogModel } from "../types/db-types/blog-db"
-import { PostModel } from "../types/db-types/post-db"
-import { UserModel } from "../types/db-types/user-db"
-import { CommentModel } from "../types/db-types/comment-db"
-import { RefreshTokenModel } from "../types/db-types/token-db"
 import mongoose from "mongoose"
+import "reflect-metadata"
+import { UserModel, ConfirmationStatus } from "../types/db-types/user-db";
+import { BlogModel } from "../types/db-types/blog-db";
+import { PostModel } from "../types/db-types/post-db";
+import { CommentModel } from "../types/db-types/comment-db";
+import { RefreshTokenModel } from "../types/db-types/token-db";
 
 //const uri = "mongodb+srv://symegu:admin@lessons.ri9n5.mongodb.net/?retryWrites=true&w=majority&appName=Lessons";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
-
-export let blogsCollection: Collection<BlogModel>
-export let postsCollection: Collection<PostModel>
-export let usersCollection: Collection<UserModel>
-export let commentsCollection: Collection<CommentModel>
-export let tokensCollection: Collection<RefreshTokenModel>
-
 const blogSchema = new mongoose.Schema<BlogModel>({
     name: { type: String, required: true },
     description: { type: String, required: true },
@@ -29,9 +22,9 @@ const postSchema = new mongoose.Schema<PostModel>({
     title: { type: String, required: true },
     shortDescription: { type: String, required: true },
     content: { type: String, required: true },
-    blogId: String,
-    blogName: String,
-    createdAt: Date
+    blogId: { type: String, required: true },
+    blogName: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now },
 })
 
 const commentSchema = new mongoose.Schema<CommentModel>({
@@ -41,60 +34,47 @@ const commentSchema = new mongoose.Schema<CommentModel>({
         userLogin: { type: String, required: true },
     },
     postId: { type: String, required: true },
-    createdAt: Date
+    createdAt: { type: Date, default: Date.now },
 })
-// const userSchema = new mongoose.Schema<UserModel>({
-//     login: { type: String, required: true },
-//     email: { type: String, required: true },
-//     password: { type: String, required: true },
-//     createdAt: Date,
-//     emailConfirmation: {
-//         confirmationCode: String,
-//         expirationDate: String,
-//         status: Number
-//     }
-// })
 
-// const tokenSchema = new mongoose.Schema<RefreshTokenModel>({
-//     ip: String,
-//     title: String,
-//     lastActiveDate: String,
-//     expirationDate: String,
-//     deviceId: String,
-//     userId: String
-// })
-export const BlogModelClass = mongoose.model('blogs', blogSchema)
-export const PostModelClass = mongoose.model('posts', postSchema)
-export const CommentModelClass = mongoose.model('comments', commentSchema)
-// const userModel = mongoose.model('users', userSchema)
-// const tokenModel = mongoose.model('tokens', tokenSchema)
+const refreshTokenSchema = new mongoose.Schema<RefreshTokenModel>({
+    ip: { type: String, required: true },
+    title: { type: String, required: true },
+    lastActiveDate: { type: Date, required: true },
+    expirationDate: { type: Date, required: true },
+    deviceId: { type: String, required: true },
+    userId: { type: String, required: true }
+})
+
+const userSchema = new mongoose.Schema<UserModel>({
+    login: { type: String, required: true },
+    email: { type: String, required: true },
+    password: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now(), required: true },
+    emailConfirmation: {
+        confirmationCode: { type: String, required: true },
+        expirationDate: { type: Date, required: true },
+        status: { type: Number, required: true, enum: ConfirmationStatus }
+    }
+})
+
+export const BlogModelClass = mongoose.model<BlogModel>("Blog", blogSchema)
+export const PostModelClass = mongoose.model<PostModel>("Post", postSchema)
+export const CommentModelClass = mongoose.model<CommentModel>("Comment", commentSchema)
+export const UserModelClass = mongoose.model<UserModel>("User", userSchema)
+export const RefreshTokenModelClass = mongoose.model<RefreshTokenModel>("RefreshToken", refreshTokenSchema)
+
 
 export async function runDB(url: string, testDb?: boolean) { //: Promise<{ client: MongoClient, status?: boolean } | null>
-    const client = new MongoClient(url)
-    let db = client.db(testDb ? 'Testing' : SETTINGS.DB_NAME)
-    //console.log('db name', db.namespace)
-
-    blogsCollection = db.collection<BlogModel>(SETTINGS.PATH.BLOGS)
-    usersCollection = db.collection<UserModel>(SETTINGS.PATH.USERS)
-    postsCollection = db.collection<PostModel>(SETTINGS.PATH.POSTS)
-    // commentsCollection = db.collection<CommentModel>(SETTINGS.PATH.COMMENTS)
-    tokensCollection = db.collection<RefreshTokenModel>(SETTINGS.PATH.AUTH)
-
-
+    const dbName = testDb ? 'Testing' : SETTINGS.DB_NAME
 
     try {
-        // Connect the client to the server	(optional starting in v4.7)
-        await client.connect()
-        await mongoose.connect(url + "/" + SETTINGS.DB_NAME)
-        // Send a ping to confirm a successful connection
-        await db.command({ ping: 1 })
+        await mongoose.connect(url + "/" + dbName)
         console.log("Pinged your deployment. You successfully connected to MongoDB!")
-        return { client }
+        return { status: true }
     } catch (e) {
-        // Ensures that the client will close when you finish/error
         console.log(e);
         await mongoose.disconnect()
-        await client.close()
         return null
     }
 }

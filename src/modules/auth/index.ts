@@ -1,10 +1,11 @@
 import { Router, Request, Response, NextFunction } from "express"
-import { errorResultMiddleware } from "../../globalMiddlewares/errorResultMiddleware"
+import { ErrorResultMiddleware } from "../../globalMiddlewares/errorResultMiddleware"
 import { authValidator, emailValidator, loginValidator, passwordValidator } from '../users/middlewares/userValidators';
-import { authController } from "./authController"
-import { tokenAuthMiddleware } from "./middlewares/tokenAuthMiddleware"
-import { refreshTokenValidator } from "./middlewares/refreshTokenMiddleware"
+import { AuthController } from "./authController"
+import { TokenAuthMiddleware } from "./middlewares/tokenAuthMiddleware"
+import { RefreshTokenValidator } from "./middlewares/refreshTokenMiddleware"
 import { rateLimit } from "express-rate-limit"
+import { container } from "../other/composition-root";
 
 const limiter1 = rateLimit({
   windowMs: 10 * 1000,
@@ -59,32 +60,48 @@ const limiter4 = rateLimit({
   }
 })
 
+const authController = container.get(AuthController)
+const tokenAuthMiddleware = container.get(TokenAuthMiddleware)
+const refreshTokenValidator = container.get(RefreshTokenValidator)
+const errorResultMiddleware = container.get(ErrorResultMiddleware)
+
 export const authRouter = Router()
 
 authRouter.post('/login',
-  limiter1, authValidator, errorResultMiddleware,
-  authController.login)
+  limiter1,
+  authValidator,
+  errorResultMiddleware.errorResultMiddleware,
+  authController.login.bind(authController))
 
 authRouter.post('/logout',
-  refreshTokenValidator, errorResultMiddleware,
-  authController.logout)
+  refreshTokenValidator.refreshTokenValidator,
+  errorResultMiddleware.errorResultMiddleware,
+  authController.logout.bind(authController))
 
 authRouter.post('/registration',
-  limiter2, loginValidator, passwordValidator, emailValidator, errorResultMiddleware,
-  authController.register)
+  limiter2,
+  loginValidator,
+  passwordValidator,
+  emailValidator,
+  errorResultMiddleware.errorResultMiddleware,
+  authController.register.bind(authController))
 
 authRouter.post('/registration-confirmation',
-  limiter3, errorResultMiddleware,
-  authController.confirmRegistration)
+  limiter3,
+  errorResultMiddleware.errorResultMiddleware,
+  authController.confirmRegistration.bind(authController))
 
 authRouter.post('/registration-email-resending',
-  limiter4, errorResultMiddleware,
-  authController.resendEmailConfirmation)
+  limiter4,
+  errorResultMiddleware.errorResultMiddleware,
+  authController.resendEmailConfirmation.bind(authController))
 
 authRouter.get('/me',
-  tokenAuthMiddleware, errorResultMiddleware,
-  authController.getLoggedUserInfo)
+  tokenAuthMiddleware.tokenAuthMiddleware,
+  errorResultMiddleware.errorResultMiddleware,
+  authController.getLoggedUserInfo.bind(authController))
 
 authRouter.post('/refresh-token',
-  refreshTokenValidator, errorResultMiddleware,
-  authController.refreshTokens)
+  refreshTokenValidator.refreshTokenValidator,
+  errorResultMiddleware.errorResultMiddleware,
+  authController.refreshTokens.bind(authController))

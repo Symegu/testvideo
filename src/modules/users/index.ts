@@ -1,23 +1,29 @@
 import { Router } from "express"
-import { usersController } from "./usersController"
-import { adminAuthorizationMiddleware } from '../../globalMiddlewares/adminAuthorizationMiddleware';
-import { emailValidator, loginValidator, passwordValidator } from "./middlewares/userValidators";
-import { errorResultMiddleware } from "../../globalMiddlewares/errorResultMiddleware";
+import { AdminAuthorizationMiddleware } from '../../globalMiddlewares/adminAuthorizationMiddleware'
+import { emailValidator, loginValidator, passwordValidator } from "./middlewares/userValidators"
+import { ErrorResultMiddleware } from "../../globalMiddlewares/errorResultMiddleware"
+import { container } from "../other/composition-root"
+import { UsersController } from "./usersController"
+
+
+const usersController = container.get(UsersController)
+const adminAuthorizationMiddleware = container.get(AdminAuthorizationMiddleware)
+const errorResultMiddleware = container.get(ErrorResultMiddleware)
 
 export const usersRouter = Router()
 
 usersRouter.get('/',
-  adminAuthorizationMiddleware,
-  errorResultMiddleware,
-  usersController.getUsers)
+  adminAuthorizationMiddleware.adminAuthorizationMiddleware,
+  errorResultMiddleware.errorResultMiddleware,
+  usersController.getUsers.bind(usersController))
 usersRouter.post('/',
-  adminAuthorizationMiddleware,
+  adminAuthorizationMiddleware.adminAuthorizationMiddleware,
   loginValidator,
   passwordValidator,
   emailValidator,
-  errorResultMiddleware,
-  usersController.createUser)
+  errorResultMiddleware.errorResultMiddleware,
+  usersController.createUser.bind(usersController))
 usersRouter.delete('/:id',
-  adminAuthorizationMiddleware,
-  errorResultMiddleware,
-  usersController.deleteUser)
+  adminAuthorizationMiddleware.adminAuthorizationMiddleware,
+  errorResultMiddleware.errorResultMiddleware,
+  usersController.deleteUser.bind(usersController))

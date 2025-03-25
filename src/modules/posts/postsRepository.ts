@@ -1,34 +1,35 @@
-import { PostModel, PostViewModel } from "../../types/db-types/post-db"
+import { PostViewModel } from "../../types/db-types/post-db"
 import { PostInputModel } from "../../types/input-output-types/post-types"
 import { PostModelClass } from "../../db/mongoDb"
-import { ObjectId } from "mongodb"
 import { BlogViewModel } from "../../types/db-types/blog-db"
+import { injectable } from "inversify"
 
-
-export const postsRepository = {
+@injectable()
+export class PostsRepository {
   async deleteById(id: string): Promise<boolean> {
-    const res = await PostModelClass.deleteOne({ _id: new ObjectId(id) })
+    const res = await PostModelClass.deleteOne({ _id: id })
     return res.deletedCount === 1
-  },
+  }
+
   async createPost(
     post: PostInputModel,
     currentBlog: BlogViewModel
   ): Promise<string> {
     const dateNow = Date.now()
-    const createdAtISO = new Date(dateNow).toISOString()
-    const newPost: PostModel = {
-      _id: new ObjectId(),
+
+    const newPost = new PostModelClass({
       title: post.title,
       shortDescription: post.shortDescription,
       content: post.content,
       blogId: currentBlog.id,
       blogName: currentBlog.name,
-      createdAt: createdAtISO
-    }
-    const res = await PostModelClass.create(newPost)
+      createdAt: new Date(dateNow).toISOString()
+    })
+    const savedPost = await newPost.save()
 
-    return res._id.toString()
-  },
+    return savedPost.id.toString()
+  }
+
   async changeById(
     post: PostInputModel,
     id: string,
@@ -44,7 +45,7 @@ export const postsRepository = {
       createdAt: currentPost.createdAt
     }
     const res = await PostModelClass.updateOne(
-      { _id: new ObjectId(id) }, { $set: { ...changedPost } }
+      { _id: id }, { $set: { ...changedPost } }
     )
 
     return res.matchedCount === 1
