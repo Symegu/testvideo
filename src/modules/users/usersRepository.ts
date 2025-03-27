@@ -2,8 +2,8 @@ import { UserInputModel } from "../../types/input-output-types/user-types"
 import bcrypt from 'bcrypt'
 import { randomUUID } from "crypto"
 import { addDays } from 'date-fns'
-import { injectable } from "inversify"
 import { UserModelClass } from "../../db/mongoDb"
+import { injectable } from "inversify"
 
 @injectable()
 export class UsersRepository {

@@ -16,7 +16,6 @@ import { injectable } from 'inversify'
 export class BlogsController {
 
   constructor(
-    protected paginationQueries: PaginationQueries,
     protected blogsService: BlogsService,
     protected blogsRepository: BlogsRepository,
     protected blogsQueryRepository: BlogsQueryRepository,
@@ -27,7 +26,8 @@ export class BlogsController {
     req: Request,
     res: Response<PaginatorBlogModel>
   ) {
-    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = this.paginationQueries.getPaginationParams()
+    const paginationQueries = new PaginationQueries(req)
+    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries.getPaginationParams()
     const blogs = await this.blogsQueryRepository.getAllBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
     res.status(HttpStatuses.Success).json(blogs)
     return
@@ -37,7 +37,8 @@ export class BlogsController {
     req: Request<{ id: string }>,
     res: Response
   ) {
-    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = this.paginationQueries.getPaginationParams()
+    const paginationQueries = new PaginationQueries(req)
+    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries.getPaginationParams()
     const blog = await this.blogsQueryRepository.findById(req.params.id)
     if (!blog) {
       res.sendStatus(HttpStatuses.NotFound)

@@ -1,9 +1,9 @@
 import { ResultStatus, Result } from "../../types/input-output-types/output-errors-type"
 import { UserInputModel } from "../../types/input-output-types/user-types"
 import { UsersRepository } from './usersRepository'
-import { UsersQueryRepository } from './usersQueryRepository';
+import { UsersQueryRepository } from './usersQueryRepository'
+import { EmailRepository } from "../other/emailRepository"
 import { injectable } from "inversify"
-import { EmailRepository } from "../other/emailRepository";
 
 @injectable()
 export class UsersService {

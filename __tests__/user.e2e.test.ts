@@ -1,6 +1,6 @@
 import { req } from './test-helpers'
 import { MongoClient } from "mongodb"
-import { runDB, usersCollection } from "../src/db/mongoDb"
+import { runDB, UserModelClass } from "../src/db/mongoDb"
 import { SETTINGS } from "../src/settings"
 import { codedAuth, createUserFromAdmin } from './datasets'
 import { UserInputModel } from '../src/types/input-output-types/user-types'
@@ -14,15 +14,13 @@ describe('/auth', () => {
     const result = await runDB(SETTINGS.MONGO_URL)
     usersQueryRepository = container.get(UsersQueryRepository)
     if (result) {
-      client = result.client
-      await usersCollection.deleteMany({})
+      await UserModelClass.deleteMany({})
     } else {
       throw new Error("Unable to connect to the database")
     }
   })
   afterAll(async () => {
-    await usersCollection.deleteMany({})
-    await client.close() // Закрываем сервер после тестов
+    await UserModelClass.deleteMany({})
   })
 
   it('should get empty array', async () => {

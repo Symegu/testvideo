@@ -9,7 +9,6 @@ describe('/comments', () => {
   beforeAll(async () => { // очистка базы данных перед началом тестирования
     const result = await runDB(SETTINGS.MONGO_URL);
     if (result) {
-      client = result.client
       await CommentModelClass.deleteMany({})
       await PostModelClass.deleteMany({})
       await BlogModelClass.deleteMany({})
@@ -21,7 +20,6 @@ describe('/comments', () => {
     await BlogModelClass.deleteMany({})
     await PostModelClass.deleteMany({})
     await CommentModelClass.deleteMany({})
-    await client.close() // Закрываем сервер после тестов
   })
 
   it('should create blog, post for blog, comment for post and find this comment', async () => {

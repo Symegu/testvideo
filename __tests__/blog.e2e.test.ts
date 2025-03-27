@@ -15,7 +15,6 @@ describe('/blogs', () => {
         const result = await runDB(SETTINGS.MONGO_URL);
         blogsQueryRepository = container.get(BlogsQueryRepository)
         if (result) {
-            client = result.client
             await BlogModelClass.deleteMany({})
         } else {
             throw new Error("Unable to connect to the database")
@@ -23,7 +22,6 @@ describe('/blogs', () => {
     })
     afterAll(async () => {
         await BlogModelClass.deleteMany({})
-        await client.close() // Закрываем сервер после тестов
     });
 
     it('should get empty array', async () => {

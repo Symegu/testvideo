@@ -14,7 +14,6 @@ import { AuthService } from "../auth/authService"
 import { AuthController } from "../auth/authController"
 import { SecurityController } from "../security/securityController"
 import { TokenAuthMiddleware } from "../auth/middlewares/tokenAuthMiddleware"
-import { PaginationQueries } from "./paginationQueries"
 import { RefreshTokenValidator } from "../auth/middlewares/refreshTokenMiddleware"
 import { ErrorResultMiddleware } from "../../globalMiddlewares/errorResultMiddleware"
 import { PostsController } from "../posts/postsController"
@@ -29,6 +28,7 @@ import { BlogsController } from "../blogs/blogsController"
 import { BlogsService } from "../blogs/blogsService"
 import { BlogsRepository } from "../blogs/blogsRepository"
 import { BlogsQueryRepository } from "../blogs/blogsQueryRepository"
+import { AdminAuthorizationMiddleware } from "../../globalMiddlewares/adminAuthorizationMiddleware"
 
 // Основной контейнер
 export const container: Container = new Container()
@@ -69,5 +69,4 @@ container.bind<BlogsQueryRepository>(BlogsQueryRepository).toSelf()
 container.bind<TokenAuthMiddleware>(TokenAuthMiddleware).toSelf()
 container.bind<RefreshTokenValidator>(RefreshTokenValidator).toSelf()
 container.bind<ErrorResultMiddleware>(ErrorResultMiddleware).toSelf()
-//Остальное
-container.bind<PaginationQueries>(PaginationQueries).toSelf()
+container.bind<AdminAuthorizationMiddleware>(AdminAuthorizationMiddleware).toSelf()

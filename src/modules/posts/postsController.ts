@@ -17,7 +17,6 @@ export class PostsController {
 
   constructor(
     protected postsService: PostsService,
-    protected paginationQueries: PaginationQueries,
     protected postsQueryRepository: PostsQueryRepository,
     protected commentsQueryRepository: CommentsQueryRepository,
     protected commentsService: CommentsService,
@@ -27,7 +26,8 @@ export class PostsController {
     req: Request,
     res: Response<PaginatorPostModel>
   ) {
-    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = this.paginationQueries.getPaginationParams()
+    const paginationQueries = new PaginationQueries(req)
+    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries.getPaginationParams()
     const posts = await this.postsQueryRepository.getAllPosts(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, req.params.blogId)
     console.log('all posts', req.params, searchNameTerm)
     res.status(HttpStatuses.Success).json(posts)
@@ -113,7 +113,8 @@ export class PostsController {
     req: Request<{ id: string }>,
     res: Response<PaginatorCommentsModel>
   ) {
-    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = this.paginationQueries.getPaginationParams()
+    const paginationQueries = new PaginationQueries(req)
+    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries.getPaginationParams()
     const post = await this.postsQueryRepository.findById(req.params.id)
     if (!post) {
       res.sendStatus(HttpStatuses.NotFound)

@@ -18,7 +18,6 @@ describe('/posts', () => {
     blogsQueryRepository = container.get(BlogsQueryRepository)
     postsQueryRepository = container.get(PostsQueryRepository)
     if (result) {
-      client = result.client
       await PostModelClass.deleteMany({})
       await BlogModelClass.deleteMany({})
     } else {
@@ -30,7 +29,6 @@ describe('/posts', () => {
   afterAll(async () => {
     await BlogModelClass.deleteMany({})
     await PostModelClass.deleteMany({})
-    await client.close() // Закрываем сервер после тестов
   })
 
   it('should get empty array', async () => {

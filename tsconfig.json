@@ -8,7 +8,9 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitReturns": true,
-    "skipLibCheck": true    
+    "skipLibCheck": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   },
   "files": ["src/types/index.d.ts"],
   "include": ["src/**/*", "src/domain/.ts"],

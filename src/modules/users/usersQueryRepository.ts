@@ -1,8 +1,8 @@
 import { ObjectId } from "mongodb"
 import { UserModel, UserViewModel } from '../../types/db-types/user-db';
 import { PaginatorUsersModel } from "../../types/paginator-types";
-import { injectable } from "inversify";
 import { UserModelClass } from "../../db/mongoDb";
+import { injectable } from "inversify";
 
 @injectable()
 export class UsersQueryRepository {

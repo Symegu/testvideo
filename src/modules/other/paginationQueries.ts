@@ -1,7 +1,5 @@
 import { Request } from 'express'
-import { injectable } from 'inversify'
 
-@injectable()
 export class PaginationQueries {
   pageNumber: number
   pageSize: number
@@ -33,3 +31,4 @@ export class PaginationQueries {
     }
   }
 }
+
