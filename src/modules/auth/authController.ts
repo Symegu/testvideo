@@ -132,20 +132,23 @@ export class AuthController {
       res.sendStatus(HttpStatuses.ServerError)
       return
     }
+    console.log(result);
+    
     const newUser = await this.usersQueryRepository.findById(result.data!.userId)
-
+    console.log(newUser?.id);
     if (!newUser) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
     const userInfo = await this.usersService.findConfirmationInfo(newUser.id)
-
+    console.log(userInfo);
     if (!userInfo) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }
 
-    const messageId = this.emailService.sendEmail(newUser.email, userInfo.emailConfirmation.confirmationCode, this.emailService.emailExamples.registrationEmail)
+    const messageId = await this.emailService.sendEmail(newUser.email, userInfo.emailConfirmation.confirmationCode, this.emailService.emailExamples.registrationEmail)
+    console.log(messageId);
     if (!messageId) {
       res.sendStatus(HttpStatuses.BadRequest)
       return
@@ -177,6 +180,44 @@ export class AuthController {
       res.status(HttpStatuses.BadRequest).json({ errorsMessages: result.extensions })
       return
     }
+
+    res.sendStatus(HttpStatuses.NoContent)
+    return
+  }
+
+  async passwordRecovery(req: Request<{ email: string }>, res: Response) {
+    const user = await this.usersQueryRepository.findUserByLoginOrEmail(req.body.email)
+    if(!user) {
+      res.sendStatus(HttpStatuses.NoContent)
+      return
+    }
+    const code = await this.passwordService.createRecoveryCode(user.id)
+    if (code.status !== ResultStatus.Success) {
+      res.sendStatus(HttpStatuses.BadRequest)
+      return
+    }
+    const result = await this.emailService.sendEmail(req.body.email, code.data, this.emailService.emailExamples.passwordRecoveryEmail)
+    if (result.status !== ResultStatus.Success) {
+      res.sendStatus(HttpStatuses.BadRequest)
+      return
+    }
+
+    res.sendStatus(HttpStatuses.NoContent)
+    return
+  }
+
+  async newPassword(req: Request<{ password: string, recoveryCode: string }>, res: Response) {
+    const result = await this.passwordService.confirmPassword(req.body.recoveryCode)
+    console.log('newPassword', result);
+    
+    if (result.status !== ResultStatus.Success || result.data == null) {
+      res.status(HttpStatuses.BadRequest).json({ errorsMessages: result.extensions })
+      return
+    }
+
+    const rest = await this.passwordService.changePassword(result.data.userId.toString(), req.body.password)
+    console.log('changePassword', rest);
+    await this.passwordService.deleteRecoveryCode(req.body.recoveryCode)
 
     res.sendStatus(HttpStatuses.NoContent)
     return

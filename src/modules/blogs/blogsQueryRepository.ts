@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb"
 import { BlogViewModel, BlogModel } from "../../types/db-types/blog-db"
 import { BlogModelClass } from "../../db/mongoDb"
 import { PaginatorBlogModel } from "../../types/paginator-types"
@@ -14,7 +13,7 @@ export class BlogsQueryRepository {
     sortDirection: 'asc' | 'desc',
     searchNameTerm: string | null
   ): Promise<PaginatorBlogModel> {
-    const filter: any = {}
+    let filter: any = {}
     if (searchNameTerm) {
       filter.name = { $regex: searchNameTerm, $options: 'i' }
     }

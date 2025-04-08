@@ -3,17 +3,16 @@ import { blogValid, codedAuth, createBlogAndPost, postValid } from './datasets'
 import { SETTINGS } from '../src/settings'
 import { BlogInputModel } from '../src/types/input-output-types/blog-types'
 import { runDB, BlogModelClass } from '../src/db/mongoDb'
-import { MongoClient } from 'mongodb'
 import { BlogsQueryRepository } from '../src/modules/blogs/blogsQueryRepository'
 import { PostInputModel } from '../src/types/input-output-types/post-types'
 import { container } from '../src/modules/other/composition-root'
 
-let client: MongoClient
 let blogsQueryRepository: BlogsQueryRepository
 describe('/blogs', () => {
     beforeAll(async () => { // очистка базы данных перед началом тестирования
         const result = await runDB(SETTINGS.MONGO_URL);
         blogsQueryRepository = container.get(BlogsQueryRepository)
+
         if (result) {
             await BlogModelClass.deleteMany({})
         } else {
@@ -22,7 +21,7 @@ describe('/blogs', () => {
     })
     afterAll(async () => {
         await BlogModelClass.deleteMany({})
-    });
+    })
 
     it('should get empty array', async () => {
 
@@ -34,6 +33,7 @@ describe('/blogs', () => {
 
         expect(res.body.items.length).toBe(0) // проверяем ответ эндпоинта
     })
+
     it('should create', async () => {
 
         const res = await req
@@ -124,7 +124,7 @@ describe('/blogs', () => {
         console.log(res.body)
     })
     it('should find', async () => {
-
+        container.get(BlogsQueryRepository)
         const ids = await blogsQueryRepository.getAllBlogs(1, 10, 'name', 'asc', 'str')
         const res = await req
             .get(SETTINGS.PATH.BLOGS + `/${ids.items[0].id.toString()}`)

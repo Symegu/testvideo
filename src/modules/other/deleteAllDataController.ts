@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { BlogModelClass, CommentModelClass, PostModelClass, RefreshTokenModelClass, UserModelClass } from "../../db/mongoDb"
+import { BlogModelClass, CommentModelClass, PasswordRecoveryModelClass, PostModelClass, RefreshTokenModelClass, UserModelClass } from "../../db/mongoDb"
 
 export const deleteAllDataController = async (req: Request, res: Response<any>) => {
   await BlogModelClass.deleteMany()
@@ -7,5 +7,6 @@ export const deleteAllDataController = async (req: Request, res: Response<any>) 
   await UserModelClass.deleteMany()
   await RefreshTokenModelClass.deleteMany()
   await CommentModelClass.deleteMany()
+  await PasswordRecoveryModelClass.deleteMany()
   res.sendStatus(204)
 }

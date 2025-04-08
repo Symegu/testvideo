@@ -2,12 +2,11 @@ import { Request, Response } from 'express'
 import { PaginationQueries } from "../other/paginationQueries"
 import { BlogsService } from "./blogsService"
 import { BlogViewModel } from '../../types/db-types/blog-db'
-import { BlogsRepository } from './blogsRepository'
+import { BlogsQueryRepository } from './blogsQueryRepository'
 import { BlogInputModel } from '../../types/input-output-types/blog-types'
 import { PostInputModel } from '../../types/input-output-types/post-types'
 import { PostViewModel } from '../../types/db-types/post-db'
 import { PaginatorBlogModel } from '../../types/paginator-types'
-import { BlogsQueryRepository } from './blogsQueryRepository'
 import { PostsQueryRepository } from '../posts/postsQueryRepository'
 import { HttpStatuses } from '../../types/input-output-types/output-errors-type'
 import { injectable } from 'inversify'
@@ -15,25 +14,25 @@ import { injectable } from 'inversify'
 @injectable()
 export class BlogsController {
 
-  constructor(
+  constructor (
     protected blogsService: BlogsService,
-    protected blogsRepository: BlogsRepository,
     protected blogsQueryRepository: BlogsQueryRepository,
     protected postsQueryRepository: PostsQueryRepository,
   ){}
 
-  async getBlogsController(
+  async getBlogs(
     req: Request,
     res: Response<PaginatorBlogModel>
   ) {
     const paginationQueries = new PaginationQueries(req)
     const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = paginationQueries.getPaginationParams()
+    console.log('all getBlogsController', pageNumber, pageSize, sortBy, sortDirection, searchNameTerm, this)
     const blogs = await this.blogsQueryRepository.getAllBlogs(pageNumber, pageSize, sortBy, sortDirection, searchNameTerm)
     res.status(HttpStatuses.Success).json(blogs)
     return
   }
 
-  async getBlogPostsController(
+  async getBlogPosts(
     req: Request<{ id: string }>,
     res: Response
   ) {
@@ -52,7 +51,7 @@ export class BlogsController {
     res.status(HttpStatuses.Success).json(posts)
   }
 
-  async createBlogController(
+  async createBlog(
     req: Request<BlogInputModel>,
     res: Response<BlogViewModel | null>
   ) {
@@ -64,7 +63,7 @@ export class BlogsController {
     res.status(HttpStatuses.Created).json(createdBlog.data)
   }
 
-  async changeBlogController(
+  async changeBlog(
     req: Request<{ id: string }, any, BlogInputModel>,
     res: Response<boolean>
   ) {
@@ -76,7 +75,7 @@ export class BlogsController {
     res.sendStatus(HttpStatuses.NoContent)
   }
 
-  async findBlogController(
+  async findBlog(
     req: Request<{ id: string }>,
     res: Response<BlogViewModel>
   ) {
@@ -91,11 +90,11 @@ export class BlogsController {
     return
   }
 
-  async deleteBlogController(
+  async deleteBlog(
     req: Request<{ id: string }>,
     res: Response
   ) {
-    const blog = await this.blogsRepository.deleteById(req.params.id)
+    const blog = await this.blogsService.deleteById(req.params.id)
     if (blog.status !== 'Success') {
       res.sendStatus(HttpStatuses.NotFound)
       return
@@ -103,7 +102,7 @@ export class BlogsController {
     res.sendStatus(HttpStatuses.NoContent)
   }
 
-  async createBlogsPostController(
+  async createBlogsPost(
     req: Request<{ id: string }, PostInputModel>,
     res: Response<PostViewModel | null>
   ) {

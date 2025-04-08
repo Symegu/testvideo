@@ -3,12 +3,12 @@ dotenv.config() // добавление переменных из файла .en
 
 export const SETTINGS = {
     // все хардкодные значения должны быть здесь, для удобства их изменения
-    PORT: process.env.PORT || 3003,
+    PORT: process.env.PORT || 3005,
     PATH: {
         POSTS: '/posts',
         BLOGS: '/blogs',
         USERS: '/users',
-        COMMENTS: '/COMMENTS',
+        COMMENTS: '/comments',
         AUTH: '/auth',
         SECURITY: '/security',
         TESTING: '/testing/all-data'
@@ -21,6 +21,6 @@ export const SETTINGS = {
     DB_NAME: process.env.DB_NAME || 'TestDbName',
     JWT_SECRET: process.env.JWT_SECRET || 'jwtsecret',
     JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'jwtrefreshsecret',
-    EMAIL: process.env.EMAIL as string,
-    EMAIL_PASS: process.env.EMAIL_PASS as string
+    EMAIL: process.env.EMAIL as string || 'testingNodemailer@yandex.ru',
+    EMAIL_PASS: process.env.EMAIL_PASS as string || 'ygvmkdjhlyiorspd'
 }

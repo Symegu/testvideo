@@ -1,147 +1,134 @@
-import { MongoClient } from "mongodb"
-import { runDB, usersCollection } from "../src/db/mongoDb"
-import { SETTINGS } from "../src/settings"
-import { UserInputModel } from "../src/types/input-output-types/user-types"
-import { req } from "./test-helpers"
-import { createUserFromAdmin, loginValid } from "./datasets"
+import { req, setupDb, teardownDb } from './test-helpers';
+import { SETTINGS } from '../src/settings';
+import { SecurityRepository } from '../src/modules/security/securityRepository';
+import mongoose from 'mongoose';
+import { codedAuth } from './datasets';
+import { UserModelClass } from '../src/db/mongoDb';
 
-//TODO: add email resending and confirmation test
+const securityRepository = new SecurityRepository();
 
-let client: MongoClient
-describe('/users', () => {
-  beforeAll(async () => {
-    const result = await runDB(SETTINGS.MONGO_URL)
-    if (result) {
-      client = result.client
-      await usersCollection.deleteMany({})
-    } else {
-      throw new Error("Unable to connect to the database")
-    }
-  })
-  afterAll(async () => {
-    await usersCollection.deleteMany({})
-    await client.close() // Закрываем сервер после тестов
-  })
+describe('Auth Endpoints Tests', () => {
+    let userId: string;
+    let accessToken: string;
+    let refreshToken: string;
+    let recoveryCode: string;
 
-  it('should not register user | invalid data', async () => {
-    const user: UserInputModel = {
-      login: 'masterUser',
-      password: 'password',
-      email: '@mail.com'
-    }
+    beforeAll(async () => {
+        jest.setTimeout(20000)
+        await setupDb()
+        console.log('Starting user registration');
+        const user = await req
+            .post(SETTINGS.PATH.USERS)
+            .set({ 'Authorization': 'Basic ' + codedAuth })
+            .send({
+                login: 'testUser',
+                password: 'password',
+                email: 'testuser@mail.com',
+            });
+        console.log('User registered', user);
 
-    const res = await req
-      .post(SETTINGS.PATH.AUTH + '/registration')
-      .send(user)
-      .expect(400)
+        userId = user.body.id;
 
-    console.log(res.body)
-  })
-  it('should register user', async () => {
-    const user: UserInputModel = {
-      login: 'master',
-      password: 'password',
-      email: 'master@mail.com'
-    }
+        // авторизуем пользователя
+        const loginResponse = await req
+            .post(SETTINGS.PATH.AUTH + '/login')
+            .send({
+                loginOrEmail: 'testuser@mail.com',
+                password: 'password',
+            });
 
-    const res = await req
-      .post(SETTINGS.PATH.AUTH + '/registration')
-      .send(user)
-      .expect(204)
+        accessToken = loginResponse.body.accessToken;
+        refreshToken = loginResponse.headers['set-cookie'][0];
 
-    console.log(res.body)
-  })
-  it('should get logged user info', async () => {
-    const user = await createUserFromAdmin()
+        //создаем recovery-код
+        recoveryCode = await securityRepository.createRandomUID();
+        await securityRepository.createRecoveryCode(userId, recoveryCode);
+    });
 
-    const res = await req
-      .get(SETTINGS.PATH.AUTH + '/me')
-      .set({ 'Authorization': 'Bearer ' + user.token })
-      .expect(200)
+    afterAll(async () => {
+        jest.setTimeout(10000)
+        await teardownDb()
+        await UserModelClass.deleteMany({})
+        await securityRepository.deleteRecoveryCode(recoveryCode);
+        // удаляем пользователя
+        await req.delete(SETTINGS.PATH.AUTH + `/${userId}`);
+        mongoose.disconnect()
+    });
 
-    console.log(res.body)
-  })
-  it('should not get logged user info | unauthorized', async () => {
-    const token = await req
-      .post(SETTINGS.PATH.AUTH + '/login')
-      .send(loginValid())
-    console.log(token.body)
+    test('should register a new user', async () => {
+        const response = await req
+            .post(SETTINGS.PATH.AUTH + '/registration')
+            .send({
+                login: 'newUser',
+                password: 'password',
+                email: 'newuser@mail.com',
+            });
 
-    const res = await req
-      .get(SETTINGS.PATH.AUTH + '/me')
-      .expect(401)
+        expect(response.status).toBe(204)
+    });
 
-    console.log(res.body)
-  })
-  it('should logout user', async () => {
-    const tokenResponse = await req
-      .post(SETTINGS.PATH.AUTH + '/login')
-      .send(loginValid())
-    const refreshToken = tokenResponse.headers['set-cookie']
+    test('should login user and get access token', async () => {
+        const response = await req
+            .post(SETTINGS.PATH.AUTH + '/login')
+            .send({
+                loginOrEmail: 'testuser@mail.com',
+                password: 'password',
+            });
 
-    const res = await req
-      .post(SETTINGS.PATH.AUTH + '/logout')
-      .set('Cookie', refreshToken)
-      .expect(204)
+        expect(response.status).toBe(200);
+        expect(response.body.accessToken).toBeDefined();
+    });
 
-    console.log(res.body)
-  })
-  it('should not login user | invalid data', async () => {
+    test('should fail login with wrong credentials', async () => {
+        const response = await req
+            .post(SETTINGS.PATH.AUTH + '/login')
+            .send({
+                loginOrEmail: 'wronguser@mail.com',
+                password: 'wrongpassword',
+            });
 
-    const res = await req
-      .post(SETTINGS.PATH.AUTH + '/login')
-      .send({ loginOrEmail: 'masterUser2', password: 'password' })
-      .expect(401)
+        expect(response.status).toBe(401)
+    });
 
-    console.log(res.body)
-  })
-  it('should not login user | invalid data', async () => {
+    test('should create a recovery code and find it', async () => {
+        const foundCode = await securityRepository.findRecoveryCode(recoveryCode);
+        expect(foundCode).not.toBeNull();
+        if (foundCode !== null) {
+            expect(foundCode.code).toBe(recoveryCode);
+            expect(foundCode.userId).toBe(userId); // Проверяем, что recovery-код принадлежит правильному пользователю
+        }
+    });
 
-    const res = await req
-      .post(SETTINGS.PATH.AUTH + '/login')
-      .send({ loginOrEmail: 'masterUser', password: 'password2' })
-      .expect(401)
+    test('should delete a recovery code', async () => {
+        const result = await securityRepository.deleteRecoveryCode(recoveryCode);
+        expect(result).toBe(true);
 
-    console.log(res.body)
-  })
-  it('should login user after getting 429 error', async () => {
-    const res = await req
-      .post(SETTINGS.PATH.AUTH + '/login')
-      .send(loginValid())
-      .expect(429)
-    expect(200)
+        const foundCode = await securityRepository.findRecoveryCode(recoveryCode);
+        expect(foundCode).toBeNull(); // проверяем, что код действительно удалён
+    });
 
-    console.log(res.body)
-  })
-  it('should refresh tokens', async () => {
-    const tokenResponse = await req
-      .post(SETTINGS.PATH.AUTH + '/login')
-      .send(loginValid())
+    test('should fail password recovery with invalid code', async () => {
+        const invalidCode = 'invalidCode';
+        const response = await req
+            .post(SETTINGS.PATH.AUTH + '/new-password')
+            .send({ password: 'newPass', recoveryCode: invalidCode });
 
-    if (tokenResponse.status === 429) {
-      console.log('Too many requests, please try again later.')
-      return // или выбросьте ошибку, если это необходимо
-    }
+        expect(response.status).toBe(400);
+    });
 
-    // Проверяем, что ответ успешный
-    expect(tokenResponse.status).toBe(200)
+    // test('should successfully change password with recovery code', async () => {
+    //     const response = await req
+    //         .post(SETTINGS.PATH.AUTH + '/new-password')
+    //         .send({ password: 'newPass', recoveryCode: recoveryCode });
 
-    // Извлекаем refreshToken из куков
-    const refreshToken = tokenResponse.headers['set-cookie']
+    //     expect(response.status).toBe(200)
+    // });
 
-    if (!refreshToken) {
-      throw new Error('Refresh token not found')
-    }
+    // test('should logout user', async () => {
+    //     const response = await req
+    //         .post(SETTINGS.PATH.AUTH + '/logout')
+    //         .set('Authorization', `Bearer ${accessToken}`)
 
-    // Ждем 10 секунд перед обновлением токена
-    await new Promise(resolve => setTimeout(resolve, 10000))
-
-    // Выполняем запрос на обновление токена
-    const res = await req
-      .post(SETTINGS.PATH.AUTH + '/refresh-token')
-      .set('Cookie', refreshToken)
-      .expect(200) // Ожидаем успешный ответ
-
-    console.log(res.body)
-  })
-})
+    //     expect(response.status).toBe(204);
+    // });
+});

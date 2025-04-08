@@ -27,30 +27,12 @@ import { CommentsQueryRepository } from "../comments/commentsQueryRepository"
 import { BlogsController } from "../blogs/blogsController"
 import { BlogsService } from "../blogs/blogsService"
 import { BlogsRepository } from "../blogs/blogsRepository"
-import { BlogsQueryRepository } from "../blogs/blogsQueryRepository"
 import { AdminAuthorizationMiddleware } from "../../globalMiddlewares/adminAuthorizationMiddleware"
+import { BlogsQueryRepository } from "../blogs/blogsQueryRepository"
+import "reflect-metadata"
 
 // Основной контейнер
 export const container: Container = new Container()
-
-// Привязка контроллеров
-container.bind<UsersController>(UsersController).toSelf()
-container.bind<AuthController>(AuthController).toSelf()
-container.bind<SecurityController>(SecurityController).toSelf()
-container.bind<PostsController>(PostsController).toSelf()
-container.bind<CommentsController>(CommentsController).toSelf()
-container.bind<BlogsController>(BlogsController).toSelf()
-
-// Привязка сервисов
-container.bind<UsersService>(UsersService).toSelf()
-container.bind<EmailService>(EmailService).toSelf()
-container.bind<JwtService>(JwtService).toSelf()
-container.bind<SecurityService>(SecurityService).toSelf()
-container.bind<PasswordService>(PasswordService).toSelf()
-container.bind<AuthService>(AuthService).toSelf()
-container.bind<PostsService>(PostsService).toSelf()
-container.bind<CommentsService>(CommentsService).toSelf()
-container.bind<BlogsService>(BlogsService).toSelf()
 
 // Привязка репозиториев
 container.bind<UsersRepository>(UsersRepository).toSelf()
@@ -70,3 +52,22 @@ container.bind<TokenAuthMiddleware>(TokenAuthMiddleware).toSelf()
 container.bind<RefreshTokenValidator>(RefreshTokenValidator).toSelf()
 container.bind<ErrorResultMiddleware>(ErrorResultMiddleware).toSelf()
 container.bind<AdminAuthorizationMiddleware>(AdminAuthorizationMiddleware).toSelf()
+
+// Привязка сервисов
+container.bind<UsersService>(UsersService).toSelf()
+container.bind<EmailService>(EmailService).toSelf()
+container.bind<JwtService>(JwtService).toSelf()
+container.bind<SecurityService>(SecurityService).toSelf()
+container.bind<PasswordService>(PasswordService).toSelf()
+container.bind<AuthService>(AuthService).toSelf()
+container.bind<PostsService>(PostsService).toSelf()
+container.bind<CommentsService>(CommentsService).toSelf()
+container.bind<BlogsService>(BlogsService).toSelf()
+
+// Привязка контроллеров
+container.bind<UsersController>(UsersController).toSelf()
+container.bind<AuthController>(AuthController).toSelf()
+container.bind<SecurityController>(SecurityController).toSelf()
+container.bind<PostsController>(PostsController).toSelf()
+container.bind<CommentsController>(CommentsController).toSelf()
+container.bind<BlogsController>(BlogsController).toSelf()

@@ -59,6 +59,32 @@ const limiter4 = rateLimit({
     res.status(429).json('4You have exceeded the number of allowed requests. Please try again later.')
   }
 })
+const limiter5 = rateLimit({
+  windowMs: 10 * 1000,
+  max: 5,
+  message: {
+    status: 429,
+    error: 'Too Many Requests',
+    message: '4You have exceeded the number of allowed requests. Please try again later.'
+  },
+  handler: (req: Request, res: Response, next: NextFunction) => {
+    // Обработчик для кода 429
+    res.status(429).json('4You have exceeded the number of allowed requests. Please try again later.')
+  }
+})
+const limiter6 = rateLimit({
+  windowMs: 10 * 1000,
+  max: 5,
+  message: {
+    status: 429,
+    error: 'Too Many Requests',
+    message: '4You have exceeded the number of allowed requests. Please try again later.'
+  },
+  handler: (req: Request, res: Response, next: NextFunction) => {
+    // Обработчик для кода 429
+    res.status(429).json('4You have exceeded the number of allowed requests. Please try again later.')
+  }
+})
 
 const authController = container.get(AuthController)
 const tokenAuthMiddleware = container.get(TokenAuthMiddleware)
@@ -95,6 +121,17 @@ authRouter.post('/registration-email-resending',
   limiter4,
   errorResultMiddleware.errorResultMiddleware,
   authController.resendEmailConfirmation.bind(authController))
+
+authRouter.post('/password-recovery',
+  limiter5,
+  errorResultMiddleware.errorResultMiddleware,
+  authController.passwordRecovery.bind(authController))
+
+authRouter.post('/new-password',
+  limiter6,
+  passwordValidator,
+  errorResultMiddleware.errorResultMiddleware,
+  authController.newPassword.bind(authController))
 
 authRouter.get('/me',
   tokenAuthMiddleware.tokenAuthMiddleware,

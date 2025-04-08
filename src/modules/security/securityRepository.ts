@@ -1,14 +1,14 @@
 import { randomUUID } from "crypto"
 import { RefreshTokenModel } from "../../types/db-types/token-db"
 import { injectable } from "inversify"
-import { RefreshTokenModelClass } from "../../db/mongoDb"
+import { PasswordRecoveryModelClass, RefreshTokenModelClass } from "../../db/mongoDb"
 
 @injectable()
 export class SecurityRepository {
 
-  async createDeviceUID() {
-    const deviceId = randomUUID()
-    return deviceId.toString()
+  async createRandomUID() {
+    const randomId = randomUUID()
+    return randomId.toString()
   }
 
   async getSessions(
@@ -55,5 +55,29 @@ export class SecurityRepository {
       { userId: userId, deviceId: deviceId }
     )
     return res.deletedCount
+  }
+
+  async createRecoveryCode(
+    userId: string,
+    code: string
+  ) {
+    const res = await PasswordRecoveryModelClass.create({ userId, code })
+    return res
+  }
+
+  async findRecoveryCode(
+    code: string
+  ) {
+    const record = await PasswordRecoveryModelClass.findOne({ code })
+
+    return record
+  }
+
+  async deleteRecoveryCode(
+    code: string
+  ) {
+    const res = await PasswordRecoveryModelClass.deleteOne({ code })
+
+    return res.deletedCount === 1
   }
 }

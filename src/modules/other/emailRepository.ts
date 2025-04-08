@@ -3,6 +3,7 @@ import { randomUUID } from "crypto"
 import { addDays } from 'date-fns'
 import { injectable } from "inversify"
 import { UserModelClass } from "../../db/mongoDb"
+import { ObjectId } from "mongodb"
 
 @injectable()
 export class EmailRepository {
@@ -10,8 +11,14 @@ export class EmailRepository {
   async findConfirmationInfo(
     id: string
   ) {
-    const user = await UserModelClass.findOne({ id })
+    if (!ObjectId.isValid(id)) {
+      return null
+    }
 
+    const _id = new ObjectId(id)
+    const user = await UserModelClass.findOne({ _id })
+    console.log(user, 'findConfirmationInfo');
+    
     if (!user) {
       return null
     }

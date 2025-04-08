@@ -12,32 +12,32 @@ const errorResultMiddleware = container.get(ErrorResultMiddleware)
 
 export const blogsRouter = Router()
 
-blogsRouter.get('/', blogsController.getBlogsController)
-blogsRouter.get('/:id', blogsController.findBlogController)
-blogsRouter.get('/:id/posts', blogsController.getBlogPostsController)
+blogsRouter.get('/', blogsController.getBlogs.bind(blogsController))
+blogsRouter.get('/:id', blogsController.findBlog.bind(blogsController))
+blogsRouter.get('/:id/posts', blogsController.getBlogPosts.bind(blogsController))
 blogsRouter.post('/', 
   adminAuthorizationMiddleware.adminAuthorizationMiddleware,
   nameValidator,
   descriptionValidator,
   websiteUrlValidator,
   errorResultMiddleware.errorResultMiddleware,
-  blogsController.createBlogController.bind(blogsController))
+  blogsController.createBlog.bind(blogsController))
 blogsRouter.post('/:id/posts', 
   adminAuthorizationMiddleware.adminAuthorizationMiddleware, 
   titleValidator,
   shortDescriptionValidator,
   contentValidator,
   errorResultMiddleware.errorResultMiddleware,
-  blogsController.createBlogsPostController.bind(blogsController))
+  blogsController.createBlogsPost.bind(blogsController))
 blogsRouter.put('/:id', 
   adminAuthorizationMiddleware.adminAuthorizationMiddleware,
   nameValidator,
   descriptionValidator,
   websiteUrlValidator,
   errorResultMiddleware.errorResultMiddleware,
-  blogsController.changeBlogController.bind(blogsController))
+  blogsController.changeBlog.bind(blogsController))
 blogsRouter.delete('/:id',
   adminAuthorizationMiddleware.adminAuthorizationMiddleware,
   errorResultMiddleware.errorResultMiddleware,
-  blogsController.deleteBlogController.bind(blogsController))
+  blogsController.deleteBlog.bind(blogsController))
 

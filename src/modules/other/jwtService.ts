@@ -31,7 +31,7 @@ export class JwtService {
   async generateRefreshToken(user: { id: string, deviceId?: string }) {
     const dId = user.deviceId
       ? user.deviceId
-      : await this.securityRepository.createDeviceUID()
+      : await this.securityRepository.createRandomUID()
     return jwt.sign({ deviceId: dId, userId: user.id }, SETTINGS.JWT_REFRESH_SECRET, { expiresIn: '20s' })
   }
 

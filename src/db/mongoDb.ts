@@ -1,20 +1,21 @@
 import { SETTINGS } from "../settings"
 import mongoose from "mongoose"
-import { UserModel, ConfirmationStatus } from "../types/db-types/user-db";
 import { BlogModel } from "../types/db-types/blog-db";
 import { PostModel } from "../types/db-types/post-db";
 import { CommentModel } from "../types/db-types/comment-db";
+import { UserModel, ConfirmationStatus } from "../types/db-types/user-db";
 import { RefreshTokenModel } from "../types/db-types/token-db";
 import "reflect-metadata"
 //const uri = "mongodb+srv://symegu:admin@lessons.ri9n5.mongodb.net/?retryWrites=true&w=majority&appName=Lessons";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
+
 const blogSchema = new mongoose.Schema<BlogModel>({
     name: { type: String, required: true },
     description: { type: String, required: true },
     websiteUrl: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
-    isMembership: { type: Boolean, default: false }
+    isMembership: { type: Boolean, default: false },
 })
 
 const postSchema = new mongoose.Schema<PostModel>({
@@ -57,14 +58,19 @@ const userSchema = new mongoose.Schema<UserModel>({
     }
 })
 
+const PasswordRecoverySchema = new mongoose.Schema({
+    userId: { type: String, required: true },
+    code: { type: String, required: true },
+})
+
 export const BlogModelClass = mongoose.model<BlogModel>("Blog", blogSchema)
 export const PostModelClass = mongoose.model<PostModel>("Post", postSchema)
 export const CommentModelClass = mongoose.model<CommentModel>("Comment", commentSchema)
 export const UserModelClass = mongoose.model<UserModel>("User", userSchema)
 export const RefreshTokenModelClass = mongoose.model<RefreshTokenModel>("RefreshToken", refreshTokenSchema)
+export const PasswordRecoveryModelClass = mongoose.model("PasswordRecovery", PasswordRecoverySchema)
 
-
-export async function runDB(url: string, testDb?: boolean) { //: Promise<{ client: MongoClient, status?: boolean } | null>
+export async function runDB(url: string, testDb: boolean = false) { //: Promise<{ client: MongoClient, status?: boolean } | null>
     const dbName = testDb ? 'Testing' : SETTINGS.DB_NAME
 
     try {

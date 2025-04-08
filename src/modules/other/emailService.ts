@@ -12,13 +12,13 @@ export class EmailService {
     registrationEmail(code: string) {
       return ` <h1>Thank for your registration</h1>
                <p>To finish registration please follow the link below:<br>
-                  <a href='https://1c68ff11ce4124.lhr.life/auth/registration-confirmation?code=${code}'>register</a>
+                  <a href='https://e52d76ebba8ac7.lhr.life/auth/registration-confirmation?code=${code}'>register</a>
               </p>`
     },
     passwordRecoveryEmail(code: string) {
       return `<h1>Password recovery</h1>
         <p>To finish password recovery please follow the link below:
-            <a href='https://1c68ff11ce4124.lhr.life/password-recovery?recoveryCode=${code}'>recovery password</a>
+            <a href='https://e52d76ebba8ac7.lhr.life/password-recovery?recoveryCode=${code}'>recovery password</a>
         </p>`
     }
   }
@@ -33,7 +33,8 @@ export class EmailService {
     code: string,
     template: (code: string) => string
   ): Promise<Result<{ messageId: string } | null>> {
-
+    console.log("EMAIL:", SETTINGS.EMAIL);
+    console.log("EMAIL_PASS:", SETTINGS.EMAIL_PASS);
     try {
       let transporter = nodemailer.createTransport({
         host: "smtp.yandex.ru",

@@ -28,7 +28,7 @@ describe('/auth', () => {
     const res = await req
       .get(SETTINGS.PATH.USERS)
       .set({ 'Authorization': 'Basic ' + codedAuth })
-      .expect(201) // проверяем наличие эндпоинта
+      .expect(200) // проверяем наличие эндпоинта
 
     console.log(res.body) // можно посмотреть ответ эндпоинта
 
@@ -70,7 +70,7 @@ describe('/auth', () => {
     const res = await req
       .get(SETTINGS.PATH.USERS)
       .set({ 'Authorization': 'Basic ' + codedAuth })
-      .expect(201) // проверяем наличие эндпоинта
+      .expect(200) // проверяем наличие эндпоинта
 
     console.log(res.body) // можно посмотреть ответ эндпоинта
 
