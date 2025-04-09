@@ -10,16 +10,16 @@ import { CommentViewModel } from '../../types/db-types/comment-db'
 import { CommentsQueryRepository } from '../comments/commentsQueryRepository'
 import { CommentsService } from '../comments/commentsService'
 import { HttpStatuses } from '../../types/input-output-types/output-errors-type'
-import { injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 
 @injectable()
 export class PostsController {
 
   constructor(
-    protected postsService: PostsService,
-    protected postsQueryRepository: PostsQueryRepository,
-    protected commentsQueryRepository: CommentsQueryRepository,
-    protected commentsService: CommentsService,
+    @inject(PostsService) protected postsService: PostsService,
+    @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
+    @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
+    @inject(CommentsService) protected commentsService: CommentsService,
   ){}
 
   async getPostsController(

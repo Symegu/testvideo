@@ -55,7 +55,7 @@ export class BlogsQueryRepository {
   ): Promise<BlogViewModel | null> {
 
     const blog = await BlogModelClass.findOne(
-      { id }
+      { _id: id }
     )
     if (!blog) {
       return null;

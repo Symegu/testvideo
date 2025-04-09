@@ -3,12 +3,12 @@ import { SETTINGS } from '../../../settings'
 import jwt from 'jsonwebtoken'
 import { JwtService } from '../../other/jwtService'
 import { ResultStatus } from '../../../types/input-output-types/output-errors-type'
-import { injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 
 @injectable()
 export class RefreshTokenValidator {
 
-  constructor(protected jwtService: JwtService) {}
+  constructor(@inject(JwtService) protected jwtService: JwtService) {}
 
   public refreshTokenValidator  = (req: Request, res: Response, next: NextFunction): void => {
     const refreshToken = req.cookies.refreshToken

@@ -6,17 +6,17 @@ import { AuthService } from './authService';
 import { UsersService } from '../users/usersService'
 import { PasswordService } from '../other/passwordService';
 import { EmailService } from '../other/emailService';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 
 @injectable()
 export class AuthController {
 
   constructor(
-    protected authService: AuthService,
-    protected usersService: UsersService,
-    protected usersQueryRepository: UsersQueryRepository,
-    protected passwordService: PasswordService,
-    protected emailService: EmailService
+    @inject(AuthService) protected authService: AuthService,
+    @inject(UsersService) protected usersService: UsersService,
+    @inject(UsersQueryRepository) protected usersQueryRepository: UsersQueryRepository,
+    @inject(PasswordService) protected passwordService: PasswordService,
+    @inject(EmailService) protected emailService: EmailService
   ){}
   async login(
     req: Request<LoginInputModel>,
@@ -127,6 +127,7 @@ export class AuthController {
   }
 
   async register(req: Request<UserInputModel>, res: Response) {
+    console.log('here 2 register');
     const result = await this.usersService.createUser(req.body)
     if (result.status !== ResultStatus.Success) {
       res.sendStatus(HttpStatuses.ServerError)
@@ -206,7 +207,7 @@ export class AuthController {
     return
   }
 
-  async newPassword(req: Request<{ password: string, recoveryCode: string }>, res: Response) {
+  async newPassword(req: Request<{ newPassword: string, recoveryCode: string }>, res: Response) {
     const result = await this.passwordService.confirmPassword(req.body.recoveryCode)
     console.log('newPassword', result);
     
@@ -215,7 +216,7 @@ export class AuthController {
       return
     }
 
-    const rest = await this.passwordService.changePassword(result.data.userId.toString(), req.body.password)
+    const rest = await this.passwordService.changePassword(result.data.userId.toString(), req.body.newPassword)
     console.log('changePassword', rest);
     await this.passwordService.deleteRecoveryCode(req.body.recoveryCode)
 

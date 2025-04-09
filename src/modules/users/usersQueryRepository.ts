@@ -119,7 +119,7 @@ export class UsersQueryRepository {
       id: user.id.toString(),
       login: user.login,
       email: user.email,
-      createdAt: user.createdAt.toString()
+      createdAt: user.createdAt.toISOString()
     } as UserViewModel
   }
 }

@@ -2,15 +2,15 @@ import { AuthRepository } from "./authRepository"
 import { DeviceViewModel } from "../../types/db-types/token-db"
 import { JwtService } from "../other/jwtService"
 import { Result, ResultStatus } from "../../types/input-output-types/output-errors-type"
-import { injectable } from "inversify"
+import { inject, injectable } from "inversify"
 import { RefreshTokenModelClass } from "../../db/mongoDb"
 
 @injectable()
 export class AuthService {
 
   constructor(
-    protected authRepository: AuthRepository,
-    protected jwtService: JwtService
+    @inject(AuthRepository) protected authRepository: AuthRepository,
+    @inject(JwtService) protected jwtService: JwtService
   ){}
   
   async createTokens(

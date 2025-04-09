@@ -1,14 +1,14 @@
 import { Result, ResultStatus } from "../../types/input-output-types/output-errors-type"
 import { JwtService } from "../other/jwtService"
 import { SecurityRepository } from "./securityRepository"
-import { injectable } from "inversify"
+import { inject, injectable } from "inversify"
 
 @injectable()
 export class SecurityService {
 
   constructor(
-    protected securityRepository: SecurityRepository,
-    protected jwtService: JwtService
+    @inject(SecurityRepository) protected securityRepository: SecurityRepository,
+    @inject(JwtService) protected jwtService: JwtService
   ) { }
   async getUserSessions(currentRefreshToken: string) {
     const user = await this.jwtService.decodeRefreshToken(currentRefreshToken)

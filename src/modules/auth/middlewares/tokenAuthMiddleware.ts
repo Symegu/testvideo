@@ -2,12 +2,12 @@ import { Request, Response, NextFunction } from 'express'
 import { SETTINGS } from '../../../settings'
 import jwt from 'jsonwebtoken'
 import { JwtService } from '../../other/jwtService';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 
 @injectable()
 export class TokenAuthMiddleware {
 
-  constructor(protected jwtService: JwtService){}
+  constructor(@inject(JwtService) protected jwtService: JwtService){}
 
   public tokenAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
     if (!req.headers['authorization']) {

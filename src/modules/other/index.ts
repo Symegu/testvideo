@@ -1,7 +1,9 @@
 import { Router } from 'express'
-import { deleteAllDataController } from './deleteAllDataController'
+import { DeleteAllDataController } from './deleteAllDataController'
+import { container } from './composition-root'
 
+const deleteAllDataController = container.get(DeleteAllDataController)
 export const testingRouter = Router()
 
-testingRouter.delete('/', deleteAllDataController)
+testingRouter.delete('/', deleteAllDataController.deleteAllData.bind(deleteAllDataController))
 

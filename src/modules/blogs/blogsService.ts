@@ -21,6 +21,8 @@ export class BlogsService {
     blog: BlogInputModel
   ): Promise<Result<BlogViewModel | null>> {
     const createdBlogId: string = await this.blogsRepository.createBlog(blog)
+    
+    console.log('createBlog createdBlogId', createdBlogId);
     if (!createdBlogId) {
       return {
         status: ResultStatus.InternalServerError,
@@ -29,6 +31,7 @@ export class BlogsService {
       }
     }
     const createdBlog = await this.blogsQueryRepository.findById(createdBlogId)
+    console.log('createBlog createdBlog2', createdBlog);
     if (!createdBlog) {
       return {
         status: ResultStatus.NotFound,

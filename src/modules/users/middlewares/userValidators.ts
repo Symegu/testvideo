@@ -33,7 +33,14 @@ export const passwordValidator = body('password')
   .isString()
   .withMessage('password is not string')
   .isLength({ min: 6, max: 20 })
-  .withMessage('password length is more than 10 or less than 3')
+  .withMessage('password length is more than 20 or less than 6')
+
+export const newPasswordValidator = body('newPassword')
+  .trim()
+  .isString()
+  .withMessage('password is not string')
+  .isLength({ min: 6, max: 20 })
+  .withMessage('password length is more than 20 or less than 6')
 
 export const emailValidator = body('email')
   .trim()
@@ -52,6 +59,15 @@ export const emailValidator = body('email')
     }
     return true
   })
+
+export const simpleEmailValidator = body('email')
+  .trim()
+  .isString()
+  .withMessage('email is not string')
+  .isLength({ min: 1 })
+  .withMessage('email length is less than 1')
+  .isEmail()
+  .withMessage('email does not match required pattern')
 
 export const authValidator = body('loginOrEmail')
   .trim()

@@ -2,7 +2,7 @@ import { isBefore, parseISO } from 'date-fns'
 import nodemailer from 'nodemailer'
 import { SETTINGS } from '../../settings'
 import { Result, ResultStatus } from '../../types/input-output-types/output-errors-type'
-import { injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 import { EmailRepository } from './emailRepository'
 import { UsersQueryRepository } from '../users/usersQueryRepository';
 
@@ -12,20 +12,20 @@ export class EmailService {
     registrationEmail(code: string) {
       return ` <h1>Thank for your registration</h1>
                <p>To finish registration please follow the link below:<br>
-                  <a href='https://e52d76ebba8ac7.lhr.life/auth/registration-confirmation?code=${code}'>register</a>
+                  <a href='https://afdf62712052e7.lhr.life/auth/registration-confirmation?code=${code}'>register</a>
               </p>`
     },
     passwordRecoveryEmail(code: string) {
       return `<h1>Password recovery</h1>
         <p>To finish password recovery please follow the link below:
-            <a href='https://e52d76ebba8ac7.lhr.life/password-recovery?recoveryCode=${code}'>recovery password</a>
+            <a href='https://afdf62712052e7.lhr.life/password-recovery?recoveryCode=${code}'>recovery password</a>
         </p>`
     }
   }
 
   constructor(
-    protected emailRepository: EmailRepository,
-    protected usersQueryRepository: UsersQueryRepository
+    @inject(EmailRepository) protected emailRepository: EmailRepository,
+    @inject(UsersQueryRepository) protected usersQueryRepository: UsersQueryRepository
   ){}
 
   async sendEmail(

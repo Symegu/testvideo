@@ -1,12 +1,13 @@
 import { Request, Response } from 'express'
 import { SecurityService } from './securityService'
 import { HttpStatuses, ResultStatus } from '../../types/input-output-types/output-errors-type'
-import { injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 
 @injectable()
 export class SecurityController {
 
-  constructor(protected securityService: SecurityService){}
+  constructor(@inject(SecurityService) protected securityService: SecurityService){}
+  
   async getUserSessions(req: Request, res: Response) {
     const currentRefreshToken = req.cookies.refreshToken
     const sessions = await this.securityService.getUserSessions(currentRefreshToken)

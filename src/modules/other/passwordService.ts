@@ -42,7 +42,7 @@ export class PasswordService {
         errorMessage: 'Bad Request',
         data: null,
         extensions: [
-          { field: 'code', message: 'Incorrect code' }
+          { message: 'Incorrect code', field: 'recoveryCode'  }
         ],
       }
     }

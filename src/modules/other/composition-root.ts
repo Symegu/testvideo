@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { Container } from "inversify"
 import { UsersController } from "../users/usersController"
 import { UsersService } from "../users/usersService"
@@ -29,7 +30,8 @@ import { BlogsService } from "../blogs/blogsService"
 import { BlogsRepository } from "../blogs/blogsRepository"
 import { AdminAuthorizationMiddleware } from "../../globalMiddlewares/adminAuthorizationMiddleware"
 import { BlogsQueryRepository } from "../blogs/blogsQueryRepository"
-import "reflect-metadata"
+import { DeleteAllDataController } from "./deleteAllDataController"
+
 
 // Основной контейнер
 export const container: Container = new Container()
@@ -71,3 +73,4 @@ container.bind<SecurityController>(SecurityController).toSelf()
 container.bind<PostsController>(PostsController).toSelf()
 container.bind<CommentsController>(CommentsController).toSelf()
 container.bind<BlogsController>(BlogsController).toSelf()
+container.bind<DeleteAllDataController>(DeleteAllDataController).toSelf()

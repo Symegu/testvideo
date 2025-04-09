@@ -73,7 +73,7 @@ export class CommentsQueryRepository {
     }
 
     const comment = await CommentModelClass.findOne(
-      { id }
+      { _id: id }
     )
     
     if (!comment) {

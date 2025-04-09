@@ -25,14 +25,14 @@ export class JwtService {
     return jwt.sign({
       userId: id,
       userLogin: log
-    }, SETTINGS.JWT_SECRET, { expiresIn: '10s' })
+    }, SETTINGS.JWT_SECRET, { expiresIn: '10m' })
   }
 
   async generateRefreshToken(user: { id: string, deviceId?: string }) {
     const dId = user.deviceId
       ? user.deviceId
       : await this.securityRepository.createRandomUID()
-    return jwt.sign({ deviceId: dId, userId: user.id }, SETTINGS.JWT_REFRESH_SECRET, { expiresIn: '20s' })
+    return jwt.sign({ deviceId: dId, userId: user.id }, SETTINGS.JWT_REFRESH_SECRET, { expiresIn: '60m' })
   }
 
   async decodeAccessToken(token: string) {

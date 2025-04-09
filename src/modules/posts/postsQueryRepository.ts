@@ -64,7 +64,7 @@ export class PostsQueryRepository {
   ): Promise<PostViewModel | null> {
     
     const post = await PostModelClass.findOne(
-      { id }
+      { _id: id }
     )
     if (!post) {
       return null;

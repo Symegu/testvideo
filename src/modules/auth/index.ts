@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express"
 import { ErrorResultMiddleware } from "../../globalMiddlewares/errorResultMiddleware"
-import { authValidator, emailValidator, loginValidator, passwordValidator } from '../users/middlewares/userValidators';
+import { authValidator, emailValidator, loginValidator, newPasswordValidator, passwordValidator, simpleEmailValidator } from '../users/middlewares/userValidators';
 import { AuthController } from "./authController"
 import { TokenAuthMiddleware } from "./middlewares/tokenAuthMiddleware"
 import { RefreshTokenValidator } from "./middlewares/refreshTokenMiddleware"
@@ -124,12 +124,13 @@ authRouter.post('/registration-email-resending',
 
 authRouter.post('/password-recovery',
   limiter5,
+  simpleEmailValidator,
   errorResultMiddleware.errorResultMiddleware,
   authController.passwordRecovery.bind(authController))
 
 authRouter.post('/new-password',
   limiter6,
-  passwordValidator,
+  newPasswordValidator,
   errorResultMiddleware.errorResultMiddleware,
   authController.newPassword.bind(authController))
 

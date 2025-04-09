@@ -3,19 +3,18 @@ import { UserInputModel } from "../../types/input-output-types/user-types"
 import { UsersRepository } from './usersRepository'
 import { UsersQueryRepository } from './usersQueryRepository'
 import { EmailRepository } from "../other/emailRepository"
-import { injectable } from "inversify"
+import { inject, injectable } from "inversify"
 
 @injectable()
 export class UsersService {
 
   constructor(
-    protected usersRepository: UsersRepository,
-    protected usersQueryRepository: UsersQueryRepository, 
-    protected emailRepository: EmailRepository,
+    @inject(UsersRepository) protected usersRepository: UsersRepository,
+    @inject(UsersQueryRepository) protected usersQueryRepository: UsersQueryRepository, 
+    @inject(EmailRepository) protected emailRepository: EmailRepository,
   ) { }
     
   async createUser(user: UserInputModel, adminCreation?: boolean): Promise<Result<{ userId: string } | null>> {
-    try {
       const newUserId = await this.usersRepository.createUser(user, adminCreation)
       if (!newUserId) {
         return {
@@ -33,15 +32,7 @@ export class UsersService {
           userId: newUserId
         }
       }
-    } catch (error) {
-      console.error('Error in createUser service:', error)
-      return {
-        status: ResultStatus.InternalServerError,
-        errorMessage: 'Unexpected error while creating user',
-        extensions: [],
-        data: null
-      }
-    }
+    
   }
 
   async deleteUser(id: string) {

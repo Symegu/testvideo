@@ -56,7 +56,9 @@ export class BlogsController {
     res: Response<BlogViewModel | null>
   ) {
     const createdBlog = await this.blogsService.createBlog(req.body)
-    if (!createdBlog) {
+    console.log('createBlog createdBlog', createdBlog);
+    
+    if (createdBlog.status !== "Success") {
       res.sendStatus(HttpStatuses.BadRequest)
       return
     }

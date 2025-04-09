@@ -1,17 +1,16 @@
 import { Request, Response } from 'express'
-import { UserViewModel } from "../../types/db-types/user-db"
 import { HttpStatuses, ResultStatus } from "../../types/input-output-types/output-errors-type"
 import { UserInputModel } from "../../types/input-output-types/user-types"
 import { PaginatorUsersModel } from "../../types/paginator-types"
 import { PaginationQueries } from "../other/paginationQueries"
 import { UsersService } from "./usersService"
-import { injectable } from "inversify"
+import { inject, injectable } from "inversify"
 
 @injectable()
 export class UsersController {
 
   constructor (
-    protected usersService: UsersService,
+    @inject(UsersService) protected usersService: UsersService,
   ){}
 
   async getUsers(req: Request, res: Response<PaginatorUsersModel>) {
@@ -29,7 +28,7 @@ export class UsersController {
   }
 
   async createUser(req: Request<UserInputModel>, res: Response) {
-    try {
+    console.log('here 1 createUser')
       const result = await this.usersService.createUser(req.body, true)
       if (result.status !== ResultStatus.Success) {
         res.sendStatus(HttpStatuses.ServerError)
@@ -43,10 +42,7 @@ export class UsersController {
       }
 
       res.status(HttpStatuses.Created).json(newUser)
-    } catch (error) {
-      console.error('Error in createUser:', error)
-      res.sendStatus(HttpStatuses.ServerError)
-    }
+      return
   }
 
   async deleteUser(req: Request<{ id: string }>, res: Response) {

@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { SETTINGS } from "../settings"
 import mongoose from "mongoose"
 import { BlogModel } from "../types/db-types/blog-db";
@@ -5,7 +6,7 @@ import { PostModel } from "../types/db-types/post-db";
 import { CommentModel } from "../types/db-types/comment-db";
 import { UserModel, ConfirmationStatus } from "../types/db-types/user-db";
 import { RefreshTokenModel } from "../types/db-types/token-db";
-import "reflect-metadata"
+
 //const uri = "mongodb+srv://symegu:admin@lessons.ri9n5.mongodb.net/?retryWrites=true&w=majority&appName=Lessons";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
