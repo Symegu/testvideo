@@ -10,15 +10,18 @@ import { PaginatorBlogModel } from '../../types/paginator-types'
 import { PostsQueryRepository } from '../posts/postsQueryRepository'
 import { HttpStatuses } from '../../types/input-output-types/output-errors-type'
 import { injectable } from 'inversify'
+import { LikesService } from '../likes/likesService';
+import { LikeStatus } from '../../types/db-types/comment-db'
 
 @injectable()
 export class BlogsController {
 
-  constructor (
+  constructor(
     protected blogsService: BlogsService,
     protected blogsQueryRepository: BlogsQueryRepository,
     protected postsQueryRepository: PostsQueryRepository,
-  ){}
+    protected likesService: LikesService,
+  ) { }
 
   async getBlogs(
     req: Request,
@@ -48,6 +51,16 @@ export class BlogsController {
       res.sendStatus(HttpStatuses.NotFound)
       return
     }
+    const userId = req.userId ?? null
+    if (userId) {
+      await Promise.all(
+        posts.items.map(async (post) => {
+          const like = await this.likesService.calculateMyStatus(post.id, userId)
+          post.extendedLikesInfo.myStatus = like?.data || LikeStatus.None
+          console.log('getBlogPosts posts post --->', post);
+        })
+      )
+    }
     res.status(HttpStatuses.Success).json(posts)
   }
 
@@ -57,7 +70,7 @@ export class BlogsController {
   ) {
     const createdBlog = await this.blogsService.createBlog(req.body)
     console.log('createBlog createdBlog', createdBlog);
-    
+
     if (createdBlog.status !== "Success") {
       res.sendStatus(HttpStatuses.BadRequest)
       return
@@ -109,6 +122,7 @@ export class BlogsController {
     res: Response<PostViewModel | null>
   ) {
     const currentBlog = await this.blogsQueryRepository.findById(req.params.id)
+    console.log('createBlogsPostController currentBlog', currentBlog);
     if (!currentBlog) {
       console.log('createBlogsPostController currentBlog', currentBlog);
       res.sendStatus(HttpStatuses.NotFound)
@@ -116,6 +130,7 @@ export class BlogsController {
     }
 
     const createdPost = await this.blogsService.createBlogsPost(req.body, currentBlog)
+    console.log('createBlogsPostController createdPost', createdPost);
     if (!createdPost) {
       res.sendStatus(HttpStatuses.BadRequest)
       return

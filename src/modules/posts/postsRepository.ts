@@ -23,7 +23,12 @@ export class PostsRepository {
       content: post.content,
       blogId: currentBlog.id,
       blogName: currentBlog.name,
-      createdAt: new Date(dateNow).toISOString()
+      createdAt: new Date(dateNow),
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        newestLikes: []
+      }
     })
     const savedPost = await newPost.save()
 
@@ -49,5 +54,17 @@ export class PostsRepository {
     )
 
     return res.matchedCount === 1
+  }
+
+  async updatePostLikesCount(
+    postId: string,
+    likes: number,
+    dislikes: number
+  ): Promise<boolean> {
+    const res = await PostModelClass.updateOne(
+      { _id: postId },
+      { $set: { 'extendedLikesInfo.likesCount': likes, 'extendedLikesInfo.dislikesCount': dislikes } }
+    );
+    return (res as any).matchedCount === 1 || (res as any).n === 1;
   }
 }

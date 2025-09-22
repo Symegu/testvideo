@@ -14,9 +14,6 @@ export class RefreshTokenValidator {
     const refreshToken = req.cookies.refreshToken
     console.log(refreshToken, 'refreshTokenValidator');
   
-    // const token = refreshToken.split(' ')[1]
-  
-    //?Насколько безопасно доставать JWT_REFRESH_SECRET на презентационный слой?
   
     jwt.verify(refreshToken, SETTINGS.JWT_REFRESH_SECRET, async (err: any, user: any) => {
       if (err) {
@@ -25,9 +22,9 @@ export class RefreshTokenValidator {
         return
       }
   
-      const token = await this.jwtService.verifyRefreshTokenVersion(refreshToken)
-      if (!token || token.status !== ResultStatus.Success) {
-        console.log('expired or invalid2', err, token.errorMessage)
+      const result = await this.jwtService.verifyRefreshTokenVersion(refreshToken)
+      if (result.status !== ResultStatus.Success || !result.data) {
+        console.log('expired or invalid2', err, result.errorMessage)
         res.sendStatus(401)
         return
       }

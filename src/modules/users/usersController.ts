@@ -22,13 +22,11 @@ export class UsersController {
 
       res.status(HttpStatuses.Success).json(users)
     } catch (error) {
-      console.error('Error in getUsers:', error)
       res.sendStatus(HttpStatuses.ServerError)
     }
   }
 
   async createUser(req: Request<UserInputModel>, res: Response) {
-    console.log('here 1 createUser')
       const result = await this.usersService.createUser(req.body, true)
       if (result.status !== ResultStatus.Success) {
         res.sendStatus(HttpStatuses.ServerError)

@@ -12,7 +12,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true
   },
-  // "files": ["src/types/index.d.ts"],
+  "files": ["src/types/index.d.ts"],
   "include": ["src/**/*", "src/domain/.ts"],
   "exclude": ["node_modules", "**/*.test.ts"]
 }

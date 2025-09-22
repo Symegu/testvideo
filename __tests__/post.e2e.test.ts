@@ -14,7 +14,7 @@ let blogsQueryRepository: BlogsQueryRepository
 let postsQueryRepository: PostsQueryRepository
 describe('/posts', () => {
   beforeAll(async () => { // очистка базы данных перед началом тестирования
-    const result = await runDB(SETTINGS.MONGO_URL)
+    const result = await runDB(SETTINGS.MONGO_URL, true)
     blogsQueryRepository = container.get(BlogsQueryRepository)
     postsQueryRepository = container.get(PostsQueryRepository)
     if (result) {

@@ -1,31 +1,24 @@
 import { Request, Response, NextFunction } from 'express'
 import { SETTINGS } from '../../../settings'
 import jwt from 'jsonwebtoken'
-import { JwtService } from '../../other/jwtService';
+// import { JwtService } from '../../other/jwtService';
 import { inject, injectable } from 'inversify';
 
 @injectable()
 export class TokenAuthMiddleware {
 
-  constructor(@inject(JwtService) protected jwtService: JwtService){}
+  // constructor(@inject(JwtService) protected jwtService: JwtService){}
 
   public tokenAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    if (!req.headers['authorization']) {
-      res.sendStatus(401)
-      return
-    }
-    const token = req.headers['authorization'].split(' ')[1]
-    const authType = req.headers['authorization'].split(' ')[0]
-    if (authType !== 'Bearer') {
+    const authHeader = req.headers['authorization']
+    if (!authHeader?.startsWith('Bearer ')) {
       res.sendStatus(401)
       return
     }
 
-    if (!token) {
-      res.status(401).json({ message: "invalid token" })
-      return
-    }
-    jwt.verify(token, SETTINGS.JWT_SECRET, async (err, decoded) => {
+    const token = authHeader.split(' ')[1]
+
+    jwt.verify(token, SETTINGS.JWT_SECRET, async (err, decoded: any) => {
       if (err) {
         console.log(err, 'tokenAuthMiddleware err');
 
@@ -33,11 +26,12 @@ export class TokenAuthMiddleware {
         return
       }
 
-      const payload = await this.jwtService.decodeAccessToken(token)
+      //const payload = await this.jwtService.decodeAccessToken(token)
 
-      req.userId = payload.id
-      req.userLogin = payload.login
-
+      // req.userId = payload.userId
+      // req.userLogin = payload.userLogin
+      req.userId = decoded.userId
+      req.userLogin = decoded.userLogin
       console.log(req.userId, req.userLogin, 'tokenAuthMiddleware req.')
       next()
     })

@@ -10,7 +10,7 @@ import { container } from '../src/modules/other/composition-root'
 let blogsQueryRepository: BlogsQueryRepository
 describe('/blogs', () => {
     beforeAll(async () => { // очистка базы данных перед началом тестирования
-        const result = await runDB(SETTINGS.MONGO_URL);
+        const result = await runDB(SETTINGS.MONGO_URL, true);
         blogsQueryRepository = container.get(BlogsQueryRepository)
 
         if (result) {
@@ -113,7 +113,7 @@ describe('/blogs', () => {
 
         console.log(res.body)
 
-        expect(res.body.items.length).toBe(2)
+        expect(res.body.items.length).toBe(3)
     })
     it('shouldn\'t find', async () => {
 

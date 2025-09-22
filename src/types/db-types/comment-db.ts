@@ -5,6 +5,7 @@ export interface CommentModel extends Document {
   commentatorInfo: CommentatorInfo;
   postId: string;
   createdAt: Date;
+  likesInfo: LikesInfoModel;
 }
 
 export interface CommentatorInfo {
@@ -12,9 +13,27 @@ export interface CommentatorInfo {
   userLogin: string;
 }
 
-export type CommentViewModel = {
+export enum LikeStatus {
+  None = 'None',
+  Like = 'Like',
+  Dislike = 'Dislike'
+}
+
+export interface LikesInfoModel {
+  likesCount: number;
+  dislikesCount: number;
+}
+
+export interface LikesInfoViewModel {
+  likesCount: number;
+  dislikesCount: number;
+  myStatus: LikeStatus;
+}
+
+export interface CommentViewModel {
   id: string;
   content: string;
   commentatorInfo: CommentatorInfo;
   createdAt: string;
-};
+  likesInfo: LikesInfoViewModel;
+}

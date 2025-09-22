@@ -11,7 +11,7 @@ let client: MongoClient
 let usersQueryRepository: UsersQueryRepository
 describe('/auth', () => {
   beforeAll(async () => { // очистка базы данных перед началом тестирования
-    const result = await runDB(SETTINGS.MONGO_URL)
+    const result = await runDB(SETTINGS.MONGO_URL, true)
     usersQueryRepository = container.get(UsersQueryRepository)
     if (result) {
       await UserModelClass.deleteMany({})

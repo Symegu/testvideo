@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { BlogModelClass, CommentModelClass, PasswordRecoveryModelClass, PostModelClass, RefreshTokenModelClass, UserModelClass } from "../../db/mongoDb"
+import { BlogModelClass, CommentModelClass, LikeModelClass, PasswordRecoveryModelClass, PostModelClass, RefreshTokenModelClass, UserModelClass } from "../../db/mongoDb"
 
 export class DeleteAllDataController {
 
@@ -10,6 +10,7 @@ export class DeleteAllDataController {
     await RefreshTokenModelClass.deleteMany()
     await CommentModelClass.deleteMany()
     await PasswordRecoveryModelClass.deleteMany()
+    await LikeModelClass.deleteMany()
     res.sendStatus(204)
   }
 }

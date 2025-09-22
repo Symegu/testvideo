@@ -3,9 +3,10 @@ import { SETTINGS } from "../settings"
 import mongoose from "mongoose"
 import { BlogModel } from "../types/db-types/blog-db";
 import { PostModel } from "../types/db-types/post-db";
-import { CommentModel } from "../types/db-types/comment-db";
+import { CommentModel, LikeStatus } from "../types/db-types/comment-db";
 import { UserModel, ConfirmationStatus } from "../types/db-types/user-db";
 import { RefreshTokenModel } from "../types/db-types/token-db";
+import { LikeModel } from "../types/db-types/like-db";
 
 //const uri = "mongodb+srv://symegu:admin@lessons.ri9n5.mongodb.net/?retryWrites=true&w=majority&appName=Lessons";
 
@@ -26,6 +27,21 @@ const postSchema = new mongoose.Schema<PostModel>({
     blogId: { type: String, required: true },
     blogName: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
+    extendedLikesInfo: {
+      likesCount: { type: Number, required: true, default: 0 },
+      dislikesCount: { type: Number, required: true, default: 0 },
+      newestLikes: {
+        type: [
+          {
+            // description: { type: String, default: '' },
+            addedAt: { type: Date, required: true },
+            userId: { type: String, required: true },
+            login: { type: String, required: true },
+          }
+        ],
+        default: []
+      }
+    }
 })
 
 const commentSchema = new mongoose.Schema<CommentModel>({
@@ -36,6 +52,18 @@ const commentSchema = new mongoose.Schema<CommentModel>({
     },
     postId: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
+    likesInfo: {
+        dislikesCount: { type: Number, required: true, default: 0 },
+        likesCount: { type: Number, required: true, default: 0 },
+    }
+})
+
+const likeSchema = new mongoose.Schema<LikeModel>({
+    parentId: { type: String, required: true },
+    userId: { type: String, required: true },
+    userLogin: { type: String, required: true },
+    status: { type: String, enum: Object.values(LikeStatus), required: true },
+    createdAt: { type: Date, default: Date.now }
 })
 
 const refreshTokenSchema = new mongoose.Schema<RefreshTokenModel>({
@@ -59,7 +87,7 @@ const userSchema = new mongoose.Schema<UserModel>({
     }
 })
 
-const PasswordRecoverySchema = new mongoose.Schema({
+const passwordRecoverySchema = new mongoose.Schema({
     userId: { type: String, required: true },
     code: { type: String, required: true },
 })
@@ -69,7 +97,8 @@ export const PostModelClass = mongoose.model<PostModel>("Post", postSchema)
 export const CommentModelClass = mongoose.model<CommentModel>("Comment", commentSchema)
 export const UserModelClass = mongoose.model<UserModel>("User", userSchema)
 export const RefreshTokenModelClass = mongoose.model<RefreshTokenModel>("RefreshToken", refreshTokenSchema)
-export const PasswordRecoveryModelClass = mongoose.model("PasswordRecovery", PasswordRecoverySchema)
+export const PasswordRecoveryModelClass = mongoose.model("PasswordRecovery", passwordRecoverySchema)
+export const LikeModelClass = mongoose.model<LikeModel>('likes', likeSchema)
 
 export async function runDB(url: string, testDb: boolean = false) { //: Promise<{ client: MongoClient, status?: boolean } | null>
     const dbName = testDb ? 'Testing' : SETTINGS.DB_NAME

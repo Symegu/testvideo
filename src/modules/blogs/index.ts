@@ -5,16 +5,21 @@ import { ErrorResultMiddleware } from '../../globalMiddlewares/errorResultMiddle
 import { BlogsController } from './blogsController'
 import { titleValidator, shortDescriptionValidator, contentValidator } from '../posts/middlewares/postValidators'
 import { container } from '../other/composition-root'
+import { OptionalAccessTokenMiddleware } from '../auth/middlewares/optionalAccessTokenMiddleware'
 
 const blogsController = container.get(BlogsController)
 const adminAuthorizationMiddleware = container.get(AdminAuthorizationMiddleware)
+const optionalAccessTokenMiddleware = container.get(OptionalAccessTokenMiddleware)
 const errorResultMiddleware = container.get(ErrorResultMiddleware)
 
 export const blogsRouter = Router()
 
 blogsRouter.get('/', blogsController.getBlogs.bind(blogsController))
 blogsRouter.get('/:id', blogsController.findBlog.bind(blogsController))
-blogsRouter.get('/:id/posts', blogsController.getBlogPosts.bind(blogsController))
+blogsRouter.get('/:id/posts', 
+  optionalAccessTokenMiddleware.optionalAccessTokenMiddleware,
+  errorResultMiddleware.errorResultMiddleware,
+  blogsController.getBlogPosts.bind(blogsController))
 blogsRouter.post('/', 
   adminAuthorizationMiddleware.adminAuthorizationMiddleware,
   nameValidator,

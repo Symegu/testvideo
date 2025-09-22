@@ -50,6 +50,8 @@ export class BlogsService {
     currentBlog: BlogViewModel
   ): Promise<PostViewModel | null> {
     const newPost = await this.postsService.createPost(post, currentBlog)
+    console.log('createBlogsPost BlogsService newPost', newPost);
+    
     if (!newPost) {
       return null
     }

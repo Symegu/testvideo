@@ -32,18 +32,16 @@ export class JwtService {
     const dId = user.deviceId
       ? user.deviceId
       : await this.securityRepository.createRandomUID()
-    return jwt.sign({ deviceId: dId, userId: user.id }, SETTINGS.JWT_REFRESH_SECRET, { expiresIn: '60m' })
+    return jwt.sign({ deviceId: dId, userId: user.id }, SETTINGS.JWT_REFRESH_SECRET, { expiresIn: '20m' })
   }
 
   async decodeAccessToken(token: string) {
     const payload = jwt.decode(token) as JwtPayload
-    const userId = payload.userId
-    const userLogin = payload.userLogin
     console.log(payload, 'decodeAccessToken payload')
 
     return {
-      id: userId,
-      login: userLogin,
+      userId: payload.userId,
+      userLogin: payload.userLogin,
     }
   }
 
@@ -87,6 +85,17 @@ export class JwtService {
     return {
       status: ResultStatus.Success,
       data: decodedToken
+    }
+  }
+
+  async getUserIdFromRefreshToken(token: string): Promise<string | null> {
+    try {
+      const payload = jwt.verify(token, 'refresh'); // или просто jwt.verify
+      if (!payload || typeof payload !== 'object') return null;
+      return payload.userId ?? null;
+    } catch (err) {
+      console.error('Ошибка при декодировании токена:', err);
+      return null;
     }
   }
 

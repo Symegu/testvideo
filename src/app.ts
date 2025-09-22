@@ -1,5 +1,7 @@
 import express from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
+import "reflect-metadata"
 import { SETTINGS } from './settings'
 import { blogsRouter } from './modules/blogs'
 import { postsRouter } from './modules/posts'
@@ -8,8 +10,6 @@ import { usersRouter } from './modules/users'
 import { authRouter } from './modules/auth'
 import { commentsRouter } from './modules/comments'
 import { securityRouter } from './modules/security'
-import cookieParser from 'cookie-parser'
-import "reflect-metadata"
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body во всех реквестах

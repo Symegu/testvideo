@@ -31,6 +31,9 @@ import { BlogsRepository } from "../blogs/blogsRepository"
 import { AdminAuthorizationMiddleware } from "../../globalMiddlewares/adminAuthorizationMiddleware"
 import { BlogsQueryRepository } from "../blogs/blogsQueryRepository"
 import { DeleteAllDataController } from "./deleteAllDataController"
+import { OptionalAccessTokenMiddleware } from "../auth/middlewares/optionalAccessTokenMiddleware"
+import { LikesService } from "../likes/likesService"
+import { LikesRepository } from "../likes/likesRepository"
 
 
 // Основной контейнер
@@ -48,12 +51,14 @@ container.bind<CommentsRepository>(CommentsRepository).toSelf()
 container.bind<CommentsQueryRepository>(CommentsQueryRepository).toSelf()
 container.bind<BlogsRepository>(BlogsRepository).toSelf()
 container.bind<BlogsQueryRepository>(BlogsQueryRepository).toSelf()
+container.bind<LikesRepository>(LikesRepository).toSelf()
 
 //Привязка мидлваров
 container.bind<TokenAuthMiddleware>(TokenAuthMiddleware).toSelf()
 container.bind<RefreshTokenValidator>(RefreshTokenValidator).toSelf()
 container.bind<ErrorResultMiddleware>(ErrorResultMiddleware).toSelf()
 container.bind<AdminAuthorizationMiddleware>(AdminAuthorizationMiddleware).toSelf()
+container.bind<OptionalAccessTokenMiddleware>(OptionalAccessTokenMiddleware).toSelf()
 
 // Привязка сервисов
 container.bind<UsersService>(UsersService).toSelf()
@@ -65,6 +70,7 @@ container.bind<AuthService>(AuthService).toSelf()
 container.bind<PostsService>(PostsService).toSelf()
 container.bind<CommentsService>(CommentsService).toSelf()
 container.bind<BlogsService>(BlogsService).toSelf()
+container.bind<LikesService>(LikesService).toSelf()
 
 // Привязка контроллеров
 container.bind<UsersController>(UsersController).toSelf()

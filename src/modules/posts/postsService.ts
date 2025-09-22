@@ -5,6 +5,9 @@ import { BlogViewModel } from "../../types/db-types/blog-db";
 import { BlogsQueryRepository } from "../blogs/blogsQueryRepository";
 import { PostsQueryRepository } from "./postsQueryRepository";
 import { inject, injectable } from "inversify";
+import { LikesService } from "../likes/likesService";
+import { LikeStatus } from "../../types/db-types/comment-db";
+import { ResultStatus } from "../../types/input-output-types/output-errors-type";
 
 @injectable()
 export class PostsService {
@@ -12,7 +15,8 @@ export class PostsService {
   constructor(
     @inject(PostsRepository) protected postsRepository: PostsRepository,
     @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
-    @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository
+    @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository,
+    @inject(LikesService) protected likesService: LikesService
   ){}
 
   async createPost(
@@ -49,5 +53,29 @@ export class PostsService {
   ): Promise<boolean> {
     const res = await this.postsRepository.deleteById(id)
     return res
+  }
+
+  async setLikeStatus(
+    likeStatus: LikeStatus,
+    postId: string,
+    userId: string,
+    userLogin: string
+  ) {
+    // проверка что пост существует
+    const post = await this.postsQueryRepository.findById(postId, userId)
+    if (!post) {
+      return { status: ResultStatus.NotFound, data: null }
+    }
+
+    // используем универсальный likesService, передаем callback для обновления поста
+    return await this.likesService.setLikeStatus(
+      postId,
+      userId,
+      userLogin,
+      likeStatus,
+      async (likesCount: number, dislikesCount: number) => {
+        return await this.postsRepository.updatePostLikesCount(postId, likesCount, dislikesCount)
+      }
+    )
   }
 }
